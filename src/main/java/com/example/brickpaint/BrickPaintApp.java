@@ -19,7 +19,7 @@ public class BrickPaintApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(BrickPaintApp.class.getResource("BrickPaint.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
+        Scene scene = new Scene(fxmlLoader.load(), 1920, 1080);
         stage.setTitle("Brick Paint");
         stage.setScene(scene);
         Image BrickIcon = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("BrickIcon.jpg")));
