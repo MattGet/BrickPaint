@@ -54,5 +54,4 @@ public abstract class BrickSave {
         }
         return null;
     }
-
 }

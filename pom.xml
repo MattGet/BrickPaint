@@ -20,6 +20,11 @@
     </parent>
     <dependencies>
         <dependency>
+            <groupId>net.kurobako</groupId>
+            <artifactId>gesturefx</artifactId>
+            <version>0.7.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>18</version>

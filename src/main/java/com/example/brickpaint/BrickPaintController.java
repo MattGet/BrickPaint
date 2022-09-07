@@ -1,19 +1,16 @@
 package com.example.brickpaint;
 
 import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import javafx.embed.swing.SwingFXUtils;
 
 public class BrickPaintController {
 
@@ -56,7 +53,7 @@ public class BrickPaintController {
     @FXML
     protected void handleSaveImage(){
         if (ImageFile == null) {
-            this.handleSaveImageAs();
+            ImageFile = BrickSave.saveImageASFromNode(canvasPanel, root, ImageURL);
             return;
         }
         BrickSave.saveImageFromNode(canvasPanel, ImageFile);
