@@ -14,8 +14,6 @@ import java.util.Objects;
 
 
 public class BrickPaintApp extends Application {
-
-
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(BrickPaintApp.class.getResource("BrickPaint.fxml"));

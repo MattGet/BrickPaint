@@ -42,11 +42,14 @@ public class BrickPaintController {
 
     @FXML
     protected void handleInsertImage(){
-
-        File imageFile = new FileChooser().showOpenDialog(root.getScene().getWindow());
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png", "*.jpg"));
+        File imageFile = fileChooser.showOpenDialog(root.getScene().getWindow());
         Image tempImage = new Image(imageFile.toURI().toString());
         ImageURL = imageFile.toURI().toString();
         System.out.print(ImageURL);
+        imageView.setFitHeight(tempImage.getHeight());
+        imageView.setFitWidth(tempImage.getWidth());
         imageView.setImage(tempImage);
     }
 
@@ -56,34 +59,12 @@ public class BrickPaintController {
             this.handleSaveImageAs();
             return;
         }
-        WritableImage imageToSave = canvasPanel.snapshot(new SnapshotParameters(), null);
-        try{
-            BufferedImage bImage = SwingFXUtils.fromFXImage(imageToSave, null);
-            ImageIO.write(bImage, "png", ImageFile);
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
+        BrickSave.saveImageFromNode(canvasPanel, ImageFile);
     }
 
     @FXML
     protected void handleSaveImageAs(){
-        WritableImage imageToSave = canvasPanel.snapshot(new SnapshotParameters(), null);
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save");
-        int StartIndex = ImageURL.lastIndexOf('/');
-        String fileName = ImageURL.substring(StartIndex + 1);
-        fileName = fileName.replace('%', ' ');
-        fileChooser.setInitialFileName(fileName);
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png"));
-        try{
-            ImageFile = fileChooser.showSaveDialog(root.getScene().getWindow());
-            BufferedImage bImage = SwingFXUtils.fromFXImage(imageToSave, null);
-            ImageIO.write(bImage, "png", ImageFile);
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
+      ImageFile = BrickSave.saveImageASFromNode(canvasPanel, root, ImageURL);
     }
 
     protected void OnClose(){
