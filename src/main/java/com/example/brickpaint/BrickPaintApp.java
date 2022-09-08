@@ -5,12 +5,16 @@ import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 
 public class BrickPaintApp extends Application {
@@ -23,6 +27,9 @@ public class BrickPaintApp extends Application {
         Image BrickIcon = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("BrickIcon.jpg")));
         stage.getIcons().add(BrickIcon);
         stage.setMaximized(true);
+        BrickPaintController controller = fxmlLoader.getController();
+        controller.Start();
+        stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, controller::OnClose);
         stage.show();
     }
 
