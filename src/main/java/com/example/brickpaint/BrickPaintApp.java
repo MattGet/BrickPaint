@@ -16,8 +16,16 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
-
+/**
+ * Main application class for a javaFX paint app
+ * @author matde
+ */
 public class BrickPaintApp extends Application {
+    /**
+     * start of javaFX program
+     * @param stage
+     * @throws IOException
+     */
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(BrickPaintApp.class.getResource("BrickPaint.fxml"));
@@ -33,6 +41,10 @@ public class BrickPaintApp extends Application {
         stage.show();
     }
 
+    /**
+     * start of the application
+     * @param args
+     */
     public static void main(String[] args) {
         launch();
     }

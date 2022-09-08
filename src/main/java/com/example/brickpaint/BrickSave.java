@@ -13,9 +13,18 @@ import java.io.File;
 import java.io.IOException;
 import javafx.embed.swing.SwingFXUtils;
 
-
+/**
+ * Handles saving a snapshot image of a JavaFX Node with user created or predefined files
+ * @author matde
+ *
+ */
 public abstract class BrickSave {
 
+    /**
+     * Takes a snapshot of a Node and saves it to the specified file
+     * @param node
+     * @param file
+     */
     public static void saveImageFromNode(Node node, File file){
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
@@ -29,6 +38,14 @@ public abstract class BrickSave {
         }
     }
 
+    /**
+     * Takes a snapshot of a Node and saves it to a file created by the user. Will open the file explorer
+     * and initially name the file based off the ImagePath
+     * @param node
+     * @param root
+     * @param ImagePath optional
+     * @return returns file that image was saved to, else returns null
+     */
     public static File saveImageASFromNode(Node node, Node root, String ImagePath){
         if (ImagePath == null) {ImagePath = "";}
         SnapshotParameters parameters = new SnapshotParameters();
@@ -50,8 +67,7 @@ public abstract class BrickSave {
             return file;
         }
         catch (IOException e){
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 }

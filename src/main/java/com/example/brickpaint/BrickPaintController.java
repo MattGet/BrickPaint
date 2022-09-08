@@ -60,6 +60,11 @@ public class BrickPaintController {
     }
 
     @FXML
+    protected void handleResetView(){
+        keyBinds.reset();
+    }
+
+    @FXML
     protected void handleInsertImage(){
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png", "*.jpg"));
