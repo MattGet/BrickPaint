@@ -1,4 +1,5 @@
 BrickPaint Version 2022.9.1 -  09/09/2022
+
 New features:
   * MenuBar
   * ToolBar (empty for now)
