@@ -17,4 +17,5 @@ Expected next sprint:
   * Tools in the Toolbar
   * Improved saving system
 Links:
-  *
+  * Java Doc Website: https://mattget.github.io/PaintJavaDocs/com.example.brickpaint/module-summary.html
+  * Github Repo: https://github.com/MattGet/BrickPaint
