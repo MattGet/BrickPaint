@@ -24,18 +24,39 @@ import javafx.stage.WindowEvent;
 import java.io.File;
 import java.util.Optional;
 
+
+/**
+ * Main controller class for the BrickPaint application, handles the FXML methods and variables for the stage
+ * @author matde
+ */
 public class BrickPaintController {
 
+    /**
+     * The file used to save the canvasPanel, created after the first SaveAs is called
+     */
     private File ImageFile;
 
+    /**
+     * The uppermost Node within the current scene
+     */
     @FXML
     private AnchorPane root;
 
+    /**
+     * The Node in which the image and canvas are stored
+     */
     @FXML
     public AnchorPane canvasPanel;
 
+    /**
+     * The component that contains and manages the image inside the canvasPanel
+     */
     @FXML
     protected ImageView imageView;
+
+    /**
+     * The path of the source image inserted by the user
+     */
     private String ImageURL;
 
     @FXML
@@ -44,8 +65,14 @@ public class BrickPaintController {
     @FXML
     private MenuItem insertImage;
 
+    /**
+     * The instance of the BrickKeys class that manages keybinds for this controller
+     */
     private BrickKeys keyBinds;
 
+    /**
+     * Called when the program starts from the application class
+     */
     protected void Start(){
         canvasPanel.setOnScroll(this::onScroll);
         canvasPanel.setOnMouseDragged(this::onDrag);
@@ -54,16 +81,25 @@ public class BrickPaintController {
         keyBinds.SetKeyBinds();
     }
 
+    /**
+     * Handles the action when a close button is pressed
+     */
     @FXML
     protected void handleButtonClose(){
         root.getScene().getWindow().fireEvent(new WindowEvent(root.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
+    /**
+     * Handles the action when the reset view button is pressed, manually invokes the function in BrickKeys
+     */
     @FXML
     protected void handleResetView(){
         keyBinds.reset();
     }
 
+    /**
+     * Handles inserting an image into the imageVeiw component, utilizes the file explorer and BrickImage class
+     */
     @FXML
     protected void handleInsertImage(){
         FileChooser fileChooser = new FileChooser();
@@ -75,6 +111,9 @@ public class BrickPaintController {
         BrickImage.Insert(imageView, tempImage);
     }
 
+    /**
+     * Handles saving an image from the canvasPanel, if it has not yet been saved will call SaveAs instead
+     */
     @FXML
     protected void handleSaveImage(){
         if (ImageFile == null) {
@@ -84,11 +123,18 @@ public class BrickPaintController {
         BrickSave.saveImageFromNode(canvasPanel, ImageFile);
     }
 
+    /**
+     * Handles saving an image to a user created file from the canvasPanel
+     */
     @FXML
     protected void handleSaveImageAs(){
       ImageFile = BrickSave.saveImageASFromNode(canvasPanel, root, ImageURL);
     }
 
+    /**
+     * This method is called or invoked whenever the program is going to be closed
+     * @param event
+     */
     protected void OnClose(WindowEvent event){
         if (ImageFile == null){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -116,6 +162,10 @@ public class BrickPaintController {
         }
     }
 
+    /**
+     * Handles moving/panning the canvasPanel with the AnimatedZoomOperator class
+     * @param event
+     */
     public void onDrag(MouseEvent event){
         double zoomFactor = 1.5;
         if (event.getY() <= 0) {
@@ -126,6 +176,10 @@ public class BrickPaintController {
         operator.pan(canvasPanel, zoomFactor, event.getSceneX(), event.getSceneY());
     }
 
+    /**
+     * Handles zooming/scaling the canvasPanel with the AnimatedZoomOperator class
+     * @param event
+     */
     public void onScroll (ScrollEvent event){
         double zoomFactor = 1.5;
         if (event.getDeltaY() <= 0) {

@@ -1,0 +1,20 @@
+BrickPaint Version 2022.9.1 -  09/09/2022
+New features:
+  * MenuBar
+  * ToolBar (empty for now)
+  * Close option under File
+  * Close Popup confirmation
+  * Insert Image
+  * Reset Image veiw
+  * Save Image
+  * Save Image As
+  * WIP Zoom & Pan for image/canvas
+Known issues:
+  * The zoom and pan feature will extend outside its desired bounds
+  * Some minor issues arise when handling image types other than png
+Expected next sprint:
+  * Drawing tools
+  * Tools in the Toolbar
+  * Improved saving system
+Links:
+  *

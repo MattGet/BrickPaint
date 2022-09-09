@@ -16,7 +16,6 @@ import javafx.embed.swing.SwingFXUtils;
 /**
  * Handles saving a snapshot image of a JavaFX Node with user created or predefined files
  * @author matde
- *
  */
 public abstract class BrickSave {
 
