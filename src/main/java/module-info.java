@@ -4,10 +4,8 @@ module com.example.brickpaint {
     requires javafx.web;
     requires javafx.swing;
     requires com.dlsc.formsfx;
-    requires validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.desktop;
 
