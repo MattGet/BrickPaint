@@ -6,7 +6,7 @@ New features:
   * Close option under File
   * Close Popup confirmation
   * Insert Image
-  * Reset Image veiw
+  * Reset Image view
   * Save Image
   * Save Image As
   * WIP Zoom & Pan for image/canvas
