@@ -1,8 +1,13 @@
 package com.example.brickpaint;
 
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.*;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -10,6 +15,8 @@ import javafx.scene.input.*;
  * @author matde
  */
 public class BrickKeys {
+
+
 
     /**
      * The scene that is controlled by the controller
@@ -21,6 +28,8 @@ public class BrickKeys {
      */
     private BrickPaintController controller;
 
+    public InputHandler activeKeys;
+
     /**
      * Constructor for BrickKeys that defines the scene and controller
      * @param input
@@ -29,6 +38,10 @@ public class BrickKeys {
     public BrickKeys(Scene input, BrickPaintController main){
         scene = input;
         controller = main;
+
+        activeKeys = new InputHandler();
+        scene.setOnKeyPressed(activeKeys);
+        scene.setOnKeyReleased(activeKeys);
     }
 
     /**
@@ -46,11 +59,28 @@ public class BrickKeys {
      * resets the view of the canvasPanel from the controller class, triggered with CTRL+R
      */
     public void reset(){
-        Node node = controller.canvasPanel;
+        Node node = controller.canvasPanel.root;
         node.setTranslateX(0);
         node.setTranslateY(0);
         node.setScaleX(1);
         node.setScaleY(1);
     }
 
+
+    class InputHandler implements EventHandler<KeyEvent> {
+        final private Set<KeyCode> activeKeys = new HashSet<>();
+
+        @Override
+        public void handle(KeyEvent event) {
+            if (KeyEvent.KEY_PRESSED.equals(event.getEventType())) {
+                activeKeys.add(event.getCode());
+            } else if (KeyEvent.KEY_RELEASED.equals(event.getEventType())) {
+                activeKeys.remove(event.getCode());
+            }
+        }
+
+        public Set<KeyCode> getActiveKeys() {
+            return Collections.unmodifiableSet(activeKeys);
+        }
+    }
 }

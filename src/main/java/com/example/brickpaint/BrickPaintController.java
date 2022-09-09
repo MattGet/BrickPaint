@@ -42,17 +42,10 @@ public class BrickPaintController {
     @FXML
     private AnchorPane root;
 
-    /**
-     * The Node in which the image and canvas are stored
-     */
     @FXML
-    public AnchorPane canvasPanel;
+    private  AnchorPane middleRoot;
 
-    /**
-     * The component that contains and manages the image inside the canvasPanel
-     */
-    @FXML
-    protected ImageView imageView;
+    public CanvasPanel canvasPanel;
 
     /**
      * The path of the source image inserted by the user
@@ -74,11 +67,11 @@ public class BrickPaintController {
      * Called when the program starts from the application class
      */
     protected void Start(){
-        canvasPanel.setOnScroll(this::onScroll);
-        canvasPanel.setOnMouseDragged(this::onDrag);
+        canvasPanel = new CanvasPanel(middleRoot);
         Scene scene = root.getScene();
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
+        canvasPanel.Setup(keyBinds);
     }
 
     /**
@@ -108,7 +101,7 @@ public class BrickPaintController {
         Image tempImage = new Image(imageFile.toURI().toString());
         ImageURL = imageFile.toURI().toString();
         System.out.print(ImageURL);
-        BrickImage.Insert(imageView, tempImage);
+        BrickImage.Insert(canvasPanel, canvasPanel.imageView, tempImage);
     }
 
     /**
@@ -117,10 +110,10 @@ public class BrickPaintController {
     @FXML
     protected void handleSaveImage(){
         if (ImageFile == null) {
-            ImageFile = BrickSave.saveImageASFromNode(canvasPanel, root, ImageURL);
+            ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
             return;
         }
-        BrickSave.saveImageFromNode(canvasPanel, ImageFile);
+        BrickSave.saveImageFromNode(canvasPanel.root, ImageFile);
     }
 
     /**
@@ -128,7 +121,7 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImageAs(){
-      ImageFile = BrickSave.saveImageASFromNode(canvasPanel, root, ImageURL);
+      ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
     }
 
     /**
@@ -155,48 +148,14 @@ public class BrickPaintController {
                     Platform.exit();
                 }
                 if (res.get().equals(save)){
-                    ImageFile = BrickSave.saveImageASFromNode(canvasPanel, root, ImageURL);
+                    ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
                     Platform.exit();
                 }
             }
         }
     }
 
-    /**
-     * Handles moving/panning the canvasPanel with the AnimatedZoomOperator class
-     * @param event
-     */
-    public void onDrag(MouseEvent event){
-        double zoomFactor = 1.5;
-        if (event.getY() <= 0) {
-            // zoom out
-            zoomFactor = 1 / zoomFactor;
-        }
-        AnimatedZoomOperator operator = new AnimatedZoomOperator();
-        operator.pan(canvasPanel, zoomFactor, event.getSceneX(), event.getSceneY());
-    }
 
-    /**
-     * Handles zooming/scaling the canvasPanel with the AnimatedZoomOperator class
-     * @param event
-     */
-    public void onScroll (ScrollEvent event){
-        double zoomFactor = 1.5;
-        if (event.getDeltaY() <= 0) {
-            // zoom out
-            zoomFactor = 1 / zoomFactor;
-        }
-        AnimatedZoomOperator operator = new AnimatedZoomOperator();
-        operator.zoom(canvasPanel, zoomFactor, event.getSceneX(), event.getSceneY());
-
-        /*double ScrollModifier = 1000;
-        double modifierY = canvasPanel.getScaleY() + event.getDeltaY()/ScrollModifier;
-        System.out.println("Y = " + modifierY);
-            canvasPanel.setScaleX(clamp(modifierY, 0.1, 1));
-            canvasPanel.setScaleY(clamp(modifierY, 0.1, 1));
-
-         */
-    }
 
 
 

@@ -5,6 +5,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 
 /**
@@ -20,11 +21,13 @@ public class AnimatedZoomOperator {
      */
     private final Timeline timeline;
 
+    private final BrickKeys Keys;
 
     /**
      * default constructor
      */
-    public AnimatedZoomOperator() {
+    public AnimatedZoomOperator(BrickKeys keys) {
+        Keys = keys;
         this.timeline = new Timeline(60);
     }
 
@@ -63,18 +66,29 @@ public class AnimatedZoomOperator {
      * @param y
      */
     public void pan(Node node, double factor, double x, double y){
+        if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)){
+            return;
+        }
+        y = clamp(y, 80, 1080);
+        x = clamp(x, 0, 1920);
         // determine scale
         double oldScale = node.getScaleX();
         double scale = clamp( oldScale * factor, 0.01, 1);
-        double f = (scale / oldScale) - 1;
+        double f = (scale / oldScale);
 
         // determine offset that we will have to move the node
         Bounds bounds = node.localToScene(node.getBoundsInLocal());
+        Bounds parent = node.getParent().localToScene(node.getParent().getBoundsInLocal());
         double dx = (x - (bounds.getWidth() / 2 + bounds.getMinX()));
         double dy = (y - (bounds.getHeight() / 2 + bounds.getMinY()));
 
         double moveX = f * dx;
         double moveY = f * dy;
+
+        //System.out.println("Bounds X = " + (bounds.getWidth() / 2 + bounds.getMinX()));
+        //System.out.println("Bounds Y = " + (bounds.getHeight() / 2 + bounds.getMinY()));
+        //System.out.println("X = " + x + " Y = " + y);
+        //System.out.println("moveX = " + moveX + "moveY = " + moveY);
 
 
         // timeline that scales and moves the node
@@ -94,6 +108,12 @@ public class AnimatedZoomOperator {
      * @return Value between Min and Max limits
      */
     public static double clamp(double val, double min, double max) {
-        return Math.max(min, Math.min(max, val));
+        if (val < min ){
+            return  min;
+        }
+        if (val > max){
+            return max;
+        }
+        return val;
     }
 }
