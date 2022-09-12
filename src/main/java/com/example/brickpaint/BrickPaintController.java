@@ -8,7 +8,9 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
@@ -101,7 +103,7 @@ public class BrickPaintController {
         Image tempImage = new Image(imageFile.toURI().toString());
         ImageURL = imageFile.toURI().toString();
         System.out.print(ImageURL);
-        BrickImage.Insert(canvasPanel, canvasPanel.imageView, tempImage);
+        BrickImage.Insert(canvasPanel, , tempImage);
     }
 
     /**

@@ -25,7 +25,7 @@
                       </Menu>
                       <Menu mnemonicParsing="false" text="Edit">
                         <items>
-                          <MenuItem mnemonicParsing="false" text="Clear Page" />
+                          <MenuItem mnemonicParsing="false" onAction="#handleClearPage" text="Clear Page" />
                         </items>
                       </Menu>
                         <Menu mnemonicParsing="false" text="Veiw">
