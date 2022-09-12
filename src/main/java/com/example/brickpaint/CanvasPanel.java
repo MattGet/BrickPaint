@@ -5,7 +5,6 @@ import javafx.scene.image.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
 
 public class CanvasPanel {
 
@@ -13,9 +12,9 @@ public class CanvasPanel {
 
     public CanvasPanel(AnchorPane anchorPane){ parent = anchorPane;}
 
-    public StackPane root = new StackPane();
-
+    public AnchorPane root = new AnchorPane();
     public Canvas canvas = new Canvas();
+    public ImageView imageView = new ImageView();
 
     public ScrollPane scrollPane;
 
@@ -23,14 +22,17 @@ public class CanvasPanel {
 
     public void Setup(BrickKeys keys){
         root.getChildren().add(canvas);
+        root.getChildren().add(imageView);
         scrollPane = new ScrollPane(root);
         scrollPane.setFitToHeight(true);
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefViewportHeight(1000);
         scrollPane.setPrefViewportWidth(1920);
         parent.getChildren().add(scrollPane);
+
         root.setOnScroll(this::onScroll);
         root.setOnMouseDragged(this::onDrag);
+
         operator = new AnimatedZoomOperator(keys);
     }
 
