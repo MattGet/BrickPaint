@@ -39,6 +39,9 @@ public class AnimatedZoomOperator {
      * @param y
      */
     public void zoom(Node node, double factor, double x, double y) {
+        if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)){
+            return;
+        }
         // determine scale
         double oldScale = node.getScaleX();
         double scale = clamp( oldScale * factor, 0.01, 1);

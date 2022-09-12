@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.robot.Robot;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -34,7 +35,8 @@ public class BrickPaintApp extends Application {
         stage.getIcons().add(BrickIcon);
         stage.setMaximized(true);
         BrickPaintController controller = fxmlLoader.getController();
-        controller.Start();
+        Robot robot = new Robot();
+        controller.Start(robot);
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, controller::OnClose);
         stage.show();
     }

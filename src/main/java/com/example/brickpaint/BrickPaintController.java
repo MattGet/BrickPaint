@@ -11,6 +11,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
@@ -18,6 +19,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.robot.Robot;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 
@@ -36,6 +38,8 @@ public class BrickPaintController {
      */
     private File ImageFile;
 
+    private Robot robot;
+
     /**
      * The uppermost Node within the current scene
      */
@@ -52,27 +56,37 @@ public class BrickPaintController {
      */
     private String ImageURL;
 
-    @FXML
-    private MenuItem closeButton;
-
-    @FXML
-    private MenuItem insertImage;
 
     /**
      * The instance of the BrickKeys class that manages keybinds for this controller
      */
     private BrickKeys keyBinds;
 
+    @FXML
+    public ChoiceBox toolType;
+
     /**
      * Called when the program starts from the application class
      */
-    protected void Start(){
-        canvasPanel = new CanvasPanel(middleRoot);
+    protected void Start(Robot roboIn){
+        canvasPanel = new CanvasPanel(middleRoot, this);
         Scene scene = root.getScene();
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         canvasPanel.Setup(keyBinds);
+        robot = roboIn;
+        toolType.getItems().addAll("Normal", "Draw Line");
+        toolType.setValue("Normal");
     }
+
+    public int getToolType(){
+        if (this.toolType.getValue() == "Draw Line"){
+            return  1;
+        }
+        return 0;
+    }
+
+
 
     /**
      * Handles the action when a close button is pressed
@@ -98,10 +112,12 @@ public class BrickPaintController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png", "*.jpg"));
         File imageFile = fileChooser.showOpenDialog(root.getScene().getWindow());
-        Image tempImage = new Image(imageFile.toURI().toString());
-        ImageURL = imageFile.toURI().toString();
-        System.out.print(ImageURL);
-        BrickImage.Insert(canvasPanel, canvasPanel.imageView, tempImage);
+        if (imageFile.exists()){
+            Image tempImage = new Image(imageFile.toURI().toString());
+            ImageURL = imageFile.toURI().toString();
+            System.out.print(ImageURL);
+            BrickImage.Insert(canvasPanel, robot, tempImage);
+        }
     }
 
     /**
@@ -110,10 +126,10 @@ public class BrickPaintController {
     @FXML
     protected void handleSaveImage(){
         if (ImageFile == null) {
-            ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
+            ImageFile = BrickSave.saveImageASFromNode(canvasPanel.canvas, root, ImageURL);
             return;
         }
-        BrickSave.saveImageFromNode(canvasPanel.root, ImageFile);
+        BrickSave.saveImageFromNode(canvasPanel.canvas, ImageFile);
     }
 
     /**
@@ -121,7 +137,7 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImageAs(){
-      ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
+      ImageFile = BrickSave.saveImageASFromNode(canvasPanel.canvas, root, ImageURL);
     }
 
     /**
