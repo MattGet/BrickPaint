@@ -6,6 +6,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Line;
 import javafx.util.Pair;
 
@@ -24,17 +25,20 @@ public class CanvasPanel {
     public CanvasPanel(AnchorPane anchorPane, BrickPaintController controllerIn){ parent = anchorPane;
         controller = controllerIn;}
 
-    public AnchorPane root = new AnchorPane();
+    public StackPane root = new StackPane();
     public Canvas canvas = new Canvas();
     public ImageView imageView = new ImageView();
 
     public ScrollPane scrollPane;
 
     private AnimatedZoomOperator operator;
+    private Line tempLine;
 
     public void Setup(BrickKeys keys){
 
         //root.getChildren().add(imageView);
+        root.setPrefHeight(650);
+        root.setPrefWidth(1520);
         root.getChildren().add(canvas);
         scrollPane = new ScrollPane(root);
         scrollPane.setFitToHeight(true);
@@ -49,6 +53,7 @@ public class CanvasPanel {
         root.setOnScroll(this::onScroll);
         root.setOnMouseDragged(this::onDrag);
         root.setOnMousePressed(this::onMousePressed);
+        root.setOnMouseReleased(this::onMouseReleased);
 
         operator = new AnimatedZoomOperator(keys);
     }
@@ -56,6 +61,7 @@ public class CanvasPanel {
     public void onMousePressed(MouseEvent event){
         initialTouch = new Pair<>(event.getX(), event.getY());
     }
+    public void onMouseReleased(MouseEvent event){ tempLine = null; }
 
 
     /**
@@ -72,9 +78,17 @@ public class CanvasPanel {
             operator.pan(root, zoomFactor, event.getSceneX(), event.getSceneY());
         }
         if (controller.getToolType() == 1){
-            Line line = new Line();
-            line.setStartX(initialTouch.getKey());
-            line.setStartY(initialTouch.getValue());
+            if (tempLine == null){
+                addLine(event.getX(), event.getY());
+            }
+            else {
+                tempLine.setEndX(event.getX());
+                tempLine.setEndY(event.getY());
+            }
+
+            System.out.println("sX = " + initialTouch.getKey() + " sY = " + initialTouch.getValue());
+            System.out.println(("eX = " + event.getX() + " eY = " + event.getY()));
+
         }
     }
 
@@ -92,4 +106,8 @@ public class CanvasPanel {
         operator.zoom(root, zoomFactor, event.getSceneX(), event.getSceneY());
     }
 
+    private void addLine(double x, double y) {
+        tempLine = new Line(initialTouch.getKey(), initialTouch.getValue(), x, y);
+        root.getChildren().add(tempLine);
+    }
 }
