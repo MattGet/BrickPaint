@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.util.Pair;
 
@@ -35,6 +36,7 @@ public class CanvasPanel {
     private AnimatedZoomOperator operator;
     private Line tempLine;
     private GraphicsContext gc;
+    private Canvas currLayer;
 
     public void Setup(BrickKeys keys){
 
@@ -61,11 +63,14 @@ public class CanvasPanel {
 
     public void onMousePressed(MouseEvent event){
         initialTouch = new Pair<>(event.getX(), event.getY());
+        Canvas newLayer = new Canvas(canvas.getWidth(), canvas.getHeight());
+        GraphicsContext context = newLayer.getGraphicsContext2D();
+        currLayer = newLayer;
+        root.getChildren().add(0, newLayer);
     }
     public void onMouseDragOver(MouseEvent event){
         if (controller.getToolType() == 1){
-            gc.strokeLine(initialTouch.getKey(), initialTouch.getValue(), event.getX(), event.getY());
-            System.out.print("test");
+
         }
     }
 
@@ -83,6 +88,11 @@ public class CanvasPanel {
                 zoomFactor = 1 / zoomFactor;
             }
             operator.pan(root, zoomFactor, event.getSceneX(), event.getSceneY());
+        }
+        if (controller.getToolType() == 1){
+            GraphicsContext context = currLayer.getGraphicsContext2D();
+            context.clearRect(0, 0, currLayer.getWidth(), currLayer.getHeight());
+            context.strokeLine(initialTouch.getKey(), initialTouch.getValue(), event.getSceneX(), event.getSceneY());
         }
     }
 
