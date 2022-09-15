@@ -1,5 +1,6 @@
 package com.example.brickpaint;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.*;
 import javafx.scene.input.DragEvent;
@@ -33,12 +34,11 @@ public class CanvasPanel {
 
     private AnimatedZoomOperator operator;
     private Line tempLine;
+    private GraphicsContext gc;
 
     public void Setup(BrickKeys keys){
 
         //root.getChildren().add(imageView);
-        root.setPrefHeight(650);
-        root.setPrefWidth(1520);
         root.getChildren().add(canvas);
         scrollPane = new ScrollPane(root);
         scrollPane.setFitToHeight(true);
@@ -53,15 +53,22 @@ public class CanvasPanel {
         root.setOnScroll(this::onScroll);
         root.setOnMouseDragged(this::onDrag);
         root.setOnMousePressed(this::onMousePressed);
-        root.setOnMouseReleased(this::onMouseReleased);
+        root.setOnMouseReleased(this::onMouseDragOver);
 
         operator = new AnimatedZoomOperator(keys);
+        gc = canvas.getGraphicsContext2D();
     }
 
     public void onMousePressed(MouseEvent event){
         initialTouch = new Pair<>(event.getX(), event.getY());
     }
-    public void onMouseReleased(MouseEvent event){ tempLine = null; }
+    public void onMouseDragOver(MouseEvent event){
+        if (controller.getToolType() == 1){
+            gc.strokeLine(initialTouch.getKey(), initialTouch.getValue(), event.getX(), event.getY());
+            System.out.print("test");
+        }
+    }
+
 
 
     /**
@@ -76,19 +83,6 @@ public class CanvasPanel {
                 zoomFactor = 1 / zoomFactor;
             }
             operator.pan(root, zoomFactor, event.getSceneX(), event.getSceneY());
-        }
-        if (controller.getToolType() == 1){
-            if (tempLine == null){
-                addLine(event.getX(), event.getY());
-            }
-            else {
-                tempLine.setEndX(event.getX());
-                tempLine.setEndY(event.getY());
-            }
-
-            System.out.println("sX = " + initialTouch.getKey() + " sY = " + initialTouch.getValue());
-            System.out.println(("eX = " + event.getX() + " eY = " + event.getY()));
-
         }
     }
 
