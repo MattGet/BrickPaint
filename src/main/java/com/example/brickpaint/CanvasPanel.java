@@ -63,15 +63,32 @@ public class CanvasPanel {
 
     public void onMousePressed(MouseEvent event){
         initialTouch = new Pair<>(event.getX(), event.getY());
-        Canvas newLayer = new Canvas(canvas.getWidth(), canvas.getHeight());
-        GraphicsContext context = newLayer.getGraphicsContext2D();
-        currLayer = newLayer;
-        root.getChildren().add(0, newLayer);
+        if (controller.getToolType() == 1){
+            Canvas newLayer = new Canvas(root.getWidth(), root.getHeight());
+            GraphicsContext context = newLayer.getGraphicsContext2D();
+            initDraw(context);
+
+            currLayer = newLayer;
+            root.getChildren().add(0, newLayer);
+        }
+
     }
     public void onMouseDragOver(MouseEvent event){
         if (controller.getToolType() == 1){
 
         }
+    }
+
+    private void initDraw(GraphicsContext gc){
+        double canvasWidth = gc.getCanvas().getWidth();
+        double canvasHeight = gc.getCanvas().getHeight();
+
+        gc.setFill(Color.LIGHTGRAY);
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(5);
+        gc.setFill(controller.colorPicker.getValue());
+        gc.setStroke(controller.colorPicker.getValue());
+        gc.setLineWidth(1);
     }
 
 
@@ -92,7 +109,7 @@ public class CanvasPanel {
         if (controller.getToolType() == 1){
             GraphicsContext context = currLayer.getGraphicsContext2D();
             context.clearRect(0, 0, currLayer.getWidth(), currLayer.getHeight());
-            context.strokeLine(initialTouch.getKey(), initialTouch.getValue(), event.getSceneX(), event.getSceneY());
+            context.strokeLine(initialTouch.getKey(), initialTouch.getValue(), event.getX(), event.getY());
         }
     }
 

@@ -9,10 +9,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.DragEvent;
@@ -37,8 +34,6 @@ public class BrickPaintController {
      * The file used to save the canvasPanel, created after the first SaveAs is called
      */
     private File ImageFile;
-
-    private Robot robot;
 
     /**
      * The uppermost Node within the current scene
@@ -65,16 +60,21 @@ public class BrickPaintController {
     @FXML
     public ChoiceBox toolType;
 
+    @FXML
+    public ColorPicker colorPicker;
+
+    @FXML
+    public ComboBox lineWidth;
+
     /**
      * Called when the program starts from the application class
      */
-    protected void Start(Robot roboIn){
+    protected void Start(){
         canvasPanel = new CanvasPanel(middleRoot, this);
         Scene scene = root.getScene();
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         canvasPanel.Setup(keyBinds);
-        robot = roboIn;
         toolType.getItems().addAll("Normal", "Draw Line");
         toolType.setValue("Normal");
     }
@@ -116,7 +116,7 @@ public class BrickPaintController {
             Image tempImage = new Image(imageFile.toURI().toString());
             ImageURL = imageFile.toURI().toString();
             System.out.print(ImageURL);
-            BrickImage.Insert(canvasPanel, robot, tempImage);
+            BrickImage.Insert(canvasPanel, tempImage);
         }
     }
 
