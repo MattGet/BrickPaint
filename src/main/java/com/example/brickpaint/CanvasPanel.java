@@ -69,7 +69,8 @@ public class CanvasPanel {
             initDraw(context);
 
             currLayer = newLayer;
-            root.getChildren().add(0, newLayer);
+            int temp = root.getChildren().size();
+            root.getChildren().add(newLayer);
         }
 
     }
@@ -88,7 +89,7 @@ public class CanvasPanel {
         gc.setLineWidth(5);
         gc.setFill(controller.colorPicker.getValue());
         gc.setStroke(controller.colorPicker.getValue());
-        gc.setLineWidth(1);
+        gc.setLineWidth((double) ((int)controller.lineWidth.getValue()));
     }
 
 

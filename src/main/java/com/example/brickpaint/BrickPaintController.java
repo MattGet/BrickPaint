@@ -77,6 +77,8 @@ public class BrickPaintController {
         canvasPanel.Setup(keyBinds);
         toolType.getItems().addAll("Normal", "Draw Line");
         toolType.setValue("Normal");
+        lineWidth.getItems().addAll(1, 2,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 30, 36, 48, 60, 72);
+        lineWidth.setValue(1);
     }
 
     public int getToolType(){
@@ -126,10 +128,10 @@ public class BrickPaintController {
     @FXML
     protected void handleSaveImage(){
         if (ImageFile == null) {
-            ImageFile = BrickSave.saveImageASFromNode(canvasPanel.canvas, root, ImageURL);
+            ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
             return;
         }
-        BrickSave.saveImageFromNode(canvasPanel.canvas, ImageFile);
+        BrickSave.saveImageFromNode(canvasPanel.root, ImageFile);
     }
 
     /**
@@ -137,7 +139,7 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImageAs(){
-      ImageFile = BrickSave.saveImageASFromNode(canvasPanel.canvas, root, ImageURL);
+      ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
     }
 
     /**
