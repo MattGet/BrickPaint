@@ -41,6 +41,11 @@
                           <MenuItem fx:id="insertImage" mnemonicParsing="false" onAction="#handleInsertImage" text="Image" />
                         </items>
                       </Menu>
+                        <Menu mnemonicParsing="false" text="Help">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleOpenAboutMenu" text="About" />
+                          </items>
+                        </Menu>
                     </menus>
                   </MenuBar>
                   <ToolBar prefHeight="100.0" prefWidth="1920.0">

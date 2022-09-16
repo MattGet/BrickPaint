@@ -16,9 +16,6 @@ import java.util.Objects;
  * @author matde
  */
 public class BrickPaintApp extends Application {
-    public BrickPaintApp(){
-
-    }
 
     /**
      * start of javaFX program

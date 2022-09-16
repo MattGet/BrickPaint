@@ -21,19 +21,19 @@ public class BrickKeys {
     /**
      * The scene that is controlled by the controller
      */
-    private Scene scene;
+    private final Scene scene;
 
     /**
      * The Contoller that this class handles keybinds for
      */
-    private BrickPaintController controller;
+    private final BrickPaintController controller;
 
     public InputHandler activeKeys;
 
     /**
      * Constructor for BrickKeys that defines the scene and controller
-     * @param input
-     * @param main
+     * @param input - the scene in which to look for key events
+     * @param main - the controller class that will "own" this instance of BrickKeys
      */
     public BrickKeys(Scene input, BrickPaintController main){
         scene = input;
@@ -67,9 +67,20 @@ public class BrickKeys {
     }
 
 
-    class InputHandler implements EventHandler<KeyEvent> {
+    /**
+     * Handles all input from the keyboard and maintains an active list of currently pressed keys
+     * @author matde
+     */
+    static class InputHandler implements EventHandler<KeyEvent> {
+        /**
+         * A list of all keys currently being pressed down by the user
+         */
         final private Set<KeyCode> activeKeys = new HashSet<>();
 
+        /**
+         * Handles key events for when keys are pressed or released, will then add or remove them from the list
+         * @param event - Key event from the Input class
+         */
         @Override
         public void handle(KeyEvent event) {
             if (KeyEvent.KEY_PRESSED.equals(event.getEventType())) {
@@ -79,6 +90,10 @@ public class BrickKeys {
             }
         }
 
+        /**
+         * Getter for the active keys Set
+         * @return unmodifableSet
+         */
         public Set<KeyCode> getActiveKeys() {
             return Collections.unmodifiableSet(activeKeys);
         }

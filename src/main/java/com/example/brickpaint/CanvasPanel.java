@@ -1,43 +1,78 @@
 package com.example.brickpaint;
+
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.*;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.util.Pair;
 
+
+/**
+ * Manages all the drawing Sub-nodes for the overarching canvas, may have multiple instances to create multiple canvases
+ * @author matde
+ */
 public class CanvasPanel {
 
+    /**
+     * Cordinates of the most recent mouse press
+     */
     private Pair<Double, Double> initialTouch;
-    private BrickPaintController controller;
-    private AnchorPane parent;
+
+    /**
+     * Instance of the controller class for this canvas
+     */
+    private final BrickPaintController controller;
+
+    /**
+     * The parent Pane of this Canvas
+     */
+    private final AnchorPane parent;
 
 
     /**
      * Default Constructor
-     * @param anchorPane
-     * @param controllerIn
+     * @param anchorPane - the parent of this class
+     * @param controllerIn - the controller class for this canvas
      */
     public CanvasPanel(AnchorPane anchorPane, BrickPaintController controllerIn){ parent = anchorPane;
         controller = controllerIn;}
 
+    /**
+     * The root Node that all of the canvas components are created under
+     */
     public StackPane root = new StackPane();
-    public Canvas canvas = new Canvas();
-    public ImageView imageView = new ImageView();
 
+    /**
+     * The main canvas that will be used for drawing ect.
+     */
+    public Canvas canvas = new Canvas();
+
+    /**
+     * The viewport (scrollpane) that the entire canvas panel will reside within
+     */
     public ScrollPane scrollPane;
 
+    /**
+     * The instance of the zoom operator class that controls the movement and scale of this canvas panel
+     */
     private AnimatedZoomOperator operator;
-    private Line tempLine;
-    private GraphicsContext gc;
+
+
+    //private GraphicsContext gc;
+
+    /**
+     * The canvas instance that is currently being manipulated
+     */
     private Canvas currLayer;
 
+    /**
+     * Configures all of the settings of this Canvas Panel, should be called immediately after instantiation
+     * @param keys - instance of BickKyes that this class should use
+     */
     public void Setup(BrickKeys keys){
 
         //root.getChildren().add(imageView);
@@ -55,12 +90,15 @@ public class CanvasPanel {
         root.setOnScroll(this::onScroll);
         root.setOnMouseDragged(this::onDrag);
         root.setOnMousePressed(this::onMousePressed);
-        root.setOnMouseReleased(this::onMouseDragOver);
 
         operator = new AnimatedZoomOperator(keys);
-        gc = canvas.getGraphicsContext2D();
+        //gc = canvas.getGraphicsContext2D();
     }
 
+    /**
+     * Handles all actions that should occur when the mouse is pressed down, also records the pointer position
+     * @param event - Mouse Event from Input class
+     */
     public void onMousePressed(MouseEvent event){
         initialTouch = new Pair<>(event.getX(), event.getY());
         if (controller.getToolType() == 1){
@@ -69,34 +107,31 @@ public class CanvasPanel {
             initDraw(context);
 
             currLayer = newLayer;
-            int temp = root.getChildren().size();
+            //int temp = root.getChildren().size();
             root.getChildren().add(newLayer);
         }
 
     }
-    public void onMouseDragOver(MouseEvent event){
-        if (controller.getToolType() == 1){
 
-        }
-    }
 
+    /**
+     * Sets the parameters for drawing in the specified graphics content
+     * @param gc - the graphics context to set parameters for
+     */
     private void initDraw(GraphicsContext gc){
-        double canvasWidth = gc.getCanvas().getWidth();
-        double canvasHeight = gc.getCanvas().getHeight();
-
         gc.setFill(Color.LIGHTGRAY);
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(5);
         gc.setFill(controller.colorPicker.getValue());
         gc.setStroke(controller.colorPicker.getValue());
-        gc.setLineWidth((double) ((int)controller.lineWidth.getValue()));
+        gc.setLineWidth((int)controller.lineWidth.getValue());
     }
 
 
 
     /**
-     * Handles any events which require the OnDrag event on the canvas
-     * @param event
+     * Handles any actions which require the OnDrag mouse event within the canvas
+     * @param event - Mouse Event from Input class
      */
     public void onDrag(MouseEvent event){
         if (controller.getToolType() == 0) {
@@ -116,7 +151,7 @@ public class CanvasPanel {
 
     /**
      * Handles zooming/scaling the canvasPanel with the AnimatedZoomOperator class
-     * @param event
+     * @param event - Scroll event from Input class
      */
     public void onScroll (ScrollEvent event){
         double zoomFactor = 1.5;
@@ -126,10 +161,5 @@ public class CanvasPanel {
         }
 
         operator.zoom(root, zoomFactor, event.getSceneX(), event.getSceneY());
-    }
-
-    private void addLine(double x, double y) {
-        tempLine = new Line(initialTouch.getKey(), initialTouch.getValue(), x, y);
-        root.getChildren().add(tempLine);
     }
 }

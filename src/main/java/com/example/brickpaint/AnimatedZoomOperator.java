@@ -21,6 +21,9 @@ public class AnimatedZoomOperator {
      */
     private final Timeline timeline;
 
+    /**
+     * Input Manager class instance, helps with managing keybinds ect
+     */
     private final BrickKeys Keys;
 
     /**
@@ -33,10 +36,10 @@ public class AnimatedZoomOperator {
 
     /**
      * handles animating/scaling a node within a 2d axis based on mouse input
-     * @param node
-     * @param factor
-     * @param x
-     * @param y
+     * @param node - The node to zoom in/out
+     * @param factor - Scaling value that determines how much the node is scaled with each call
+     * @param x - X cord from which to zoom about (Optional)
+     * @param y - Y cord from which to zoom about (Optional)
      */
     public void zoom(Node node, double factor, double x, double y) {
         if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)){
@@ -45,7 +48,7 @@ public class AnimatedZoomOperator {
         // determine scale
         double oldScale = node.getScaleX();
         double scale = clamp( oldScale * factor, 0.01, 1);
-        double f = (scale / oldScale) - 1;
+        //double f = (scale / oldScale) - 1;
 
         // determine offset that we will have to move the node
         //Bounds bounds = node.localToScene(node.getBoundsInLocal());
@@ -63,10 +66,10 @@ public class AnimatedZoomOperator {
 
     /**
      * handles animating/moving a node across a 2d axis based on mouse input
-     * @param node
-     * @param factor
-     * @param x
-     * @param y
+     * @param node  - The node to move/pan
+     * @param factor - Scaling factor that determines how much the node is moved each time
+     * @param x - X cord of the mouse pointer
+     * @param y - Y cord of the mouse pointer
      */
     public void pan(Node node, double factor, double x, double y){
         if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)){
@@ -81,7 +84,7 @@ public class AnimatedZoomOperator {
 
         // determine offset that we will have to move the node
         Bounds bounds = node.localToScene(node.getBoundsInLocal());
-        Bounds parent = node.getParent().localToScene(node.getParent().getBoundsInLocal());
+        //Bounds parent = node.getParent().localToScene(node.getParent().getBoundsInLocal());
         double dx = (x - (bounds.getWidth() / 2 + bounds.getMinX()));
         double dy = (y - (bounds.getHeight() / 2 + bounds.getMinY()));
 
@@ -105,9 +108,9 @@ public class AnimatedZoomOperator {
 
     /**
      * Used to restrict a double value to a certain range of values
-     * @param val
-     * @param min
-     * @param max
+     * @param val - The value to evaluate
+     * @param min - The minimum value this function can return
+     * @param max - The maximum value this function can return
      * @return Value between Min and Max limits
      */
     public static double clamp(double val, double min, double max) {

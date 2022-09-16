@@ -1,26 +1,18 @@
 package com.example.brickpaint;
 
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.robot.Robot;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 
 
@@ -41,9 +33,15 @@ public class BrickPaintController {
     @FXML
     private AnchorPane root;
 
+    /**
+     * The root Node for all drawing components in the program
+     */
     @FXML
     private  AnchorPane middleRoot;
 
+    /**
+     * The main instance of the canvas where all drawing occurs within the paint app
+     */
     public CanvasPanel canvasPanel;
 
     /**
@@ -57,12 +55,21 @@ public class BrickPaintController {
      */
     private BrickKeys keyBinds;
 
+    /**
+     * allows the user to select the current active tool from a dropdown menu
+     */
     @FXML
     public ChoiceBox toolType;
 
+    /**
+     * allows the user to select the current color from a colorpicker menu
+     */
     @FXML
     public ColorPicker colorPicker;
 
+    /**
+     * allows the user to select the current line width from a dropdown menu
+     */
     @FXML
     public ComboBox lineWidth;
 
@@ -81,6 +88,10 @@ public class BrickPaintController {
         lineWidth.setValue(1);
     }
 
+    /**
+     * returns the current tool selection from the tooltype dropdown as an integer
+     * @return int
+     */
     public int getToolType(){
         if (this.toolType.getValue() == "Draw Line"){
             return  1;
@@ -128,7 +139,7 @@ public class BrickPaintController {
     @FXML
     protected void handleSaveImage(){
         if (ImageFile == null) {
-            ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
+            ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
             return;
         }
         BrickSave.saveImageFromNode(canvasPanel.root, ImageFile);
@@ -139,12 +150,32 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImageAs(){
-      ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
+      ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
+    }
+
+
+    /**
+     *  Creates a new window based off of the About Brick FXML file and controller
+     */
+    @FXML
+    protected void handleOpenAboutMenu(){
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("AboutBrick.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(loader.load(), 600, 400));
+            stage.setTitle("About");
+            stage.show();
+            AboutBrickController cont = loader.getController();
+            cont.Setup();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * This method is called or invoked whenever the program is going to be closed
-     * @param event
+     * @param event - Window event from the Event Class
      */
     protected void OnClose(WindowEvent event){
         if (ImageFile == null){
@@ -156,7 +187,7 @@ public class BrickPaintController {
             alert.getButtonTypes().add(save);
             alert.setHeaderText("You Have Not Saved This Project Recently!");
             alert.setTitle("Quit application");
-            alert.setContentText(String.format("Close without saving?"));
+            alert.setContentText("Close without saving?");
             alert.initOwner(root.getScene().getWindow());
             Optional<ButtonType> res = alert.showAndWait();
             if(res.isPresent()) {
@@ -166,7 +197,7 @@ public class BrickPaintController {
                     Platform.exit();
                 }
                 if (res.get().equals(save)){
-                    ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, root, ImageURL);
+                    ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
                     Platform.exit();
                 }
             }
