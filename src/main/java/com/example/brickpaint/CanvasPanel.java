@@ -83,9 +83,14 @@ public class CanvasPanel {
         scrollPane.setPrefViewportWidth(1520);
         scrollPane.setPrefViewportHeight(650);
         parent.getChildren().add(scrollPane);
+        AnchorPane.setBottomAnchor(scrollPane, (double) 0);
+        AnchorPane.setTopAnchor(scrollPane, (double) 0);
+        AnchorPane.setRightAnchor(scrollPane, (double) 0);
+        AnchorPane.setLeftAnchor(scrollPane, (double) 0);
 
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
 
         root.setOnScroll(this::onScroll);
         root.setOnMouseDragged(this::onDrag);
