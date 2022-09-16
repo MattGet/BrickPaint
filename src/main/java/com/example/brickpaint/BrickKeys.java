@@ -32,8 +32,8 @@ public class BrickKeys {
 
     /**
      * Constructor for BrickKeys that defines the scene and controller
-     * @param input - the scene in which to look for key events
-     * @param main - the controller class that will "own" this instance of BrickKeys
+     * @param input The scene in which to look for key events
+     * @param main The controller class that will "own" this instance of BrickKeys
      */
     public BrickKeys(Scene input, BrickPaintController main){
         scene = input;
@@ -79,7 +79,7 @@ public class BrickKeys {
 
         /**
          * Handles key events for when keys are pressed or released, will then add or remove them from the list
-         * @param event - Key event from the Input class
+         * @param event Key event from the Input class
          */
         @Override
         public void handle(KeyEvent event) {

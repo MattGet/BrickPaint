@@ -10,8 +10,8 @@ public abstract class BrickImage {
 
     /**
      * Adds an image to an imageView component in javaFX, scales imageView to the size of input image
-     * @param image - The image to insert into the canvas
-     * @param panel - The CanvasPanel Class to add the image to
+     * @param image The image to insert into the canvas
+     * @param panel The CanvasPanel Class to add the image to
      */
     public static void Insert(CanvasPanel panel, Image image){
         double x = image.getWidth();

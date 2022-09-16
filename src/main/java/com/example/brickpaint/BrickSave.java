@@ -21,8 +21,8 @@ public abstract class BrickSave {
 
     /**
      * Takes a snapshot of a Node and saves it to the specified file
-     * @param node - the Node from which to take a screenshot of
-     * @param file - the File to save the image to
+     * @param node The Node from which to take a screenshot of
+     * @param file The File to save the image to
      */
     public static void saveImageFromNode(Node node, File file){
         SnapshotParameters parameters = new SnapshotParameters();
@@ -40,8 +40,8 @@ public abstract class BrickSave {
     /**
      * Takes a snapshot of a Node and saves it to a file created by the user. Will open the file explorer
      * and initially name the file based off the ImagePath
-     * @param node  - the node from which to take a screenshot of
-     * @param ImagePath - optional path string from which to initially name the new file with
+     * @param node  The node from which to take a screenshot of
+     * @param ImagePath Optional path string from which to initially name the new file with
      * @return returns file that image was saved to, else returns null
      */
     public static File saveImageASFromNode(Node node, String ImagePath){

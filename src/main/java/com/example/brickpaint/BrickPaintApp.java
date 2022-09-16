@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * Main application class for a javaFX paint app
+ * Main application class
  * @author matde
  */
 public class BrickPaintApp extends Application {

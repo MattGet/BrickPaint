@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Controller class for the About Popup Window
+ * Controller class for the About Program Popup Window
  * @author matde
  */
 public class AboutBrickController {

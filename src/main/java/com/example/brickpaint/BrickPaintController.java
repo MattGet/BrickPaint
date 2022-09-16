@@ -175,7 +175,7 @@ public class BrickPaintController {
 
     /**
      * This method is called or invoked whenever the program is going to be closed
-     * @param event - Window event from the Event Class
+     * @param event Window event from the Event Class
      */
     protected void OnClose(WindowEvent event){
         if (ImageFile == null){

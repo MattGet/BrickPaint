@@ -18,7 +18,7 @@ import javafx.util.Pair;
 public class CanvasPanel {
 
     /**
-     * Cordinates of the most recent mouse press
+     * Coordinates of the most recent mouse press
      */
     private Pair<Double, Double> initialTouch;
 
@@ -35,8 +35,8 @@ public class CanvasPanel {
 
     /**
      * Default Constructor
-     * @param anchorPane - the parent of this class
-     * @param controllerIn - the controller class for this canvas
+     * @param anchorPane The parent of this class
+     * @param controllerIn The controller class for this canvas
      */
     public CanvasPanel(AnchorPane anchorPane, BrickPaintController controllerIn){ parent = anchorPane;
         controller = controllerIn;}
@@ -71,7 +71,7 @@ public class CanvasPanel {
 
     /**
      * Configures all of the settings of this Canvas Panel, should be called immediately after instantiation
-     * @param keys - instance of BickKyes that this class should use
+     * @param keys The instance of BickKyes that this class should use
      */
     public void Setup(BrickKeys keys){
 
@@ -102,7 +102,7 @@ public class CanvasPanel {
 
     /**
      * Handles all actions that should occur when the mouse is pressed down, also records the pointer position
-     * @param event - Mouse Event from Input class
+     * @param event Mouse Event from Input class
      */
     public void onMousePressed(MouseEvent event){
         initialTouch = new Pair<>(event.getX(), event.getY());
@@ -121,7 +121,7 @@ public class CanvasPanel {
 
     /**
      * Sets the parameters for drawing in the specified graphics content
-     * @param gc - the graphics context to set parameters for
+     * @param gc The graphics context to set parameters for
      */
     private void initDraw(GraphicsContext gc){
         gc.setFill(Color.LIGHTGRAY);
@@ -136,7 +136,7 @@ public class CanvasPanel {
 
     /**
      * Handles any actions which require the OnDrag mouse event within the canvas
-     * @param event - Mouse Event from Input class
+     * @param event Mouse Event from Input class
      */
     public void onDrag(MouseEvent event){
         if (controller.getToolType() == 0) {
@@ -156,7 +156,7 @@ public class CanvasPanel {
 
     /**
      * Handles zooming/scaling the canvasPanel with the AnimatedZoomOperator class
-     * @param event - Scroll event from Input class
+     * @param event Scroll event from Input class
      */
     public void onScroll (ScrollEvent event){
         double zoomFactor = 1.5;
