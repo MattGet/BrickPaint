@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.robot.Robot;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -13,12 +12,23 @@ import java.util.Objects;
 
 /**
  * Main application class
+ *
  * @author matde
  */
 public class BrickPaintApp extends Application {
 
     /**
+     * start of the application
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        launch();
+    }
+
+    /**
      * start of javaFX program
+     *
      * @param stage
      * @throws IOException
      */
@@ -36,13 +46,5 @@ public class BrickPaintApp extends Application {
         controller.Start();
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, controller::OnClose);
         stage.show();
-    }
-
-    /**
-     * start of the application
-     * @param args
-     */
-    public static void main(String[] args) {
-        launch();
     }
 }

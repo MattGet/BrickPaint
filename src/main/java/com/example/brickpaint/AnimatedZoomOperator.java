@@ -10,6 +10,7 @@ import javafx.util.Duration;
 
 /**
  * Handles methods that manipulate the position and size of nodes within javafx
+ *
  * @author Aerus
  * @author matde
  * @see <a href="https://stackoverflow.com/a/29545368">Source Code</a>
@@ -35,19 +36,38 @@ public class AnimatedZoomOperator {
     }
 
     /**
+     * Used to restrict a double value to a certain range of values
+     *
+     * @param val The value to evaluate
+     * @param min The minimum value this function can return
+     * @param max The maximum value this function can return
+     * @return Value between Min and Max limits
+     */
+    public static double clamp(double val, double min, double max) {
+        if (val < min) {
+            return min;
+        }
+        if (val > max) {
+            return max;
+        }
+        return val;
+    }
+
+    /**
      * handles animating/scaling a node within a 2d axis based on mouse input
-     * @param node The node to zoom in/out
+     *
+     * @param node   The node to zoom in/out
      * @param factor Scaling value that determines how much the node is scaled with each call
-     * @param x X cord from which to zoom about (Optional)
-     * @param y Y cord from which to zoom about (Optional)
+     * @param x      X cord from which to zoom about (Optional)
+     * @param y      Y cord from which to zoom about (Optional)
      */
     public void zoom(Node node, double factor, double x, double y) {
-        if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)){
+        if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)) {
             return;
         }
         // determine scale
         double oldScale = node.getScaleX();
-        double scale = clamp( oldScale * factor, 0.01, 1);
+        double scale = clamp(oldScale * factor, 0.01, 10);
         //double f = (scale / oldScale) - 1;
 
         // determine offset that we will have to move the node
@@ -66,20 +86,21 @@ public class AnimatedZoomOperator {
 
     /**
      * handles animating/moving a node across a 2d axis based on mouse input
-     * @param node The node to move/pan
+     *
+     * @param node   The node to move/pan
      * @param factor Scaling factor that determines how much the node is moved each time
-     * @param x X cord of the mouse pointer
-     * @param y Y cord of the mouse pointer
+     * @param x      X cord of the mouse pointer
+     * @param y      Y cord of the mouse pointer
      */
-    public void pan(Node node, double factor, double x, double y){
-        if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)){
+    public void pan(Node node, double factor, double x, double y) {
+        if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)) {
             return;
         }
         y = clamp(y, 80, 1080);
         x = clamp(x, 0, 1920);
         // determine scale
         double oldScale = node.getScaleX();
-        double scale = clamp( oldScale * factor, 0.01, 1);
+        double scale = clamp(oldScale * factor, 0.01, 1);
         double f = (scale / oldScale);
 
         // determine offset that we will have to move the node
@@ -100,26 +121,9 @@ public class AnimatedZoomOperator {
         // timeline that scales and moves the node
         timeline.getKeyFrames().clear();
         timeline.getKeyFrames().addAll(
-                new KeyFrame(Duration.millis(100), new KeyValue(node.translateXProperty(),  node.getTranslateX() + moveX)),
+                new KeyFrame(Duration.millis(100), new KeyValue(node.translateXProperty(), node.getTranslateX() + moveX)),
                 new KeyFrame(Duration.millis(100), new KeyValue(node.translateYProperty(), node.getTranslateY() + moveY))
         );
         timeline.play();
-    }
-
-    /**
-     * Used to restrict a double value to a certain range of values
-     * @param val The value to evaluate
-     * @param min The minimum value this function can return
-     * @param max The maximum value this function can return
-     * @return Value between Min and Max limits
-     */
-    public static double clamp(double val, double min, double max) {
-        if (val < min ){
-            return  min;
-        }
-        if (val > max){
-            return max;
-        }
-        return val;
     }
 }

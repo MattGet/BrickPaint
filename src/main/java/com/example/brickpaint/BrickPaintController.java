@@ -18,65 +18,57 @@ import java.util.Optional;
 
 /**
  * Main controller class for the BrickPaint application, handles the FXML methods and variables for the stage
+ *
  * @author matde
  */
 public class BrickPaintController {
 
     /**
+     * The current instance of the canvas where all drawing occurs within the paint app
+     */
+    public CanvasPanel canvasPanel;
+    /**
+     * allows the user to select the current active tool from a dropdown menu
+     */
+    @FXML
+    public ChoiceBox toolType;
+    /**
+     * allows the user to select the current color from a colorpicker menu
+     */
+    @FXML
+    public ColorPicker colorPicker;
+    /**
+     * allows the user to select the current line width from a dropdown menu
+     */
+    @FXML
+    public ComboBox lineWidth;
+    /**
      * The file used to save the canvasPanel, created after the first SaveAs is called
      */
     private File ImageFile;
-
     /**
      * The uppermost Node within the current scene
      */
     @FXML
     private AnchorPane root;
-
     /**
      * The root Node for all drawing components in the program
      */
     @FXML
-    private  AnchorPane middleRoot;
-
-    /**
-     * The main instance of the canvas where all drawing occurs within the paint app
-     */
-    public CanvasPanel canvasPanel;
-
+    private AnchorPane middleRoot;
     /**
      * The path of the source image inserted by the user
      */
     private String ImageURL;
-
-
     /**
      * The instance of the BrickKeys class that manages keybinds for this controller
      */
     private BrickKeys keyBinds;
 
     /**
-     * allows the user to select the current active tool from a dropdown menu
-     */
-    @FXML
-    public ChoiceBox toolType;
-
-    /**
-     * allows the user to select the current color from a colorpicker menu
-     */
-    @FXML
-    public ColorPicker colorPicker;
-
-    /**
-     * allows the user to select the current line width from a dropdown menu
-     */
-    @FXML
-    public ComboBox lineWidth;
-
-    /**
      * Called when the program starts from the application class
      */
-    protected void Start(){
+    protected void Start() {
         canvasPanel = new CanvasPanel(middleRoot, this);
         Scene scene = root.getScene();
         keyBinds = new BrickKeys(scene, this);
@@ -84,28 +76,27 @@ public class BrickPaintController {
         canvasPanel.Setup(keyBinds);
         toolType.getItems().addAll("Normal", "Draw Line");
         toolType.setValue("Normal");
-        lineWidth.getItems().addAll(1, 2,3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 30, 36, 48, 60, 72);
+        lineWidth.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 30, 36, 48, 60, 72);
         lineWidth.setValue(1);
     }
 
     /**
      * returns the current tool selection from the tooltype dropdown as an integer
+     *
      * @return int
      */
-    public int getToolType(){
-        if (this.toolType.getValue() == "Draw Line"){
-            return  1;
+    public int getToolType() {
+        if (this.toolType.getValue() == "Draw Line") {
+            return 1;
         }
         return 0;
     }
-
-
 
     /**
      * Handles the action when a close button is pressed
      */
     @FXML
-    protected void handleButtonClose(){
+    protected void handleButtonClose() {
         root.getScene().getWindow().fireEvent(new WindowEvent(root.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
@@ -113,7 +104,7 @@ public class BrickPaintController {
      * Handles the action when the reset view button is pressed, manually invokes the function in BrickKeys
      */
     @FXML
-    protected void handleResetView(){
+    protected void handleResetView() {
         keyBinds.reset();
     }
 
@@ -121,11 +112,11 @@ public class BrickPaintController {
      * Handles inserting an image into the imageVeiw component, utilizes the file explorer and BrickImage class
      */
     @FXML
-    protected void handleInsertImage(){
+    protected void handleInsertImage() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png", "*.jpg"));
         File imageFile = fileChooser.showOpenDialog(root.getScene().getWindow());
-        if (imageFile.exists()){
+        if (imageFile != null) {
             Image tempImage = new Image(imageFile.toURI().toString());
             ImageURL = imageFile.toURI().toString();
             System.out.print(ImageURL);
@@ -137,7 +128,7 @@ public class BrickPaintController {
      * Handles saving an image from the canvasPanel, if it has not yet been saved will call SaveAs instead
      */
     @FXML
-    protected void handleSaveImage(){
+    protected void handleSaveImage() {
         if (ImageFile == null) {
             ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
             return;
@@ -149,16 +140,16 @@ public class BrickPaintController {
      * Handles saving an image to a user created file from the canvasPanel
      */
     @FXML
-    protected void handleSaveImageAs(){
-      ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
+    protected void handleSaveImageAs() {
+        ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
     }
 
 
     /**
-     *  Creates a new window based off of the About Brick FXML file and controller
+     * Creates a new window based off of the About Brick FXML file and controller
      */
     @FXML
-    protected void handleOpenAboutMenu(){
+    protected void handleOpenAboutMenu() {
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("AboutBrick.fxml"));
@@ -175,10 +166,11 @@ public class BrickPaintController {
 
     /**
      * This method is called or invoked whenever the program is going to be closed
+     *
      * @param event Window event from the Event Class
      */
-    protected void OnClose(WindowEvent event){
-        if (ImageFile == null){
+    protected void OnClose(WindowEvent event) {
+        if (ImageFile == null) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             ButtonType save = new ButtonType("SAVE & QUIT");
             alert.getButtonTypes().remove(ButtonType.OK);
@@ -190,23 +182,20 @@ public class BrickPaintController {
             alert.setContentText("Close without saving?");
             alert.initOwner(root.getScene().getWindow());
             Optional<ButtonType> res = alert.showAndWait();
-            if(res.isPresent()) {
-                if(res.get().equals(ButtonType.CANCEL))
+            if (res.isPresent()) {
+                if (res.get().equals(ButtonType.CANCEL))
                     event.consume();
-                if(res.get().equals(ButtonType.YES)){
+                if (res.get().equals(ButtonType.YES)) {
                     Platform.exit();
                 }
-                if (res.get().equals(save)){
+                if (res.get().equals(save)) {
                     ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
                     Platform.exit();
                 }
             }
+        } else {
+            Platform.exit();
         }
     }
-
-
-
-
-
 
 }

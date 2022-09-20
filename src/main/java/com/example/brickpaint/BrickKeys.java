@@ -3,7 +3,8 @@ package com.example.brickpaint;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.input.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,10 +13,10 @@ import java.util.Set;
 
 /**
  * Handles keyboard input and methods for the BrickPaintController Class
+ *
  * @author matde
  */
 public class BrickKeys {
-
 
 
     /**
@@ -32,10 +33,11 @@ public class BrickKeys {
 
     /**
      * Constructor for BrickKeys that defines the scene and controller
+     *
      * @param input The scene in which to look for key events
-     * @param main The controller class that will "own" this instance of BrickKeys
+     * @param main  The controller class that will "own" this instance of BrickKeys
      */
-    public BrickKeys(Scene input, BrickPaintController main){
+    public BrickKeys(Scene input, BrickPaintController main) {
         scene = input;
         controller = main;
 
@@ -47,10 +49,13 @@ public class BrickKeys {
     /**
      * Handles creation of the event handlers for key events and calls the appropriate method
      */
-    public void SetKeyBinds(){
+    public void SetKeyBinds() {
         scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
-            if(key.getCode()== KeyCode.R && key.isControlDown()) {
+            if (key.getCode() == KeyCode.R && key.isControlDown()) {
                 this.reset();
+            }
+            if (key.getCode() == KeyCode.Z && key.isControlDown()) {
+
             }
         });
     }
@@ -58,7 +63,7 @@ public class BrickKeys {
     /**
      * resets the view of the canvasPanel from the controller class, triggered with CTRL+R
      */
-    public void reset(){
+    public void reset() {
         Node node = controller.canvasPanel.root;
         node.setTranslateX(0);
         node.setTranslateY(0);
@@ -69,6 +74,7 @@ public class BrickKeys {
 
     /**
      * Handles all input from the keyboard and maintains an active list of currently pressed keys
+     *
      * @author matde
      */
     static class InputHandler implements EventHandler<KeyEvent> {
@@ -79,6 +85,7 @@ public class BrickKeys {
 
         /**
          * Handles key events for when keys are pressed or released, will then add or remove them from the list
+         *
          * @param event Key event from the Input class
          */
         @Override
@@ -92,6 +99,7 @@ public class BrickKeys {
 
         /**
          * Getter for the active keys Set
+         *
          * @return unmodifableSet
          */
         public Set<KeyCode> getActiveKeys() {
