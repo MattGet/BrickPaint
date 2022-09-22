@@ -64,7 +64,7 @@ public class BrickKeys {
      * resets the view of the canvasPanel from the controller class, triggered with CTRL+R
      */
     public void reset() {
-        Node node = controller.canvasPanel.root;
+        Node node = controller.canvasPanel.pane;
         node.setTranslateX(0);
         node.setTranslateY(0);
         node.setScaleX(1);

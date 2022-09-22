@@ -18,10 +18,9 @@ public abstract class BrickImage {
     public static void Insert(CanvasPanel panel, Image image) {
         double x = image.getWidth();
         double y = image.getHeight();
-        panel.root.setPrefWidth(x);
-        panel.root.setPrefHeight(y);
-        panel.canvas.setWidth(x);
-        panel.canvas.setHeight(y);
+        panel.setSizeX(x);
+        panel.setSizeY(y);
+        panel.UpdateSize();
         panel.canvas.getGraphicsContext2D().drawImage(image, 0, 0);
 
     }

@@ -8,6 +8,7 @@ module com.example.brickpaint {
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
     requires java.desktop;
+    requires com.gluonhq.charm.glisten;
 
     opens com.example.brickpaint to javafx.fxml;
     exports com.example.brickpaint;

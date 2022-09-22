@@ -1,5 +1,6 @@
 package com.example.brickpaint;
 
+import com.gluonhq.charm.glisten.control.Icon;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -7,10 +8,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
+import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -51,11 +53,7 @@ public class BrickPaintController {
      */
     @FXML
     private AnchorPane root;
-    /**
-     * The root Node for all drawing components in the program
-     */
-    @FXML
-    private AnchorPane middleRoot;
+
     /**
      * The path of the source image inserted by the user
      */
@@ -65,31 +63,73 @@ public class BrickPaintController {
      */
     private BrickKeys keyBinds;
 
+    @FXML
+    private TabPane tabs;
+
+    @FXML
+    public TextField cWidth;
+
+    @FXML
+    public TextField cHeight;
+
+    @FXML
+    private ToggleButtonGroup cGroup;
+
     /**
      * Called when the program starts from the application class
      */
     protected void Start() {
-        canvasPanel = new CanvasPanel(middleRoot, this);
         Scene scene = root.getScene();
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
-        canvasPanel.Setup(keyBinds);
+        canvasPanel = new CanvasPanel(tabs, keyBinds, this);
         toolType.getItems().addAll("Normal", "Draw Line");
         toolType.setValue("Normal");
-        lineWidth.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 30, 36, 48, 60, 72);
-        lineWidth.setValue(1);
+        lineWidth.getItems().addAll(1, 2, 4, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72);
+        lineWidth.setValue(10);
+        colorPicker.setValue(Color.BLACK);
+        cGroup.getToggles().get(0).setSelected(true);
+        cGroup.getToggles().get(0).setGraphic(new Icon());
     }
 
     /**
-     * returns the current tool selection from the tooltype dropdown as an integer
+     * returns the current tool selection from the tooltype toggle group as an integer
      *
      * @return int
      */
     public int getToolType() {
-        if (this.toolType.getValue() == "Draw Line") {
-            return 1;
+        for (ToggleButton button: cGroup.getToggles()) {
+            if(button.isSelected()){
+                return cGroup.getToggles().indexOf(button);
+            }
         }
         return 0;
+    }
+
+    @FXML
+    protected void handleCWidth(){
+        try{
+            String value = cWidth.getText();
+            double numb = Double.parseDouble(value);
+            canvasPanel.setSizeX(numb);
+            System.out.println("Set Width");
+        }
+        catch (Exception e){
+            System.out.println("Canvas Width input was Invalid");
+        }
+    }
+
+    @FXML
+    protected void handleCHeight(){
+        try{
+            String value = cHeight.getText();
+            double numb = Double.parseDouble(value);
+            canvasPanel.setSizeY(numb);
+            System.out.println("Set Height");
+        }
+        catch (Exception e){
+            System.out.println("Canvas Height input was Invalid");
+        }
     }
 
     /**

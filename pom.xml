@@ -3,12 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.example</groupId>
     <artifactId>BrickPaint</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>BrickPaint</name>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.8.2</junit.version>
@@ -131,8 +129,20 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.gluonhq</groupId>
+            <artifactId>charm-glisten</artifactId>
+            <version>6.2.0</version>
+        </dependency>
     </dependencies>
-
+    <repositories>
+        <repository>
+            <id>charm-glisten</id>
+            <name>charm-glisten Repository</name>
+            <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
     <build>
         <plugins>
             <plugin>
@@ -163,6 +173,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.gluonhq</groupId>
+                <artifactId>gluonfx-maven-plugin</artifactId>
+                <version>1.0.15</version>
+                <configuration>
+                    <mainClass>com.example.brickpaint.BrickPaintApp</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>

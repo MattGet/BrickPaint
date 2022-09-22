@@ -59,7 +59,9 @@ public abstract class BrickSave {
         String fileName = ImagePath.substring(StartIndex + 1);
         fileName = fileName.replace('%', ' ');
         fileChooser.setInitialFileName(fileName);
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png", "*.jpg"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("PNG", "*.png"),
+                new FileChooser.ExtensionFilter("JPEG", "*.jpg"),
+                new FileChooser.ExtensionFilter("BMP", "*.bmp"));
         //try to open file chooser and save the specified image
         try {
             File file = fileChooser.showSaveDialog(node.getScene().getWindow());
