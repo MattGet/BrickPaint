@@ -91,7 +91,8 @@ public class BrickPaintController {
         cGroup.getToggles().get(0).setGraphic(new Icon());
     }
 
-    private void addTab(){
+    @FXML
+    protected void addTab(){
         Dialog dialog = new Dialog(DialogType.INPUT_TEXT, "Create New Project", "Project Name: ");
         dialog.showAndWait();
         if (dialog.getResponse() == DialogResponse.SEND){

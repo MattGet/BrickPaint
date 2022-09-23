@@ -29,6 +29,7 @@
                     <menus>
                       <Menu mnemonicParsing="false" text="File">
                         <items>
+                              <MenuItem mnemonicParsing="false" onAction="#addTab" text="Create New Project (Ctrl + N)" />
                               <MenuItem mnemonicParsing="false" onAction="#handleSaveImage" text="Save (Ctrl + S)" />
                               <MenuItem mnemonicParsing="false" onAction="#handleSaveImageAs" text="Save As (Ctrl + Alt + S)" />
                           <MenuItem fx:id="closeButton" mnemonicParsing="false" onAction="#handleButtonClose" text="Close" />

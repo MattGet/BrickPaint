@@ -55,8 +55,8 @@ public class BrickKeys {
             if (key.getCode() == KeyCode.R && key.isControlDown()) {
                 this.reset();
             }
-            if (key.getCode() == KeyCode.Z && key.isControlDown()) {
-
+            if (key.getCode() == KeyCode.N && key.isControlDown()) {
+                controller.addTab();
             }
 
             if (key.getCode() == KeyCode.S && key.isControlDown() && key.isAltDown()){
