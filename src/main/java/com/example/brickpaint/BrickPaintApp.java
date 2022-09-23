@@ -43,8 +43,9 @@ public class BrickPaintApp extends Application {
         stage.setMaximized(true);
         BrickPaintController controller = fxmlLoader.getController();
         //Robot robot = new Robot();
-        controller.Start();
+
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, controller::OnClose);
         stage.show();
+        controller.Start();
     }
 }

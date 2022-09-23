@@ -27,6 +27,12 @@ public class CanvasPanel {
      * Instance of the controller class for this canvas
      */
     private final BrickPaintController controller;
+
+    /**
+     * The Name of the Panel
+     */
+    public final String Name;
+
     /**
      * The parent Pane of this Canvas
      */
@@ -75,10 +81,11 @@ public class CanvasPanel {
      * @param tPane  The parent of this class
      * @param controllerIn The controller class for this canvas
      */
-    public CanvasPanel(TabPane tPane, BrickKeys keys, BrickPaintController controllerIn) {
+    public CanvasPanel(TabPane tPane, String name, BrickKeys keys, BrickPaintController controllerIn) {
         parent = tPane;
         controller = controllerIn;
-        Setup(keys);
+        Name = name;
+        Setup(keys, name);
     }
 
     /**
@@ -86,7 +93,7 @@ public class CanvasPanel {
      *
      * @param keys The instance of BickKyes that this class should use
      */
-    public void Setup(BrickKeys keys) {
+    public void Setup(BrickKeys keys, String name) {
 
         sketchCanvas.setHeight(630);
         sketchCanvas.setWidth(1520);
@@ -123,7 +130,7 @@ public class CanvasPanel {
         scrollPane = new ScrollPane(pane);
         scrollPane.setPrefViewportWidth(1520);
         scrollPane.setPrefViewportHeight(630);
-        parent.getTabs().add(new Tab("Untitled Project", scrollPane));
+        parent.getTabs().add(new Tab(name, scrollPane));
         AnchorPane.setBottomAnchor(scrollPane, (double) 0);
         AnchorPane.setTopAnchor(scrollPane, (double) 0);
         AnchorPane.setRightAnchor(scrollPane, (double) 0);

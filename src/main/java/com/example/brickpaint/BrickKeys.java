@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.WindowEvent;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,6 +58,26 @@ public class BrickKeys {
             if (key.getCode() == KeyCode.Z && key.isControlDown()) {
 
             }
+
+            if (key.getCode() == KeyCode.S && key.isControlDown() && key.isAltDown()){
+                controller.handleSaveImageAs();
+            }
+            else if (key.getCode() == KeyCode.S && key.isControlDown()) {
+                controller.handleSaveImage();
+            }
+
+            if (key.getCode() == KeyCode.E && key.isControlDown() && key.isAltDown()){
+                controller.OnClose(new WindowEvent(scene.getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+            }
+            if (key.getCode() == KeyCode.C && key.isControlDown() && key.isAltDown()){
+                controller.handleClear();
+            }
+            if (key.getCode() == KeyCode.I && key.isControlDown()){
+                controller.handleInsertImage();
+            }
+            if (key.getCode() == KeyCode.A && key.isControlDown() && key.isAltDown()){
+                controller.handleOpenAboutMenu();
+            }
         });
     }
 
@@ -64,7 +85,7 @@ public class BrickKeys {
      * resets the view of the canvasPanel from the controller class, triggered with CTRL+R
      */
     public void reset() {
-        Node node = controller.canvasPanel.pane;
+        Node node = controller.getCanvas().pane;
         node.setTranslateX(0);
         node.setTranslateY(0);
         node.setScaleX(1);

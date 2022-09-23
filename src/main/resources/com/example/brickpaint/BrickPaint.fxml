@@ -29,29 +29,29 @@
                     <menus>
                       <Menu mnemonicParsing="false" text="File">
                         <items>
-                              <MenuItem mnemonicParsing="false" onAction="#handleSaveImage" text="Save" />
-                              <MenuItem mnemonicParsing="false" onAction="#handleSaveImageAs" text="Save As" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleSaveImage" text="Save (Ctrl + S)" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleSaveImageAs" text="Save As (Ctrl + Alt + S)" />
                           <MenuItem fx:id="closeButton" mnemonicParsing="false" onAction="#handleButtonClose" text="Close" />
                         </items>
                       </Menu>
                       <Menu mnemonicParsing="false" text="Edit">
                         <items>
-                          <MenuItem mnemonicParsing="false" onAction="#handleClear" text="Clear Page" />
+                          <MenuItem mnemonicParsing="false" onAction="#handleClear" text="Clear Page (Ctrl + Alt + C)" />
                         </items>
                       </Menu>
                         <Menu mnemonicParsing="false" text="Veiw">
                           <items>
-                            <MenuItem mnemonicParsing="false" onAction="#handleResetView" text="Reset" />
+                            <MenuItem mnemonicParsing="false" onAction="#handleResetView" text="Reset (Ctrl + R)" />
                           </items>
                         </Menu>
                       <Menu mnemonicParsing="false" text="Insert">
                         <items>
-                          <MenuItem fx:id="insertImage" mnemonicParsing="false" onAction="#handleInsertImage" text="Image" />
+                          <MenuItem fx:id="insertImage" mnemonicParsing="false" onAction="#handleInsertImage" text="Image (Ctrl + I)" />
                         </items>
                       </Menu>
                         <Menu mnemonicParsing="false" text="Help">
                           <items>
-                            <MenuItem mnemonicParsing="false" onAction="#handleOpenAboutMenu" text="About" />
+                            <MenuItem mnemonicParsing="false" onAction="#handleOpenAboutMenu" text="About (Ctrl + Alt + A)" />
                           </items>
                         </Menu>
                     </menus>

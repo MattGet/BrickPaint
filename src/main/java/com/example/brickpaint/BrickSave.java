@@ -40,25 +40,22 @@ public abstract class BrickSave {
 
     /**
      * Takes a snapshot of a Node and saves it to a file created by the user. Will open the file explorer
-     * and initially name the file based off the ImagePath
+     * and initially name the file based off the Name
      *
      * @param node      The node from which to take a screenshot of
-     * @param ImagePath Optional path string from which to initially name the new file with
+     * @param Name Optional path string from which to initially name the new file with
      * @return returns file that image was saved to, else returns null
      */
-    public static File saveImageASFromNode(Node node, String ImagePath) {
-        if (ImagePath == null) {
-            ImagePath = "";
+    public static File saveImageASFromNode(Node node, String Name) {
+        if (Name == null) {
+            Name = "";
         }
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
         WritableImage imageToSave = node.snapshot(parameters, null);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save");
-        int StartIndex = ImagePath.lastIndexOf('/');
-        String fileName = ImagePath.substring(StartIndex + 1);
-        fileName = fileName.replace('%', ' ');
-        fileChooser.setInitialFileName(fileName);
+        fileChooser.setInitialFileName(Name);
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("PNG", "*.png"),
                 new FileChooser.ExtensionFilter("JPEG", "*.jpg"),
                 new FileChooser.ExtensionFilter("BMP", "*.bmp"));
@@ -66,7 +63,8 @@ public abstract class BrickSave {
         try {
             File file = fileChooser.showSaveDialog(node.getScene().getWindow());
             BufferedImage bImage = SwingFXUtils.fromFXImage(imageToSave, null);
-            ImageIO.write(bImage, "png", file);
+            String type = fileChooser.getSelectedExtensionFilter().getExtensions().get(0).substring(2);
+            ImageIO.write(bImage, type, file);
             Desktop desktop = Desktop.getDesktop();
             desktop.open(file);
             return file;

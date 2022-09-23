@@ -134,6 +134,12 @@
             <artifactId>charm-glisten</artifactId>
             <version>6.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.daytron</groupId>
+            <artifactId>SimpleDialogFX</artifactId>
+            <version>2.2.0</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
@@ -141,6 +147,10 @@
             <name>charm-glisten Repository</name>
             <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
             <layout>default</layout>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
     <build>

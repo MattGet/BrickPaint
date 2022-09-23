@@ -9,6 +9,7 @@ module com.example.brickpaint {
     requires com.almasb.fxgl.all;
     requires java.desktop;
     requires com.gluonhq.charm.glisten;
+    requires SimpleDialogFX;
 
     opens com.example.brickpaint to javafx.fxml;
     exports com.example.brickpaint;

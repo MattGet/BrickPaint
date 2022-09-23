@@ -1,5 +1,8 @@
 package com.example.brickpaint;
 
+import com.github.daytron.simpledialogfx.data.DialogResponse;
+import com.github.daytron.simpledialogfx.dialog.Dialog;
+import com.github.daytron.simpledialogfx.dialog.DialogType;
 import com.gluonhq.charm.glisten.control.Icon;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -15,7 +18,12 @@ import javafx.stage.WindowEvent;
 import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import com.github.daytron.simpledialogfx.dialog.DialogType;
+import com.github.daytron.simpledialogfx.dialog.Dialog;
+import com.github.daytron.simpledialogfx.data.DialogResponse;
 
 
 /**
@@ -28,7 +36,8 @@ public class BrickPaintController {
     /**
      * The current instance of the canvas where all drawing occurs within the paint app
      */
-    public CanvasPanel canvasPanel;
+    public List<CanvasPanel> canvasPanels = new ArrayList<CanvasPanel>();
+
     /**
      * allows the user to select the current color from a colorpicker menu
      */
@@ -49,10 +58,7 @@ public class BrickPaintController {
     @FXML
     private AnchorPane root;
 
-    /**
-     * The path of the source image inserted by the user
-     */
-    private String ImageURL;
+
     /**
      * The instance of the BrickKeys class that manages keybinds for this controller
      */
@@ -77,13 +83,30 @@ public class BrickPaintController {
         Scene scene = root.getScene();
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
-        canvasPanel = new CanvasPanel(tabs, keyBinds, this);
+        addTab();
         lineWidth.getItems().addAll(1, 2, 4, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72);
         lineWidth.setValue(10);
         colorPicker.setValue(Color.BLACK);
         cGroup.getToggles().get(0).setSelected(true);
         cGroup.getToggles().get(0).setGraphic(new Icon());
     }
+
+    private void addTab(){
+        Dialog dialog = new Dialog(DialogType.INPUT_TEXT, "Create New Project", "Project Name: ");
+        dialog.showAndWait();
+        if (dialog.getResponse() == DialogResponse.SEND){
+            String name = dialog.getTextEntry();
+            canvasPanels.add(new CanvasPanel(tabs, name, keyBinds, this));
+        }
+    }
+
+    public CanvasPanel getCanvas(){
+       CanvasPanel panel;
+       int curr = tabs.getSelectionModel().getSelectedIndex();
+       panel = canvasPanels.get(curr);
+       return panel;
+    }
+
 
     /**
      * returns the current tool selection from the tooltype toggle group as an integer
@@ -104,7 +127,7 @@ public class BrickPaintController {
         try{
             String value = cWidth.getText();
             double numb = Double.parseDouble(value);
-            canvasPanel.setSizeX(numb);
+            this.getCanvas().setSizeX(numb);
             System.out.println("Set Width");
         }
         catch (Exception e){
@@ -117,7 +140,7 @@ public class BrickPaintController {
         try{
             String value = cHeight.getText();
             double numb = Double.parseDouble(value);
-            canvasPanel.setSizeY(numb);
+            this.getCanvas().setSizeY(numb);
             System.out.println("Set Height");
         }
         catch (Exception e){
@@ -143,7 +166,22 @@ public class BrickPaintController {
 
     @FXML
     protected void handleClear(){
-        canvasPanel.clearAll();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.getButtonTypes().remove(ButtonType.OK);
+        alert.getButtonTypes().remove(ButtonType.CANCEL);
+        alert.getButtonTypes().add(ButtonType.YES);
+        alert.getButtonTypes().add(ButtonType.NO);
+        alert.setHeaderText("Are you sure you want to clear the current canvas?");
+        alert.setTitle("Clear Canvas");
+        alert.initOwner(root.getScene().getWindow());
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            if (result.get().equals(ButtonType.NO))
+                return;
+            if (result.get().equals(ButtonType.YES)) {
+                this.getCanvas().clearAll();
+            }
+        }
     }
 
     /**
@@ -152,13 +190,11 @@ public class BrickPaintController {
     @FXML
     protected void handleInsertImage() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png", "*.jpg"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png", "*.jpg", "*.bmp"));
         File imageFile = fileChooser.showOpenDialog(root.getScene().getWindow());
         if (imageFile != null) {
             Image tempImage = new Image(imageFile.toURI().toString());
-            ImageURL = imageFile.toURI().toString();
-            System.out.print(ImageURL);
-            BrickImage.Insert(canvasPanel, tempImage);
+            BrickImage.Insert(this.getCanvas(), tempImage);
         }
     }
 
@@ -168,10 +204,10 @@ public class BrickPaintController {
     @FXML
     protected void handleSaveImage() {
         if (ImageFile == null) {
-            ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
+            ImageFile = BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name);
             return;
         }
-        BrickSave.saveImageFromNode(canvasPanel.root, ImageFile);
+        BrickSave.saveImageFromNode(this.getCanvas().root, ImageFile);
     }
 
     /**
@@ -179,7 +215,7 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImageAs() {
-        ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
+        ImageFile = BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name);
     }
 
 
@@ -227,7 +263,7 @@ public class BrickPaintController {
                     Platform.exit();
                 }
                 if (res.get().equals(save)) {
-                    ImageFile = BrickSave.saveImageASFromNode(canvasPanel.root, ImageURL);
+                    ImageFile = BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name);
                     Platform.exit();
                 }
             }
