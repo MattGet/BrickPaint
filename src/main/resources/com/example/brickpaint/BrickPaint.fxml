@@ -61,10 +61,16 @@
                         <ToggleButtonGroup fx:id="cGroup" selectionType="SINGLE">
                             <toggles>
                                 <ToggleButton selected="true" text="Pointer" textAlignment="CENTER" />
+                              <ToggleButton text="Pencil" textAlignment="CENTER" />
                                 <ToggleButton text="Line" textAlignment="CENTER" />
                                 <ToggleButton text="Rectangle" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Square" textAlignment="CENTER" />
+                              <ToggleButton mnemonicParsing="false" text="Circle" textAlignment="CENTER" />
+                              <ToggleButton mnemonicParsing="false" text="Ellipse" textAlignment="CENTER" />
                             </toggles>
+                           <padding>
+                              <Insets top="30.0" />
+                           </padding>
                         </ToggleButtonGroup>
                         <ColorPicker fx:id="colorPicker" />
                         <ComboBox fx:id="lineWidth" prefWidth="150.0" />

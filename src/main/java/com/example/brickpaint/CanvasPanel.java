@@ -12,6 +12,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.util.Pair;
 
 
@@ -172,16 +173,15 @@ public class CanvasPanel {
     public void onMousePressed(MouseEvent event) {
         initialTouch = new Point2D(event.getX(), event.getY());
         isIntial = true;
-        switch (controller.getToolType()){
-            case 1:
-            case 2:
-            case 3:
-                undoManager.setMark();
-                initDraw(canvas.getGraphicsContext2D());
-                initDraw(sketchCanvas.getGraphicsContext2D());
-                break;
-            default:
-                break;
+        if (controller.getToolType() != 0){
+            undoManager.setMark();
+            initDraw(canvas.getGraphicsContext2D());
+            initDraw(sketchCanvas.getGraphicsContext2D());
+        }
+        if (controller.getToolType() == 1){
+            gc.beginPath();
+            gc.moveTo(event.getX(), event.getY());
+            gc.stroke();
         }
     }
 
@@ -192,16 +192,26 @@ public class CanvasPanel {
      */
     public void onMouseReleased(MouseEvent event) {
         switch (controller.getToolType()) {
-            case 1:
+            case 2:
                 gc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 break;
-            case 2:
+            case 3:
                 ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-            case 3:
+                break;
+            case 4:
                 ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                break;
+            case 5:
+                ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                break;
+            case 6:
+                ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                break;
             default:
                 break;
         }
@@ -217,6 +227,12 @@ public class CanvasPanel {
         gc.setFill(controller.colorPicker.getValue());
         gc.setStroke(controller.colorPicker.getValue());
         gc.setLineWidth((int) controller.lineWidth.getValue());
+        if (controller.getToolType() == 1){
+            gc.setLineCap(StrokeLineCap.ROUND);
+        }
+        else {
+            gc.setLineCap(StrokeLineCap.SQUARE);
+        }
     }
 
     public void clearAll(){
@@ -242,16 +258,28 @@ public class CanvasPanel {
                 operator.pan(pane, zoomFactor, event.getSceneX(), event.getSceneY());
                 break;
             case 1:
-                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                sc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
+                gc.lineTo(event.getX(), event.getY());
+                gc.stroke();
                 break;
             case 2:
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                sc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                 break;
             case 3:
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                break;
+            case 4:
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                break;
+            case 5:
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                break;
+            case 6:
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
                 break;
             default:
                 break;
