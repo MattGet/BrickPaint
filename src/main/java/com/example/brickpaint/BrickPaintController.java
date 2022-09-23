@@ -30,11 +30,6 @@ public class BrickPaintController {
      */
     public CanvasPanel canvasPanel;
     /**
-     * allows the user to select the current active tool from a dropdown menu
-     */
-    @FXML
-    public ChoiceBox toolType;
-    /**
      * allows the user to select the current color from a colorpicker menu
      */
     @FXML
@@ -83,8 +78,6 @@ public class BrickPaintController {
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         canvasPanel = new CanvasPanel(tabs, keyBinds, this);
-        toolType.getItems().addAll("Normal", "Draw Line");
-        toolType.setValue("Normal");
         lineWidth.getItems().addAll(1, 2, 4, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72);
         lineWidth.setValue(10);
         colorPicker.setValue(Color.BLACK);
@@ -146,6 +139,11 @@ public class BrickPaintController {
     @FXML
     protected void handleResetView() {
         keyBinds.reset();
+    }
+
+    @FXML
+    protected void handleClear(){
+        canvasPanel.clearAll();
     }
 
     /**

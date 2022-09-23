@@ -38,7 +38,7 @@ public class BrickPaintApp extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
         stage.setTitle("Brick Paint");
         stage.setScene(scene);
-        Image BrickIcon = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("BrickIcon.jpg")));
+        Image BrickIcon = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/BrickIcon.jpg")));
         stage.getIcons().add(BrickIcon);
         stage.setMaximized(true);
         BrickPaintController controller = fxmlLoader.getController();

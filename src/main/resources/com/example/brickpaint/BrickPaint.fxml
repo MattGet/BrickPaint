@@ -2,7 +2,6 @@
 
 <?import com.gluonhq.charm.glisten.control.ToggleButtonGroup?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -13,8 +12,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -39,7 +36,7 @@
                       </Menu>
                       <Menu mnemonicParsing="false" text="Edit">
                         <items>
-                          <MenuItem mnemonicParsing="false" text="Clear Page" />
+                          <MenuItem mnemonicParsing="false" onAction="#handleClear" text="Clear Page" />
                         </items>
                       </Menu>
                         <Menu mnemonicParsing="false" text="Veiw">
@@ -63,20 +60,12 @@
                      <items>
                         <ToggleButtonGroup fx:id="cGroup" selectionType="SINGLE">
                             <toggles>
-                                <ToggleButton selected="true" text="Normal" textAlignment="CENTER" />
-                                <ToggleButton>
-                                 <graphic>
-                                    <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@Icons/BrickIcon.jpg" />
-                                       </image>
-                                    </ImageView>
-                                 </graphic>
-                                </ToggleButton>
-                                <ToggleButton />
+                                <ToggleButton selected="true" text="Pointer" textAlignment="CENTER" />
+                                <ToggleButton text="Line" textAlignment="CENTER" />
+                                <ToggleButton text="Rectangle" textAlignment="CENTER" />
+                              <ToggleButton mnemonicParsing="false" text="Square" textAlignment="CENTER" />
                             </toggles>
                         </ToggleButtonGroup>
-                        <ChoiceBox fx:id="toolType" prefWidth="150.0" />
                         <ColorPicker fx:id="colorPicker" />
                         <ComboBox fx:id="lineWidth" prefWidth="150.0" />
                         <GridPane>

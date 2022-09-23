@@ -61,6 +61,9 @@ public class CanvasPanel {
 
     public AnchorPane pane = new AnchorPane();
 
+    private GraphicsContext gc = canvas.getGraphicsContext2D();
+    private  GraphicsContext sc = sketchCanvas.getGraphicsContext2D();
+
 
     //private GraphicsContext gc;
     private final SnapshotParameters parameters = new SnapshotParameters();
@@ -139,7 +142,7 @@ public class CanvasPanel {
 
         operator = new AnimatedZoomOperator(keys);
         undoManager = new UndoManager();
-        //gc = canvas.getGraphicsContext2D();
+        gc = canvas.getGraphicsContext2D();
     }
 
     public void UpdateSize(){
@@ -171,6 +174,8 @@ public class CanvasPanel {
         isIntial = true;
         switch (controller.getToolType()){
             case 1:
+            case 2:
+            case 3:
                 undoManager.setMark();
                 initDraw(canvas.getGraphicsContext2D());
                 initDraw(sketchCanvas.getGraphicsContext2D());
@@ -188,9 +193,15 @@ public class CanvasPanel {
     public void onMouseReleased(MouseEvent event) {
         switch (controller.getToolType()) {
             case 1:
-                canvas.getGraphicsContext2D().strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
-                sketchCanvas.getGraphicsContext2D().clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                gc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 break;
+            case 2:
+                ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            case 3:
+                ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             default:
                 break;
         }
@@ -208,6 +219,11 @@ public class CanvasPanel {
         gc.setLineWidth((int) controller.lineWidth.getValue());
     }
 
+    public void clearAll(){
+        sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+        gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+    }
+
 
     /**
      * Handles any actions which require the OnDrag mouse event within the canvas
@@ -216,7 +232,6 @@ public class CanvasPanel {
      */
     public void onDrag(MouseEvent event) {
         currTouch = new Point2D(event.getX(), event.getY());
-
         switch (controller.getToolType()){
             case 0:
                 double zoomFactor = 1.5;
@@ -227,8 +242,16 @@ public class CanvasPanel {
                 operator.pan(pane, zoomFactor, event.getSceneX(), event.getSceneY());
                 break;
             case 1:
-                sketchCanvas.getGraphicsContext2D().clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                sketchCanvas.getGraphicsContext2D().strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                sc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
+                break;
+            case 2:
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                break;
+            case 3:
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
                 break;
             default:
                 break;
