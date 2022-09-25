@@ -13,7 +13,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
-import javafx.util.Pair;
 
 
 /**
@@ -24,19 +23,19 @@ import javafx.util.Pair;
 public class CanvasPanel {
 
     /**
-     * Instance of the controller class for this canvas
-     */
-    private final BrickPaintController controller;
-
-    /**
      * The Name of the Panel
      */
     public final String Name;
-
+    /**
+     * Instance of the controller class for this canvas
+     */
+    private final BrickPaintController controller;
     /**
      * The parent Pane of this Canvas
      */
     private final TabPane parent;
+    //private GraphicsContext gc;
+    private final SnapshotParameters parameters = new SnapshotParameters();
     /**
      * The root Node that all of the canvas components are created under
      */
@@ -49,11 +48,12 @@ public class CanvasPanel {
      * The viewport (scrollpane) that the entire canvas panel will reside within
      */
     public ScrollPane scrollPane;
+    public Canvas sketchCanvas = new Canvas();
+    public AnchorPane pane = new AnchorPane();
     /**
      * Coordinates of the most recent mouse press
      */
     private Point2D initialTouch;
-
     /**
      * Coordinates of the mouse
      */
@@ -63,22 +63,15 @@ public class CanvasPanel {
      */
     private AnimatedZoomOperator operator;
     private UndoManager undoManager;
-
-    public Canvas sketchCanvas = new Canvas();
-
-    public AnchorPane pane = new AnchorPane();
-
     private GraphicsContext gc = canvas.getGraphicsContext2D();
-    private  GraphicsContext sc = sketchCanvas.getGraphicsContext2D();
-
-
-    //private GraphicsContext gc;
-    private final SnapshotParameters parameters = new SnapshotParameters();
+    private final GraphicsContext sc = sketchCanvas.getGraphicsContext2D();
     private boolean isIntial = false;
+    private final Double cWidth = 1024d;
+    private final Double cHeight = 1024d;
     /**
      * Default Constructor
      *
-     * @param tPane  The parent of this class
+     * @param tPane        The parent of this class
      * @param controllerIn The controller class for this canvas
      */
     public CanvasPanel(TabPane tPane, String name, BrickKeys keys, BrickPaintController controllerIn) {
@@ -95,13 +88,13 @@ public class CanvasPanel {
      */
     public void Setup(BrickKeys keys, String name) {
 
-        sketchCanvas.setHeight(630);
-        sketchCanvas.setWidth(1520);
-        canvas.setHeight(630);
-        canvas.setWidth(1520);
+        sketchCanvas.setHeight(cHeight);
+        sketchCanvas.setWidth(cWidth);
+        canvas.setHeight(cHeight);
+        canvas.setWidth(cWidth);
 
         AnchorPane canvasPane = new AnchorPane(canvas);
-        canvasPane.setStyle("-fx-background-color: lightgrey;");
+        canvasPane.setStyle("-fx-background-color: white;");
         AnchorPane sCPane = new AnchorPane(sketchCanvas);
 
         AnchorPane.setLeftAnchor(canvas, 0.0);
@@ -114,8 +107,8 @@ public class CanvasPanel {
         AnchorPane.setTopAnchor(sketchCanvas, 0.0);
         AnchorPane.setBottomAnchor(sketchCanvas, 0.0);
 
-        root.setPrefWidth(1520);
-        root.setPrefHeight(630);
+        root.setPrefWidth(cWidth);
+        root.setPrefHeight(cHeight);
         root.getChildren().add(canvasPane);
         root.getChildren().add(sCPane);
         AnchorPane.setLeftAnchor(root, 0.0);
@@ -124,20 +117,22 @@ public class CanvasPanel {
         AnchorPane.setBottomAnchor(root, 0.0);
 
         pane.getChildren().add(root);
-        pane.setPrefHeight(630);
-        pane.setPrefWidth(1520);
+        pane.setPrefHeight(cHeight);
+        pane.setPrefWidth(cWidth);
+        pane.getStyleClass().add("border");
 
         scrollPane = new ScrollPane(pane);
-        scrollPane.setPrefViewportWidth(1520);
-        scrollPane.setPrefViewportHeight(630);
-        parent.getTabs().add(new Tab(name, scrollPane));
+        scrollPane.setPrefViewportWidth(cWidth);
+        scrollPane.setPrefViewportHeight(cHeight);
+        Tab tab = new Tab(name, scrollPane);
+        parent.getTabs().add(tab);
         AnchorPane.setBottomAnchor(scrollPane, (double) 0);
         AnchorPane.setTopAnchor(scrollPane, (double) 0);
         AnchorPane.setRightAnchor(scrollPane, (double) 0);
         AnchorPane.setLeftAnchor(scrollPane, (double) 0);
 
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         UpdateSize();
 
@@ -153,18 +148,19 @@ public class CanvasPanel {
         gc = canvas.getGraphicsContext2D();
     }
 
-    public void UpdateSize(){
+    public void UpdateSize() {
         controller.cHeight.setText(String.valueOf(canvas.getHeight()));
         controller.cWidth.setText(String.valueOf(canvas.getWidth()));
     }
 
-    public void setSizeX(double x){
+    public void setSizeX(double x) {
         canvas.setWidth(x);
         sketchCanvas.setWidth(x);
         pane.setPrefWidth(x);
         root.setPrefWidth(x);
     }
-    public void setSizeY(double y){
+
+    public void setSizeY(double y) {
         canvas.setHeight(y);
         sketchCanvas.setHeight(y);
         root.setPrefHeight(y);
@@ -180,12 +176,12 @@ public class CanvasPanel {
     public void onMousePressed(MouseEvent event) {
         initialTouch = new Point2D(event.getX(), event.getY());
         isIntial = true;
-        if (controller.getToolType() != 0){
+        if (controller.getToolType() != BrickTools.Pointer) {
             undoManager.setMark();
             initDraw(canvas.getGraphicsContext2D());
             initDraw(sketchCanvas.getGraphicsContext2D());
         }
-        if (controller.getToolType() == 1){
+        if (controller.getToolType() == BrickTools.Pencil) {
             gc.beginPath();
             gc.moveTo(event.getX(), event.getY());
             gc.stroke();
@@ -199,23 +195,23 @@ public class CanvasPanel {
      */
     public void onMouseReleased(MouseEvent event) {
         switch (controller.getToolType()) {
-            case 2:
+            case Line:
                 gc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 break;
-            case 3:
+            case Rectangle:
                 ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 break;
-            case 4:
+            case Square:
                 ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 break;
-            case 5:
+            case Circle:
                 ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 break;
-            case 6:
+            case Oval:
                 ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 break;
@@ -233,16 +229,23 @@ public class CanvasPanel {
     private void initDraw(GraphicsContext gc) {
         gc.setFill(controller.colorPicker.getValue());
         gc.setStroke(controller.colorPicker.getValue());
-        gc.setLineWidth((int) controller.lineWidth.getValue());
-        if (controller.getToolType() == 1){
-            gc.setLineCap(StrokeLineCap.ROUND);
+        Double width = Double.parseDouble(controller.lineWidth.getEditor().getText());
+        gc.setLineWidth(width);
+        System.out.println(controller.lineType.getValue());
+        if (controller.lineType.getValue() == BrickTools.DashedLine) {
+            System.out.println("Setting dashed");
+            gc.setLineDashes(width * 2, width * 2, width * 2, width * 2);
+        } else {
+            gc.setLineDashes(0d);
         }
-        else {
+        if (controller.getToolType() == BrickTools.Pencil) {
+            gc.setLineCap(StrokeLineCap.ROUND);
+        } else {
             gc.setLineCap(StrokeLineCap.SQUARE);
         }
     }
 
-    public void clearAll(){
+    public void clearAll() {
         sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
         gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
     }
@@ -255,8 +258,9 @@ public class CanvasPanel {
      */
     public void onDrag(MouseEvent event) {
         currTouch = new Point2D(event.getX(), event.getY());
-        switch (controller.getToolType()){
-            case 0:
+        //System.out.println(controller.getToolType());
+        switch (controller.getToolType()) {
+            case Pointer:
                 double zoomFactor = 1.5;
                 if (event.getY() <= 0) {
                     // zoom out
@@ -264,27 +268,27 @@ public class CanvasPanel {
                 }
                 operator.pan(pane, zoomFactor, event.getSceneX(), event.getSceneY());
                 break;
-            case 1:
+            case Pencil:
                 gc.lineTo(event.getX(), event.getY());
                 gc.stroke();
                 break;
-            case 2:
+            case Line:
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 sc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                 break;
-            case 3:
+            case Rectangle:
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
                 break;
-            case 4:
+            case Square:
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
                 break;
-            case 5:
+            case Circle:
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
                 break;
-            case 6:
+            case Oval:
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
                 break;

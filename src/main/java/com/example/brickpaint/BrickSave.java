@@ -42,7 +42,7 @@ public abstract class BrickSave {
      * Takes a snapshot of a Node and saves it to a file created by the user. Will open the file explorer
      * and initially name the file based off the Name
      *
-     * @param node      The node from which to take a screenshot of
+     * @param node The node from which to take a screenshot of
      * @param Name Optional path string from which to initially name the new file with
      * @return returns file that image was saved to, else returns null
      */

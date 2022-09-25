@@ -1,9 +1,7 @@
 package com.example.brickpaint;
 
-import com.github.daytron.simpledialogfx.data.DialogResponse;
-import com.github.daytron.simpledialogfx.dialog.Dialog;
-import com.github.daytron.simpledialogfx.dialog.DialogType;
 import com.gluonhq.charm.glisten.control.Icon;
+import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,15 +13,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import com.github.daytron.simpledialogfx.dialog.DialogType;
-import com.github.daytron.simpledialogfx.dialog.Dialog;
-import com.github.daytron.simpledialogfx.data.DialogResponse;
 
 
 /**
@@ -36,7 +31,7 @@ public class BrickPaintController {
     /**
      * The current instance of the canvas where all drawing occurs within the paint app
      */
-    public List<CanvasPanel> canvasPanels = new ArrayList<CanvasPanel>();
+    public List<CanvasPanel> canvasPanels = new ArrayList<>();
 
     /**
      * allows the user to select the current color from a colorpicker menu
@@ -48,6 +43,12 @@ public class BrickPaintController {
      */
     @FXML
     public ComboBox lineWidth;
+    @FXML
+    public TextField cWidth;
+    @FXML
+    public TextField cHeight;
+    @FXML
+    protected ChoiceBox lineType;
     /**
      * The file used to save the canvasPanel, created after the first SaveAs is called
      */
@@ -57,22 +58,12 @@ public class BrickPaintController {
      */
     @FXML
     private AnchorPane root;
-
-
     /**
      * The instance of the BrickKeys class that manages keybinds for this controller
      */
     private BrickKeys keyBinds;
-
     @FXML
     private TabPane tabs;
-
-    @FXML
-    public TextField cWidth;
-
-    @FXML
-    public TextField cHeight;
-
     @FXML
     private ToggleButtonGroup cGroup;
 
@@ -86,26 +77,30 @@ public class BrickPaintController {
         addTab();
         lineWidth.getItems().addAll(1, 2, 4, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72);
         lineWidth.setValue(10);
+        lineType.getItems().addAll(BrickTools.SolidLine, BrickTools.DashedLine);
+        lineType.setValue(BrickTools.SolidLine);
         colorPicker.setValue(Color.BLACK);
         cGroup.getToggles().get(0).setSelected(true);
         cGroup.getToggles().get(0).setGraphic(new Icon());
     }
 
     @FXML
-    protected void addTab(){
-        Dialog dialog = new Dialog(DialogType.INPUT_TEXT, "Create New Project", "Project Name: ");
-        dialog.showAndWait();
-        if (dialog.getResponse() == DialogResponse.SEND){
-            String name = dialog.getTextEntry();
+    protected void addTab() {
+        TextInputDialog dialog = new TextInputDialog("Untitled " + "(" + tabs.getTabs().size() + ")");
+        dialog.setHeaderText("Create New Project");
+        dialog.setContentText("Enter Project Name");
+        Optional<String> response = dialog.showAndWait();
+        if (response.isPresent()) {
+            String name = response.get();
             canvasPanels.add(new CanvasPanel(tabs, name, keyBinds, this));
         }
     }
 
-    public CanvasPanel getCanvas(){
-       CanvasPanel panel;
-       int curr = tabs.getSelectionModel().getSelectedIndex();
-       panel = canvasPanels.get(curr);
-       return panel;
+    public CanvasPanel getCanvas() {
+        CanvasPanel panel;
+        int curr = tabs.getSelectionModel().getSelectedIndex();
+        panel = canvasPanels.get(curr);
+        return panel;
     }
 
 
@@ -114,37 +109,49 @@ public class BrickPaintController {
      *
      * @return int
      */
-    public int getToolType() {
-        for (ToggleButton button: cGroup.getToggles()) {
-            if(button.isSelected()){
-                return cGroup.getToggles().indexOf(button);
+    public BrickTools getToolType() {
+        for (ToggleButton button : cGroup.getToggles()) {
+            if (button.isSelected()) {
+                if (cGroup.getToggles().indexOf(button) == 0) {
+                    return BrickTools.Pointer;
+                } else if (cGroup.getToggles().indexOf(button) == 1) {
+                    return BrickTools.Pencil;
+                } else if (cGroup.getToggles().indexOf(button) == 2) {
+                    return BrickTools.Line;
+                } else if (cGroup.getToggles().indexOf(button) == 3) {
+                    return BrickTools.Rectangle;
+                } else if (cGroup.getToggles().indexOf(button) == 4) {
+                    return BrickTools.Square;
+                } else if (cGroup.getToggles().indexOf(button) == 5) {
+                    return BrickTools.Circle;
+                } else if (cGroup.getToggles().indexOf(button) == 6) {
+                    return BrickTools.Oval;
+                }
             }
         }
-        return 0;
+        return BrickTools.Pointer;
     }
 
     @FXML
-    protected void handleCWidth(){
-        try{
+    protected void handleCWidth() {
+        try {
             String value = cWidth.getText();
             double numb = Double.parseDouble(value);
             this.getCanvas().setSizeX(numb);
             System.out.println("Set Width");
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Canvas Width input was Invalid");
         }
     }
 
     @FXML
-    protected void handleCHeight(){
-        try{
+    protected void handleCHeight() {
+        try {
             String value = cHeight.getText();
             double numb = Double.parseDouble(value);
             this.getCanvas().setSizeY(numb);
             System.out.println("Set Height");
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Canvas Height input was Invalid");
         }
     }
@@ -166,7 +173,7 @@ public class BrickPaintController {
     }
 
     @FXML
-    protected void handleClear(){
+    protected void handleClear() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.getButtonTypes().remove(ButtonType.OK);
         alert.getButtonTypes().remove(ButtonType.CANCEL);

@@ -59,23 +59,22 @@ public class BrickKeys {
                 controller.addTab();
             }
 
-            if (key.getCode() == KeyCode.S && key.isControlDown() && key.isAltDown()){
+            if (key.getCode() == KeyCode.S && key.isControlDown() && key.isAltDown()) {
                 controller.handleSaveImageAs();
-            }
-            else if (key.getCode() == KeyCode.S && key.isControlDown()) {
+            } else if (key.getCode() == KeyCode.S && key.isControlDown()) {
                 controller.handleSaveImage();
             }
 
-            if (key.getCode() == KeyCode.E && key.isControlDown() && key.isAltDown()){
+            if (key.getCode() == KeyCode.E && key.isControlDown() && key.isAltDown()) {
                 controller.OnClose(new WindowEvent(scene.getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
             }
-            if (key.getCode() == KeyCode.C && key.isControlDown() && key.isAltDown()){
+            if (key.getCode() == KeyCode.C && key.isControlDown() && key.isAltDown()) {
                 controller.handleClear();
             }
-            if (key.getCode() == KeyCode.I && key.isControlDown()){
+            if (key.getCode() == KeyCode.I && key.isControlDown()) {
                 controller.handleInsertImage();
             }
-            if (key.getCode() == KeyCode.A && key.isControlDown() && key.isAltDown()){
+            if (key.getCode() == KeyCode.A && key.isControlDown() && key.isAltDown()) {
                 controller.handleOpenAboutMenu();
             }
         });
