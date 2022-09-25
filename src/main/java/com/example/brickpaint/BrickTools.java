@@ -11,4 +11,5 @@ public enum BrickTools {
     Oval,
     SolidLine,
     DashedLine,
+    ColorGrabber,
 }

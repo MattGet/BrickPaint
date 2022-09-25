@@ -126,6 +126,8 @@ public class BrickPaintController {
                     return BrickTools.Circle;
                 } else if (cGroup.getToggles().indexOf(button) == 6) {
                     return BrickTools.Oval;
+                } else if (cGroup.getToggles().indexOf(button) == 7) {
+                    return BrickTools.ColorGrabber;
                 }
             }
         }

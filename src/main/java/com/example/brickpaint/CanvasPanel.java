@@ -1,12 +1,14 @@
 package com.example.brickpaint;
 
 import javafx.geometry.Point2D;
+import javafx.scene.ImageCursor;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
@@ -140,6 +142,7 @@ public class CanvasPanel {
         pane.setOnMouseDragged(this::onDrag);
         pane.setOnMousePressed(this::onMousePressed);
         pane.setOnMouseReleased(this::onMouseReleased);
+        pane.setOnMouseMoved(this::onMove);
 
         parameters.setFill(Color.TRANSPARENT);
 
@@ -173,7 +176,7 @@ public class CanvasPanel {
      *
      * @param event Mouse Event from Input class
      */
-    public void onMousePressed(MouseEvent event) {
+    private void onMousePressed(MouseEvent event) {
         initialTouch = new Point2D(event.getX(), event.getY());
         isIntial = true;
         if (controller.getToolType() != BrickTools.Pointer) {
@@ -193,7 +196,7 @@ public class CanvasPanel {
      *
      * @param event Mouse Event from Input class
      */
-    public void onMouseReleased(MouseEvent event) {
+    private void onMouseReleased(MouseEvent event) {
         switch (controller.getToolType()) {
             case Line:
                 gc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
@@ -250,13 +253,20 @@ public class CanvasPanel {
         gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
     }
 
+    private void onMove(MouseEvent event){
+        if (controller.getToolType() == BrickTools.ColorGrabber){
+            ImageCursor cursor = new ImageCursor(new Image("Icons/601137-200.png"));
+            root.getScene().setCursor(cursor);
+        }
+    }
+
 
     /**
      * Handles any actions which require the OnDrag mouse event within the canvas
      *
      * @param event Mouse Event from Input class
      */
-    public void onDrag(MouseEvent event) {
+    private void onDrag(MouseEvent event) {
         currTouch = new Point2D(event.getX(), event.getY());
         //System.out.println(controller.getToolType());
         switch (controller.getToolType()) {

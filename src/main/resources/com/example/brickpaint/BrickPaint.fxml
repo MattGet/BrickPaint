@@ -58,9 +58,9 @@
                         </Menu>
                     </menus>
                   </MenuBar>
-                  <ToolBar prefHeight="100.0" prefWidth="1920.0">
+                  <ToolBar prefHeight="100.0" prefWidth="1920.0" VBox.vgrow="NEVER">
                      <items>
-                        <ToggleButtonGroup fx:id="cGroup" selectionType="SINGLE">
+                        <ToggleButtonGroup fx:id="cGroup" nodeOrientation="LEFT_TO_RIGHT" selectionType="SINGLE">
                             <toggles>
                                 <ToggleButton fx:id="Pointer" selected="true" text="Pointer" textAlignment="CENTER" />
                               <ToggleButton text="Pencil" textAlignment="CENTER" />
@@ -70,22 +70,26 @@
                               <ToggleButton mnemonicParsing="false" text="Circle" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Ellipse" textAlignment="CENTER" />
                             </toggles>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
                            <padding>
-                              <Insets top="40.0" />
+                              <Insets top="37.5" />
                            </padding>
                         </ToggleButtonGroup>
-                        <ColorPicker fx:id="colorPicker" />
-                        <VBox alignment="CENTER" prefHeight="100.0" prefWidth="150.0">
+                        <ColorPicker fx:id="colorPicker" translateX="30.0" />
+                        <VBox alignment="CENTER" prefHeight="100.0" prefWidth="150.0" translateX="50.0" translateY="-10.0">
                            <children>
+                              <Label text="Line Width &amp; Style" textAlignment="CENTER" />
                               <ComboBox fx:id="lineWidth" editable="true" prefWidth="150.0" promptText="Line Width">
                                  <VBox.margin>
-                                    <Insets bottom="20.0" />
+                                    <Insets bottom="10.0" />
                                  </VBox.margin>
                               </ComboBox>
                               <ChoiceBox fx:id="lineType" prefWidth="150.0" />
                            </children>
                         </VBox>
-                        <GridPane>
+                        <GridPane maxHeight="60.0" maxWidth="200.0" translateX="80.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -104,7 +108,10 @@
                               <Insets left="10.0" />
                            </padding>
                         </GridPane>
-                     </items></ToolBar>
+                     </items>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin></ToolBar>
                </children>
             </VBox>
          </top>
