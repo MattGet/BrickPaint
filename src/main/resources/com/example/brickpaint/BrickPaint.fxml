@@ -10,7 +10,6 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -64,11 +63,13 @@
                             <toggles>
                                 <ToggleButton fx:id="Pointer" selected="true" text="Pointer" textAlignment="CENTER" />
                               <ToggleButton text="Pencil" textAlignment="CENTER" />
+                              <ToggleButton mnemonicParsing="false" text="Rainbow Pencil" textAlignment="CENTER" />
                                 <ToggleButton text="Line" textAlignment="CENTER" />
                                 <ToggleButton text="Rectangle" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Square" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Circle" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Ellipse" textAlignment="CENTER" />
+                              <ToggleButton mnemonicParsing="false" onAction="#handleGrabber" text="Color Grabber" textAlignment="CENTER" />
                             </toggles>
                            <opaqueInsets>
                               <Insets />
@@ -101,8 +102,8 @@
                            <children>
                               <Label text="Canvas Width:" textAlignment="CENTER" textOverrun="CLIP" wrapText="true" />
                               <Label prefHeight="23.0" prefWidth="126.0" text="Canvas Height:" textAlignment="CENTER" GridPane.rowIndex="1" />
-                              <TextField fx:id="cWidth" onAction="#handleCWidth" prefWidth="54.0" GridPane.columnIndex="1" />
-                              <TextField fx:id="cHeight" onAction="#handleCHeight" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <ComboBox fx:id="cWidth" editable="true" onAction="#handleCWidth" prefWidth="150.0" GridPane.columnIndex="1" />
+                              <ComboBox fx:id="cHeight" editable="true" onAction="#handleCHeight" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                            </children>
                            <padding>
                               <Insets left="10.0" />

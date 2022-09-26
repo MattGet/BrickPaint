@@ -30,6 +30,9 @@ public class BrickKeys {
      */
     private final BrickPaintController controller;
 
+    /**
+     * The Instance of the Input Handler for this class that manages the dictionary of pressed keys
+     */
     public InputHandler activeKeys;
 
     /**

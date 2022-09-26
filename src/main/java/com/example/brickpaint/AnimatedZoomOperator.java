@@ -29,6 +29,8 @@ public class AnimatedZoomOperator {
 
     /**
      * default constructor
+     *
+     * @param keys The instance of BrickKeys used for keybinds
      */
     public AnimatedZoomOperator(BrickKeys keys) {
         Keys = keys;

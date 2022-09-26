@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 import java.util.Stack;
 
 public class UndoManager {
-    private final Stack<Image> history = new Stack<Image>();
+    private final Stack<Image> history = new Stack<>();
     private int Mark;
 
     public void setMark() {

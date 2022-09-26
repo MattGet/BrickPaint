@@ -5,6 +5,7 @@ import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -16,9 +17,7 @@ import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -42,17 +41,27 @@ public class BrickPaintController {
      * allows the user to select the current line width from a dropdown menu
      */
     @FXML
-    public ComboBox lineWidth;
-    @FXML
-    public TextField cWidth;
-    @FXML
-    public TextField cHeight;
-    @FXML
-    protected ChoiceBox lineType;
+    public ComboBox<Double> lineWidth;
+
     /**
-     * The file used to save the canvasPanel, created after the first SaveAs is called
+     * allows the user to enter or select a value for the current canvas's width
      */
-    private File ImageFile;
+    @FXML
+    public ComboBox<Double> cWidth;
+    /**
+     * allows the user to enter or select a value for the current canvas's height
+     */
+    @FXML
+    public ComboBox<Double> cHeight;
+    /**
+     * allows the user to select their desired line style from a dropdown menu
+     */
+    @FXML
+    protected ChoiceBox<BrickTools> lineType;
+    /**
+     * A dictionary of the files used to save the canvasPanel, created after the first SaveAs is called
+     */
+    private final HashMap<Integer, File> ImageFile = new HashMap<>();
     /**
      * The uppermost Node within the current scene
      */
@@ -62,8 +71,15 @@ public class BrickPaintController {
      * The instance of the BrickKeys class that manages keybinds for this controller
      */
     private BrickKeys keyBinds;
+    /**
+     * The node that manages all of the canvas panel tabs within the application
+     */
     @FXML
     private TabPane tabs;
+    /**
+     * A group of buttons representing available tools in the application, restricted so that only one may be pressed
+     * at a time
+     */
     @FXML
     private ToggleButtonGroup cGroup;
 
@@ -75,15 +91,20 @@ public class BrickPaintController {
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         addTab();
-        lineWidth.getItems().addAll(1, 2, 4, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72);
-        lineWidth.setValue(10);
+        lineWidth.getItems().addAll(1d, 2d, 4d, 8d, 10d, 12d, 14d, 18d, 24d, 30d, 36d, 48d, 60d, 72d);
+        lineWidth.setValue(10d);
         lineType.getItems().addAll(BrickTools.SolidLine, BrickTools.DashedLine);
         lineType.setValue(BrickTools.SolidLine);
+        cWidth.getItems().addAll(256d, 512d, 720d, 1024d, 1080d, 1280d, 1440d, 1920d);
+        cHeight.getItems().addAll(256d, 512d, 720d, 1024d, 1080d, 1280d, 1440d, 1920d);
         colorPicker.setValue(Color.BLACK);
         cGroup.getToggles().get(0).setSelected(true);
         cGroup.getToggles().get(0).setGraphic(new Icon());
     }
 
+    /**
+     * Creates a new canvas panel instance and adds it to the scene as a tab
+     */
     @FXML
     protected void addTab() {
         TextInputDialog dialog = new TextInputDialog("Untitled " + "(" + tabs.getTabs().size() + ")");
@@ -96,6 +117,11 @@ public class BrickPaintController {
         }
     }
 
+    /**
+     * Returns the current canvas panel that is selected in the Tab pane
+     *
+     * @return CanvasPanel
+     */
     public CanvasPanel getCanvas() {
         CanvasPanel panel;
         int curr = tabs.getSelectionModel().getSelectedIndex();
@@ -105,7 +131,7 @@ public class BrickPaintController {
 
 
     /**
-     * returns the current tool selection from the tooltype toggle group as an integer
+     * Returns the current tool selection from the tooltype toggle group as a BrickTools enum value
      *
      * @return int
      */
@@ -117,16 +143,18 @@ public class BrickPaintController {
                 } else if (cGroup.getToggles().indexOf(button) == 1) {
                     return BrickTools.Pencil;
                 } else if (cGroup.getToggles().indexOf(button) == 2) {
-                    return BrickTools.Line;
+                    return BrickTools.RainbowPencil;
                 } else if (cGroup.getToggles().indexOf(button) == 3) {
-                    return BrickTools.Rectangle;
+                    return BrickTools.Line;
                 } else if (cGroup.getToggles().indexOf(button) == 4) {
-                    return BrickTools.Square;
+                    return BrickTools.Rectangle;
                 } else if (cGroup.getToggles().indexOf(button) == 5) {
-                    return BrickTools.Circle;
+                    return BrickTools.Square;
                 } else if (cGroup.getToggles().indexOf(button) == 6) {
-                    return BrickTools.Oval;
+                    return BrickTools.Circle;
                 } else if (cGroup.getToggles().indexOf(button) == 7) {
+                    return BrickTools.Oval;
+                } else if (cGroup.getToggles().indexOf(button) == 8) {
                     return BrickTools.ColorGrabber;
                 }
             }
@@ -134,25 +162,48 @@ public class BrickPaintController {
         return BrickTools.Pointer;
     }
 
+    /**
+     * Sets the current selected tool to the standard mouse pointer
+     */
+    public void resetGrabber() {
+        cGroup.getToggles().get(0).setSelected(true);
+    }
+
+    /**
+     * Changes the mouse cursor when the grabber tool is selected
+     */
+    @FXML
+    private void handleGrabber() {
+        Image temp = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/dropper.png")));
+        ImageCursor cursor = new ImageCursor(temp, 0, temp.getHeight());
+        root.getScene().setCursor(cursor);
+    }
+
+    /**
+     * Updates the current canvas's width when the user changes its value
+     */
     @FXML
     protected void handleCWidth() {
         try {
-            String value = cWidth.getText();
+            String value = cWidth.getEditor().getText();
             double numb = Double.parseDouble(value);
             this.getCanvas().setSizeX(numb);
-            System.out.println("Set Width");
+            //System.out.println("Set Width");
         } catch (Exception e) {
             System.out.println("Canvas Width input was Invalid");
         }
     }
 
+    /**
+     * Updates the current canvas's height when the user changes its value
+     */
     @FXML
     protected void handleCHeight() {
         try {
-            String value = cHeight.getText();
+            String value = cHeight.getEditor().getText();
             double numb = Double.parseDouble(value);
             this.getCanvas().setSizeY(numb);
-            System.out.println("Set Height");
+            //System.out.println("Set Height");
         } catch (Exception e) {
             System.out.println("Canvas Height input was Invalid");
         }
@@ -167,13 +218,16 @@ public class BrickPaintController {
     }
 
     /**
-     * Handles the action when the reset view button is pressed, manually invokes the function in BrickKeys
+     * Resets the scale and position of the current canvas
      */
     @FXML
     protected void handleResetView() {
         keyBinds.reset();
     }
 
+    /**
+     * Creates a prompt to confirm clearing the current canvas
+     */
     @FXML
     protected void handleClear() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -213,11 +267,11 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImage() {
-        if (ImageFile == null) {
-            ImageFile = BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name);
+        if (ImageFile.get(tabs.getSelectionModel().getSelectedIndex()) == null) {
+            ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(), BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name));
             return;
         }
-        BrickSave.saveImageFromNode(this.getCanvas().root, ImageFile);
+        BrickSave.saveImageFromNode(this.getCanvas().root, ImageFile.get(tabs.getSelectionModel().getSelectedIndex()));
     }
 
     /**
@@ -225,7 +279,7 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImageAs() {
-        ImageFile = BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name);
+        ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(), BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name));
     }
 
 
@@ -254,7 +308,8 @@ public class BrickPaintController {
      * @param event Window event from the Event Class
      */
     protected void OnClose(WindowEvent event) {
-        if (ImageFile == null) {
+        boolean needSave = ImageFile.size() != tabs.getTabs().size();
+        if (needSave) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             ButtonType save = new ButtonType("SAVE & QUIT");
             alert.getButtonTypes().remove(ButtonType.OK);
@@ -273,7 +328,12 @@ public class BrickPaintController {
                     Platform.exit();
                 }
                 if (res.get().equals(save)) {
-                    ImageFile = BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name);
+                    for (int i = 0; i <= tabs.getTabs().size() - 1; i++) {
+                        if (ImageFile.containsKey(i)) continue;
+                        else {
+                            ImageFile.putIfAbsent(i, BrickSave.saveImageASFromNode(canvasPanels.get(i).root, canvasPanels.get(i).Name));
+                        }
+                    }
                     Platform.exit();
                 }
             }

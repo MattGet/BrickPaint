@@ -43,7 +43,7 @@ public class BrickPaintApp extends Application {
         stage.setMaximized(true);
         BrickPaintController controller = fxmlLoader.getController();
         //Robot robot = new Robot();
-        String css = this.getClass().getResource("styles.css").toExternalForm();
+        String css = Objects.requireNonNull(this.getClass().getResource("styles.css")).toExternalForm();
         scene.getStylesheets().add(css);
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, controller::OnClose);
         stage.show();
