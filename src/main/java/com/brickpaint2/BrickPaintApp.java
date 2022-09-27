@@ -1,5 +1,8 @@
-package com.example.brickpaint;
+package com.brickpaint2;
 
+import com.defano.jmonet.model.PaintToolType;
+import com.defano.jmonet.tools.builder.PaintToolBuilder;
+import com.defano.jmonet.tools.builder.StrokeBuilder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -7,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 

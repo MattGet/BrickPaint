@@ -1,4 +1,4 @@
-package com.example.brickpaint;
+package com.brickpaint2;
 
 import com.gluonhq.charm.glisten.control.Icon;
 import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
@@ -15,6 +15,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -186,7 +188,7 @@ public class BrickPaintController {
     protected void handleCWidth() {
         try {
             String value = cWidth.getEditor().getText();
-            double numb = Double.parseDouble(value);
+            Integer numb = Integer.parseInt(value);
             this.getCanvas().setSizeX(numb);
             //System.out.println("Set Width");
         } catch (Exception e) {
@@ -201,7 +203,7 @@ public class BrickPaintController {
     protected void handleCHeight() {
         try {
             String value = cHeight.getEditor().getText();
-            double numb = Double.parseDouble(value);
+            int numb = Integer.parseInt(value);
             this.getCanvas().setSizeY(numb);
             //System.out.println("Set Height");
         } catch (Exception e) {
@@ -257,7 +259,12 @@ public class BrickPaintController {
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("images", "*.png", "*.jpg", "*.bmp"));
         File imageFile = fileChooser.showOpenDialog(root.getScene().getWindow());
         if (imageFile != null) {
-            Image tempImage = new Image(imageFile.toURI().toString());
+            BufferedImage tempImage;
+            try {
+                tempImage = ImageIO.read(imageFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             BrickImage.Insert(this.getCanvas(), tempImage);
         }
     }

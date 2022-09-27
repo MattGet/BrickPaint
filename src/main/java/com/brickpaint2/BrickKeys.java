@@ -1,4 +1,4 @@
-package com.example.brickpaint;
+package com.brickpaint2;
 
 import javafx.event.EventHandler;
 import javafx.scene.Node;
