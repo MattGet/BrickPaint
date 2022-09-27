@@ -1,4 +1,4 @@
-package com.brickpaint2;
+package com.example.brickpaint;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;

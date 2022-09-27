@@ -1,4 +1,4 @@
-package com.brickpaint2;
+package com.example.brickpaint;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;

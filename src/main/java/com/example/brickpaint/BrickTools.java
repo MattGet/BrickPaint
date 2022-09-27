@@ -1,4 +1,4 @@
-package com.brickpaint2;
+package com.example.brickpaint;
 
 /**
  * Enum for all of the tool options in the BrickPaint App

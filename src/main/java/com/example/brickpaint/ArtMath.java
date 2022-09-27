@@ -1,4 +1,4 @@
-package com.brickpaint2;
+package com.example.brickpaint;
 
 import javafx.scene.canvas.GraphicsContext;
 

@@ -1,4 +1,4 @@
-module com.brickpaint2 {
+module com.example.brickpaint {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -11,9 +11,7 @@ module com.brickpaint2 {
     requires com.gluonhq.charm.glisten;
     requires SimpleDialogFX;
     requires javafx.media;
-    requires jmonet;
-    requires java.base;
 
-    opens com.brickpaint2 to javafx.fxml;
-    exports com.brickpaint2;
+    opens com.example.brickpaint to javafx.fxml;
+    exports com.example.brickpaint;
 }
