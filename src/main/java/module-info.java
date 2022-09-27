@@ -10,6 +10,7 @@ module com.example.brickpaint {
     requires java.desktop;
     requires com.gluonhq.charm.glisten;
     requires SimpleDialogFX;
+    requires javafx.media;
 
     opens com.example.brickpaint to javafx.fxml;
     exports com.example.brickpaint;

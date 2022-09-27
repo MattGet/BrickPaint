@@ -341,5 +341,4 @@ public class BrickPaintController {
             Platform.exit();
         }
     }
-
 }
