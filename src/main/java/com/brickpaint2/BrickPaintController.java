@@ -3,6 +3,8 @@ package com.brickpaint2;
 import com.gluonhq.charm.glisten.control.Icon;
 import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.ImageCursor;
@@ -16,6 +18,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -92,7 +96,6 @@ public class BrickPaintController {
         Scene scene = root.getScene();
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
-        addTab();
         lineWidth.getItems().addAll(1d, 2d, 4d, 8d, 10d, 12d, 14d, 18d, 24d, 30d, 36d, 48d, 60d, 72d);
         lineWidth.setValue(10d);
         lineType.getItems().addAll(BrickTools.SolidLine, BrickTools.DashedLine);
@@ -102,7 +105,11 @@ public class BrickPaintController {
         colorPicker.setValue(Color.BLACK);
         cGroup.getToggles().get(0).setSelected(true);
         cGroup.getToggles().get(0).setGraphic(new Icon());
+        addTab();
+        colorPicker.valueProperty().addListener(updToolsOnChange);
     }
+
+    private final ChangeListener updToolsOnChange = (observableValue, o, t1) -> getCanvas().updateStrokeColor();
 
     /**
      * Creates a new canvas panel instance and adds it to the scene as a tab
@@ -225,6 +232,16 @@ public class BrickPaintController {
     @FXML
     protected void handleResetView() {
         keyBinds.reset();
+    }
+
+    @FXML
+    protected void handlePointer(){
+        getCanvas().paintbrush.deactivate();
+    }
+
+    @FXML
+    protected void handlePencil(){
+        getCanvas().paintbrush.activate(getCanvas().canvas.getCanvas());
     }
 
     /**

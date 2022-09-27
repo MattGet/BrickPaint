@@ -1,8 +1,8 @@
 package com.brickpaint2;
 
-import com.defano.jmonet.model.PaintToolType;
-import com.defano.jmonet.tools.base.SelectionTool;
-import com.defano.jmonet.tools.builder.PaintToolBuilder;
+import com.brickpaint2.jmonet.model.PaintToolType;
+import com.brickpaint2.jmonet.tools.base.SelectionTool;
+import com.brickpaint2.jmonet.tools.builder.PaintToolBuilder;
 import javafx.scene.image.Image;
 
 import java.awt.*;

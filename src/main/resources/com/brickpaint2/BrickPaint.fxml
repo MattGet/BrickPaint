@@ -61,8 +61,8 @@
                      <items>
                         <ToggleButtonGroup fx:id="cGroup" nodeOrientation="LEFT_TO_RIGHT" selectionType="SINGLE">
                             <toggles>
-                                <ToggleButton fx:id="Pointer" selected="true" text="Pointer" textAlignment="CENTER" />
-                              <ToggleButton text="Pencil" textAlignment="CENTER" />
+                                <ToggleButton fx:id="Pointer" onAction="#handlePointer" selected="true" text="Pointer" textAlignment="CENTER" />
+                              <ToggleButton onAction="#handlePencil" text="Pencil" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Rainbow Pencil" textAlignment="CENTER" />
                                 <ToggleButton text="Line" textAlignment="CENTER" />
                                 <ToggleButton text="Rectangle" textAlignment="CENTER" />

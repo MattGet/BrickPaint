@@ -1,21 +1,17 @@
 package com.brickpaint2;
-
-import com.defano.jmonet.canvas.JFXPaintCanvasNode;
-import com.defano.jmonet.canvas.JMonetCanvas;
-import com.defano.jmonet.model.PaintToolType;
-import com.defano.jmonet.tools.PaintbrushTool;
-import com.defano.jmonet.tools.base.Tool;
-import com.defano.jmonet.tools.builder.PaintToolBuilder;
-import com.defano.jmonet.tools.builder.StrokeBuilder;
+import com.brickpaint2.jmonet.canvas.JFXPaintCanvasNode;
+import com.brickpaint2.jmonet.canvas.JMonetCanvas;
+import com.brickpaint2.jmonet.model.PaintToolType;
+import com.brickpaint2.jmonet.tools.PaintbrushTool;
+import com.brickpaint2.jmonet.tools.builder.PaintToolBuilder;
+import com.brickpaint2.jmonet.tools.builder.StrokeBuilder;
+import io.reactivex.subjects.Subject;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
@@ -23,9 +19,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeLineCap;
-import javafx.scene.shape.StrokeLineJoin;
-
+import static io.reactivex.subjects.BehaviorSubject.createDefault;
 import java.awt.*;
 
 
@@ -86,7 +80,9 @@ public class CanvasPanel {
 
     private int curr = 0;
 
-    public Tool paintbrush;
+    public PaintbrushTool paintbrush;
+
+    private final Subject<Paint> brickPaint = createDefault(java.awt.Color.BLACK);
 
     /**
      * Default Constructor
@@ -155,12 +151,35 @@ public class CanvasPanel {
         parameters.setFill(Color.TRANSPARENT);
 
         operator = new AnimatedZoomOperator(keys);
+        brickPaint.subscribe(paint -> updateStrokeColor());
+        controller.colorPicker.valueProperty().addListener(e -> setLinePaint(getAwtColor()));
+        buildTools();
+    }
 
-        paintbrush = PaintToolBuilder.create(PaintToolType.PAINTBRUSH)
-                .withStroke(StrokeBuilder.withShape().ofCircle(8).build())
-                .withStrokePaint(java.awt.Color.RED)
-                .makeActiveOnCanvas(canvas)
+    public void buildTools(){
+        System.out.println("building tools");
+        paintbrush = (PaintbrushTool) PaintToolBuilder.create(PaintToolType.PAINTBRUSH)
+                .withStroke(StrokeBuilder.withShape().ofCircle(controller.lineWidth.getValue()).build())
+                .withStrokePaintObservable(brickPaint)
+                .makeActiveOnCanvas(canvas.getCanvas())
                 .build();
+    }
+
+
+    public java.awt.Color updateStrokeColor(){
+        return getAwtColor();
+    }
+
+    public void setLinePaint(Paint p){
+        brickPaint.onNext(p);
+    }
+
+    private java.awt.Color getAwtColor(){
+        java.awt.Color color = new java.awt.Color((int) controller.colorPicker.getValue().getRed(),
+                (int) controller.colorPicker.getValue().getGreen(),
+                (int) controller.colorPicker.getValue().getBlue());
+        System.out.println(color);
+        return color;
     }
 
     /**
@@ -210,17 +229,6 @@ public class CanvasPanel {
             root.getScene().setCursor(Cursor.DEFAULT);
             controller.resetGrabber();
         }
-
-
-        switch (controller.getToolType()){
-            case Pointer -> {
-                paintbrush.deactivate();
-            }
-            case Pencil ->
-            {
-                paintbrush.activate(canvas.getCanvas());
-            }
-        }
     }
 
 
@@ -258,7 +266,7 @@ public class CanvasPanel {
         currTouch = new Point2D(event.getX(), event.getY());
         //System.out.println(controller.getToolType());
         switch (controller.getToolType()) {
-            case Pointer -> {
+            case Pointer: {
                 double zoomFactor = 1.5;
                 if (event.getY() <= 0) {
                     // zoom out

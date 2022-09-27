@@ -11,9 +11,14 @@ module com.brickpaint2 {
     requires com.gluonhq.charm.glisten;
     requires SimpleDialogFX;
     requires javafx.media;
-    requires jmonet;
-    requires java.base;
+    requires com.google.guice;
+    requires io.reactivex.rxjava2;
+    requires jama;
 
+    opens com.brickpaint2.jmonet.tools to com.google.guice;
+    opens com.brickpaint2.jmonet.tools.base to com.google.guice;
     opens com.brickpaint2 to javafx.fxml;
+    exports com.brickpaint2.jmonet.tools.attributes to com.google.guice;
+    exports com.brickpaint2.jmonet.tools.cursors to com.google.guice;
     exports com.brickpaint2;
 }
