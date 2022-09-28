@@ -264,14 +264,11 @@ public class CanvasPanel {
             }
             case Polygon -> {
                 undoManager.LogU(this);
-                int sides;
+                int sides = 6;
                 try{
-                    sides = Integer.parseInt(controller.polySides.getValue().toString());
-                    sides = BrickPaintController.clamp(sides, 3, 1000);
-                }
-                catch (Exception e){
-                    System.out.println(e);
-                    sides = 6;
+                    sides = BrickPaintController.clamp(Integer.parseInt(controller.polySides.getEditor().getText()), 3, 1000);
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
                 ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
@@ -397,14 +394,13 @@ public class CanvasPanel {
                 ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
             }
             case Polygon -> {
-                int sides = 0;
+                int sides = 6;
                 try{
-                    sides = controller.polySides.getValue();
-                    sides = BrickPaintController.clamp(sides, 3, 1000);
+                    sides = BrickPaintController.clamp(Integer.parseInt(controller.polySides.getEditor().getText()), 3, 1000);
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
-                catch (Exception e){
-                    System.err.println(e);
-                }
+
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, sc);
             }

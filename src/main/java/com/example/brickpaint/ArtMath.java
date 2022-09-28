@@ -117,6 +117,7 @@ public abstract class ArtMath {
      * @param y1 start y cord
      * @param x2 mouse x cord
      * @param y2 mouse y cord
+     * @param sides number of sides polygon should have
      * @param gc the graphics content to draw the shape on
      */
     public static void DrawPoly(double x1, double y1, double x2, double y2, int sides, GraphicsContext gc) {
@@ -130,5 +131,4 @@ public abstract class ArtMath {
         }
         gc.strokePolygon(xPoints, yPoints, sides);
     }
-
 }
