@@ -109,4 +109,26 @@ public abstract class ArtMath {
             }
         }
     }
+
+    /**
+     * Draws a Rectangle in the desired direction based on the cursor location
+     *
+     * @param x1 start x cord
+     * @param y1 start y cord
+     * @param x2 mouse x cord
+     * @param y2 mouse y cord
+     * @param gc the graphics content to draw the shape on
+     */
+    public static void DrawPoly(double x1, double y1, double x2, double y2, int sides, GraphicsContext gc) {
+        javafx.geometry.Point2D center = new javafx.geometry.Point2D((x1 + x2) / 2, (y1 + y2) / 2);
+        double dist = Point2D.distance(x1, y1, x2, y2)/2;
+        double[] xPoints = new double[sides];
+        double[] yPoints = new double[sides];
+        for (int i = 0; i <= sides -1; i++){
+            xPoints[i] = center.getX() + (dist * Math.cos((2*Math.PI*i)/sides));
+            yPoints[i] = center.getY() + (dist * Math.sin((2*Math.PI*i)/sides));
+        }
+        gc.strokePolygon(xPoints, yPoints, sides);
+    }
+
 }

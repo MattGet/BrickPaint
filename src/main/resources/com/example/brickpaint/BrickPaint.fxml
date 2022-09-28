@@ -61,14 +61,16 @@
                      <items>
                         <ToggleButtonGroup fx:id="cGroup" nodeOrientation="LEFT_TO_RIGHT" selectionType="SINGLE">
                             <toggles>
-                                <ToggleButton fx:id="Pointer" selected="true" text="Pointer" textAlignment="CENTER" />
+                              <ToggleButton fx:id="Pointer" selected="true" text="Pointer" textAlignment="CENTER" />
                               <ToggleButton text="Pencil" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Rainbow Pencil" textAlignment="CENTER" />
+                              <ToggleButton text="Eraser" textAlignment="CENTER" />
                                 <ToggleButton text="Line" textAlignment="CENTER" />
                                 <ToggleButton text="Rectangle" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Square" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Circle" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Ellipse" textAlignment="CENTER" />
+                              <ToggleButton mnemonicParsing="false" text="Polygon" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" onAction="#handleGrabber" text="Color Grabber" textAlignment="CENTER" />
                             </toggles>
                            <opaqueInsets>
@@ -78,6 +80,16 @@
                               <Insets top="37.5" />
                            </padding>
                         </ToggleButtonGroup>
+                        <VBox alignment="CENTER" prefHeight="100.0" prefWidth="150.0">
+                           <children>
+                              <Label text="Polygon Sides" textAlignment="CENTER" />
+                              <ComboBox fx:id="polySides" editable="true" prefWidth="150.0" promptText="Polygon Sides">
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                 </VBox.margin>
+                              </ComboBox>
+                           </children>
+                        </VBox>
                         <ColorPicker fx:id="colorPicker" translateX="30.0" />
                         <VBox alignment="CENTER" prefHeight="100.0" prefWidth="150.0" translateX="50.0" translateY="-10.0">
                            <children>

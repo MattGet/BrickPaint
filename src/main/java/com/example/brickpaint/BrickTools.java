@@ -13,6 +13,7 @@ public enum BrickTools {
     Square,
     Circle,
     Oval,
+    Polygon,
     SolidLine,
     DashedLine,
     ColorGrabber,

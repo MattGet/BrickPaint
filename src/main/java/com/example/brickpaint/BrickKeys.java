@@ -61,6 +61,12 @@ public class BrickKeys {
             if (key.getCode() == KeyCode.N && key.isControlDown()) {
                 controller.addTab();
             }
+            if (key.getCode() == KeyCode.Z && key.isControlDown()) {
+                controller.getCanvas().undoManager.Undo(controller.getCanvas());
+            }
+            if (key.getCode() == KeyCode.Y && key.isControlDown()) {
+                controller.getCanvas().undoManager.Redo(controller.getCanvas());
+            }
 
             if (key.getCode() == KeyCode.S && key.isControlDown() && key.isAltDown()) {
                 controller.handleSaveImageAs();

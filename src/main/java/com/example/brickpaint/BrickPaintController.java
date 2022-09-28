@@ -2,6 +2,7 @@ package com.example.brickpaint;
 
 import com.gluonhq.charm.glisten.control.Icon;
 import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
+import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,6 +54,9 @@ public class BrickPaintController {
      */
     @FXML
     public ComboBox<Double> cHeight;
+
+    @FXML
+    public ComboBox<Integer> polySides;
     /**
      * allows the user to select their desired line style from a dropdown menu
      */
@@ -99,7 +103,9 @@ public class BrickPaintController {
         cHeight.getItems().addAll(256d, 512d, 720d, 1024d, 1080d, 1280d, 1440d, 1920d);
         colorPicker.setValue(Color.BLACK);
         cGroup.getToggles().get(0).setSelected(true);
-        cGroup.getToggles().get(0).setGraphic(new Icon());
+        cGroup.getToggles().get(0).setGraphic(new Icon(MaterialDesignIcon.MOUSE));
+        polySides.getItems().addAll(3,4,5,6,7,8,10,12,16,20,24,36);
+        polySides.setValue(6);
     }
 
     /**
@@ -145,16 +151,20 @@ public class BrickPaintController {
                 } else if (cGroup.getToggles().indexOf(button) == 2) {
                     return BrickTools.RainbowPencil;
                 } else if (cGroup.getToggles().indexOf(button) == 3) {
-                    return BrickTools.Line;
+                    return BrickTools.Eraser;
                 } else if (cGroup.getToggles().indexOf(button) == 4) {
-                    return BrickTools.Rectangle;
+                    return BrickTools.Line;
                 } else if (cGroup.getToggles().indexOf(button) == 5) {
-                    return BrickTools.Square;
+                    return BrickTools.Rectangle;
                 } else if (cGroup.getToggles().indexOf(button) == 6) {
-                    return BrickTools.Circle;
+                    return BrickTools.Square;
                 } else if (cGroup.getToggles().indexOf(button) == 7) {
-                    return BrickTools.Oval;
+                    return BrickTools.Circle;
                 } else if (cGroup.getToggles().indexOf(button) == 8) {
+                    return BrickTools.Oval;
+                } else if (cGroup.getToggles().indexOf(button) == 9) {
+                    return BrickTools.Polygon;
+                }else if (cGroup.getToggles().indexOf(button) == 10) {
                     return BrickTools.ColorGrabber;
                 }
             }
@@ -187,6 +197,7 @@ public class BrickPaintController {
         try {
             String value = cWidth.getEditor().getText();
             double numb = Double.parseDouble(value);
+            numb = clamp(numb, 0d, 2000d);
             this.getCanvas().setSizeX(numb);
             //System.out.println("Set Width");
         } catch (Exception e) {
@@ -202,6 +213,7 @@ public class BrickPaintController {
         try {
             String value = cHeight.getEditor().getText();
             double numb = Double.parseDouble(value);
+            numb = clamp(numb, 0d, 2000d);
             this.getCanvas().setSizeY(numb);
             //System.out.println("Set Height");
         } catch (Exception e) {
@@ -340,5 +352,16 @@ public class BrickPaintController {
         } else {
             Platform.exit();
         }
+    }
+
+   public static double clamp(double val, double min, double max){
+        if (val > max) val = max;
+        else if (val < min) val = min;
+        return val;
+    }
+    public static int clamp(int val, int min, int max){
+        if (val > max) val = max;
+        else if (val < min) val = min;
+        return val;
     }
 }

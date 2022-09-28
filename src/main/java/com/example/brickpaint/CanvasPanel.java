@@ -19,6 +19,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 
+import java.util.logging.Logger;
+
 
 /**
  * Manages all the drawing Sub-nodes for the overarching canvas, may have multiple instances to create multiple canvases
@@ -79,7 +81,7 @@ public class CanvasPanel {
     /**
      * Manages Undo and Redo operations on this canvas
      */
-    private UndoManager undoManager;
+    public UndoManager undoManager;
     private GraphicsContext gc = canvas.getGraphicsContext2D();
     private int curr = 0;
 
@@ -112,7 +114,6 @@ public class CanvasPanel {
         canvas.setWidth(cWidth);
 
         AnchorPane canvasPane = new AnchorPane(canvas);
-        canvasPane.setStyle("-fx-background-color: white;");
         AnchorPane sCPane = new AnchorPane(sketchCanvas);
 
         AnchorPane.setLeftAnchor(canvas, 0.0);
@@ -153,7 +154,6 @@ public class CanvasPanel {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         UpdateSize();
-
         pane.setOnScroll(this::onScroll);
         pane.setOnMouseDragged(this::onDrag);
         pane.setOnMousePressed(this::onMousePressed);
@@ -212,7 +212,9 @@ public class CanvasPanel {
             initDraw(canvas.getGraphicsContext2D());
             initDraw(sketchCanvas.getGraphicsContext2D());
         }
-        if (controller.getToolType() == BrickTools.Pencil || controller.getToolType() == BrickTools.RainbowPencil) {
+        if (controller.getToolType() == BrickTools.Pencil || controller.getToolType() == BrickTools.RainbowPencil ||
+            controller.getToolType() == BrickTools.Eraser) {
+            undoManager.LogU(this);
             gc.beginPath();
             gc.moveTo(event.getX(), event.getY());
             gc.stroke();
@@ -236,23 +238,42 @@ public class CanvasPanel {
     private void onMouseReleased(MouseEvent event) {
         switch (controller.getToolType()) {
             case Line -> {
+                undoManager.LogU(this);
                 gc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             }
             case Rectangle -> {
+                undoManager.LogU(this);
                 ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             }
             case Square -> {
+                undoManager.LogU(this);
                 ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             }
             case Circle -> {
+                undoManager.LogU(this);
                 ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             }
             case Oval -> {
+                undoManager.LogU(this);
                 ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            }
+            case Polygon -> {
+                undoManager.LogU(this);
+                int sides;
+                try{
+                    sides = Integer.parseInt(controller.polySides.getValue().toString());
+                    sides = BrickPaintController.clamp(sides, 3, 1000);
+                }
+                catch (Exception e){
+                    System.out.println(e);
+                    sides = 6;
+                }
+                ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, gc);
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             }
             default -> {
@@ -281,11 +302,14 @@ public class CanvasPanel {
             gc.setLineCap(StrokeLineCap.ROUND);
             gc.setLineJoin(StrokeLineJoin.ROUND);
             BoxBlur blur = new BoxBlur();
-            blur.setWidth(width / 3);
-            blur.setHeight(width / 3);
+            blur.setWidth(width / 4);
+            blur.setHeight(width / 4);
             blur.setIterations(1);
             gc.setEffect(blur);
-        } else {
+        } else if (controller.getToolType() == BrickTools.Eraser) {
+            gc.setEffect(null);
+        }
+        else {
             gc.setLineCap(StrokeLineCap.SQUARE);
             gc.setStroke(controller.colorPicker.getValue());
             gc.setEffect(null);
@@ -296,6 +320,7 @@ public class CanvasPanel {
      * Clears the canvas panel
      */
     public void clearAll() {
+        undoManager.LogU(this);
         gc.setEffect(null);
         sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -343,9 +368,13 @@ public class CanvasPanel {
                 gc.lineTo(event.getX(), event.getY());
                 gc.stroke();
             }
-            case Pencil -> {
+            case Pencil-> {
                 gc.lineTo(event.getX(), event.getY());
                 gc.stroke();
+            }
+            case Eraser -> {
+                double size = controller.lineWidth.getValue()*2;
+                gc.clearRect(event.getX() - size/2, event.getY() - size/2, size, size);
             }
             case Line -> {
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
@@ -366,6 +395,18 @@ public class CanvasPanel {
             case Oval -> {
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+            }
+            case Polygon -> {
+                int sides = 0;
+                try{
+                    sides = controller.polySides.getValue();
+                    sides = BrickPaintController.clamp(sides, 3, 1000);
+                }
+                catch (Exception e){
+                    System.err.println(e);
+                }
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, sc);
             }
             default -> {
             }

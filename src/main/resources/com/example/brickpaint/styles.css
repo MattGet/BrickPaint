@@ -1,3 +1,7 @@
 .scroll-pane > .viewport  { -fx-background-color: lightgrey; }
 
-.border { -fx-border-color: grey; -fx-border-width: 2px 2px 2px 2px }
+.border {
+-fx-border-color: grey;
+-fx-border-width: 2px 2px 2px 2px ;
+-fx-background-color: white;
+}
