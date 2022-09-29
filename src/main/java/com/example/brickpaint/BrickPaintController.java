@@ -57,6 +57,9 @@ public class BrickPaintController {
     @FXML
     private ToolBar toolBar;
 
+    @FXML
+    private MenuBar menuBar;
+
     public ButtonManager buttonManager;
 
     /**
@@ -65,6 +68,8 @@ public class BrickPaintController {
     protected void Start() {
         Scene scene = root.getScene();
         buttonManager = new ButtonManager(toolBar, this);
+        toolBar.getStyleClass().add("ToolBorder");
+        menuBar.getStyleClass().add("MenuBorder");
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         addTab();

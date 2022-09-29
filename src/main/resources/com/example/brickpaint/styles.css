@@ -5,3 +5,15 @@
 -fx-border-width: 2px 2px 2px 2px ;
 -fx-background-color: white;
 }
+
+.ToolBorder {
+-fx-border-color: grey;
+-fx-border-width: 2px 2px 2px 2px ;
+-fx-background-color: SkyBlue;
+}
+
+.Button {
+-fx-border-color: grey;
+-fx-border-width: 2px 2px 2px 2px ;
+-fx-background-color: lightBlue;
+}

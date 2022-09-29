@@ -22,7 +22,7 @@ import java.util.Objects;
 import static com.example.brickpaint.BrickPaintController.clamp;
 
 public class ButtonManager {
-    private static final Image clip = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/clipboard-icon.png")));
+    private static final Image paste = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/clipboard-icon.png")));
     private static final Image poin = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/pointer-icon.png")));
     private static final Image penc = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/pencil-icon.png")));
     private static final Image rain = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/rainbow.png")));
@@ -37,8 +37,17 @@ public class ButtonManager {
     private static final Image cust = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/customPoly.png")));
     private static final Image grab = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/dropper.png")));
     private static final Image selc = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/Cursor-Select-icon.png")));
+    private static final Image cut = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/cut-icon.png")));
+    private static final Image copy = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/copy.png")));
+    private static final Image crop = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/Editing-Crop-icon.png")));
+    private static final Image vflip = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/Actions-object-flip-vertical-icon.png")));
+    private static final Image hflip = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/Actions-object-flip-horizontal-icon.png")));
+
     private final HashMap<ToggleButton, SelectionListener> toggleButtonToSelectionListener = new HashMap<>();
-    private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse, tPolygon, tCustom, tGrabber;
+    private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse,
+            tPolygon, tCustom, tGrabber, tSelect;
+
+    private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH;;
     public ComboBox<Integer> lineWidth = new ComboBox<>();
     public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
     /**
@@ -57,75 +66,120 @@ public class ButtonManager {
     private final ToolBar Parent;
     private final BrickPaintController controller;
     private final List<ToggleButton> toggles;
-    private final ToggleButton tClipboard;
-    private final ToggleButton tSelect;
-    private ToggleButton tCrop;
-    private ToggleButton tPaste;
-    private ToggleButton tCut;
 
     public ButtonManager(ToolBar parent, BrickPaintController cont) {
         Parent = parent;
         controller = cont;
-        tClipboard = new ToggleButton();
-        tClipboard.setGraphic(getImage(clip));
+
+        tClipboard = new Button();
+        tClipboard.setGraphic(getImage(paste));
+        tClipboard.setTooltip(new Tooltip("Paste (Ctrl + V)"));
+        tCut = new Button();
+        tCut.setGraphic(getImage(cut));
+        tCut.setTooltip(new Tooltip("Cut (Ctrl + X"));
+        tCopy = new Button();
+        tCopy.setGraphic(getImage(copy));
+        tCopy.setTooltip(new Tooltip("Copy (Ctrl + C)"));
         Label bClip = new Label("Clipboard");
-        bClip.paddingProperty().setValue(new Insets(60, 0, 0, 0));
-        VBox clipBoard = new VBox(tClipboard, bClip);
+
+        VBox cc = new VBox(tCut, tCopy);
+        cc.setSpacing(10);
+        HBox clipB = new HBox(tClipboard, cc);
+        clipB.setSpacing(10);
+        clipB.setAlignment(Pos.CENTER);
+        clipB.paddingProperty().setValue(new Insets(10, 10, 15, 10));
+
+        VBox clipBoard = new VBox(clipB, bClip);
         clipBoard.setAlignment(Pos.BASELINE_CENTER);
 
         Separator s1 = new Separator(Orientation.VERTICAL);
 
         tSelect = new ToggleButton();
         tSelect.setGraphic(getImage(selc));
+        tSelect.setTooltip(new Tooltip("Selection Tool"));
+        tCrop = new Button();
+        tCrop.setGraphic(getImage(crop));
+        tCrop.setTooltip(new Tooltip("Crop to Selection"));
+        tFlipV = new Button();
+        tFlipV.setGraphic(getImage(vflip));
+        tFlipV.setTooltip(new Tooltip("Flip selection vertically"));
+        tFlipH = new Button();
+        tFlipH.setGraphic(getImage(hflip));
+        tFlipH.setTooltip(new Tooltip("Flip selection horizontally"));
+        HBox h1 = new HBox(tSelect, tCrop);
+        h1.setSpacing(10);
+        h1.paddingProperty().setValue(new Insets(10, 0, 10, 0));
+        HBox h2 = new HBox(tFlipV, tFlipH);
+        h2.setSpacing(10);
+
         Label bImage = new Label("Selection");
-        bImage.paddingProperty().setValue(new Insets(60, 0, 0, 0));
-        VBox image = new VBox(tSelect, bImage);
+        bImage.paddingProperty().setValue(new Insets(15, 0, 0, 0));
+        VBox image = new VBox(h1, h2, bImage);
         image.setAlignment(Pos.BASELINE_CENTER);
 
         Separator s2 = new Separator(Orientation.VERTICAL);
 
         tPointer = new ToggleButton();
         tPointer.setGraphic(getImage(poin));
+        tPointer.setTooltip(new Tooltip("Mouse Pointer"));
         tEraser = new ToggleButton();
         tEraser.setGraphic(getImage(eras));
+        tEraser.setTooltip(new Tooltip("Eraser"));
         HBox v1 = new HBox(tPointer, tEraser);
+        v1.paddingProperty().setValue(new Insets(10, 0, 0, 0));
+        v1.setSpacing(10);
 
         tPencil = new ToggleButton();
         tPencil.setGraphic(getImage(penc));
+        tPencil.setTooltip(new Tooltip("Pencil"));
         tRainbow = new ToggleButton();
         tRainbow.setGraphic(getImage(rain));
+        tRainbow.setTooltip(new Tooltip("Rainbow Pencil"));
         HBox v2 = new HBox(tPencil, tRainbow);
+        v2.setSpacing(10);
 
         Label bTools = new Label("Tools");
-        bTools.paddingProperty().setValue(new Insets(35, 0, 0, 0));
+        bTools.paddingProperty().setValue(new Insets(5, 0, 0, 0));
         VBox tools = new VBox(v1, v2, bTools);
+        tools.setSpacing(10);
         tools.setAlignment(Pos.BASELINE_CENTER);
 
         Separator s3 = new Separator(Orientation.VERTICAL);
 
         tLine = new ToggleButton();
         tLine.setGraphic(getImage(lin));
+        tLine.setTooltip(new Tooltip("Line"));
         tRect = new ToggleButton();
         tRect.setGraphic(getImage(rec));
+        tRect.setTooltip(new Tooltip("Rectangle"));
         tRRect = new ToggleButton();
         tRRect.setGraphic(getImage(rrec));
+        tRRect.setTooltip(new Tooltip("Rounded Rectangle"));
         tSquare = new ToggleButton();
         tSquare.setGraphic(getImage(squa));
+        tSquare.setTooltip(new Tooltip("Square"));
         HBox v3 = new HBox(tLine, tRect, tRRect, tSquare);
+        v3.paddingProperty().setValue(new Insets(10, 0, 10, 0));
+        v3.setSpacing(5);
 
         tCircle = new ToggleButton();
         tCircle.setGraphic(getImage(circ));
+        tCircle.setTooltip(new Tooltip("Circle"));
         tEllipse = new ToggleButton();
         tEllipse.setGraphic(getImage(elli));
+        tEllipse.setTooltip(new Tooltip("Ellipse"));
 
         tPolygon = new ToggleButton();
         tPolygon.setGraphic(getImage(poly));
+        tPolygon.setTooltip(new Tooltip("Polygon"));
         tCustom = new ToggleButton();
         tCustom.setGraphic(getImage(cust));
+        tCustom.setTooltip(new Tooltip("Custom Shape"));
         HBox v5 = new HBox(tCircle, tEllipse, tPolygon, tCustom);
+        v5.setSpacing(5);
 
         Label bShapes = new Label("Shapes");
-        bShapes.paddingProperty().setValue(new Insets(35, 0, 0, 0));
+        bShapes.paddingProperty().setValue(new Insets(15, 0, 0, 0));
         VBox shapes = new VBox(v3, v5, bShapes);
         shapes.setAlignment(Pos.BASELINE_CENTER);
 
@@ -151,7 +205,7 @@ public class ButtonManager {
         HBox v10 = new HBox(lPS, polySides);
         Label bStyle = new Label("Brush Style");
         bStyle.paddingProperty().setValue(new Insets(0, 0, 0, 0));
-        VBox style = new VBox(v6, v10, v7, bStyle);
+        VBox style = new VBox(v10, v6, v7, bStyle);
         style.setSpacing(5);
         style.setAlignment(Pos.BASELINE_CENTER);
 
@@ -166,10 +220,13 @@ public class ButtonManager {
         Label lCH = new Label("Canvas Height   ");
         Label lCW = new Label("Canvas Width    ");
         HBox v8 = new HBox(lCW, cWidth);
+        v8.setAlignment(Pos.CENTER);
+        v8.paddingProperty().setValue(new Insets(15, 0, 0, 0));
         HBox v9 = new HBox(lCH, cHeight);
+        v9.setAlignment(Pos.CENTER);
 
         Label bCanvas = new Label("Canvas");
-        bCanvas.paddingProperty().setValue(new Insets(20, 0, 0, 0));
+        bCanvas.paddingProperty().setValue(new Insets(5, 0, 0, 0));
         VBox canvas = new VBox(v8, v9, bCanvas);
         canvas.setSpacing(10);
         canvas.setAlignment(Pos.BASELINE_CENTER);
@@ -206,7 +263,6 @@ public class ButtonManager {
             add(tPolygon);
             add(tCustom);
             add(tGrabber);
-            add(tClipboard);
             add(tSelect);
         }};
         Setup();
@@ -327,6 +383,9 @@ public class ButtonManager {
             }
             case 13 -> {
                 return BrickTools.ColorGrabber;
+            }
+            case 14 -> {
+                return BrickTools.SelectionTool;
             }
             default -> {
                 return BrickTools.Nothing;

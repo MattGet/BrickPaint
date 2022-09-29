@@ -16,9 +16,9 @@
          <top>
             <VBox prefHeight="120.0" prefWidth="1920.0" BorderPane.alignment="CENTER">
                <children>
-                  <MenuBar>
+                  <MenuBar fx:id="menuBar" styleClass="MenuBorder">
                     <menus>
-                      <Menu mnemonicParsing="false" text="File">
+                      <Menu mnemonicParsing="false" styleClass="MenuBorder" text="File">
                         <items>
                               <MenuItem mnemonicParsing="false" onAction="#addTab" text="Create New Project (Ctrl + N)" />
                               <MenuItem mnemonicParsing="false" onAction="#handleSaveImage" text="Save (Ctrl + S)" />
@@ -26,22 +26,22 @@
                           <MenuItem fx:id="closeButton" mnemonicParsing="false" onAction="#handleButtonClose" text="Close" />
                         </items>
                       </Menu>
-                      <Menu mnemonicParsing="false" text="Edit">
+                      <Menu mnemonicParsing="false" styleClass="MenuBorder" text="Edit">
                         <items>
                           <MenuItem mnemonicParsing="false" onAction="#handleClear" text="Clear Page (Ctrl + Alt + C)" />
                         </items>
                       </Menu>
-                        <Menu mnemonicParsing="false" text="Veiw">
+                        <Menu mnemonicParsing="false" styleClass="MenuBorder" text="Veiw">
                           <items>
                             <MenuItem mnemonicParsing="false" onAction="#handleResetView" text="Reset (Ctrl + R)" />
                           </items>
                         </Menu>
-                      <Menu mnemonicParsing="false" text="Insert">
+                      <Menu mnemonicParsing="false" styleClass="MenuBorder" text="Insert">
                         <items>
                           <MenuItem fx:id="insertImage" mnemonicParsing="false" onAction="#handleInsertImage" text="Image (Ctrl + I)" />
                         </items>
                       </Menu>
-                        <Menu mnemonicParsing="false" text="Help">
+                        <Menu mnemonicParsing="false" styleClass="MenuBorder" text="Help">
                           <items>
                             <MenuItem mnemonicParsing="false" onAction="#handleOpenAboutMenu" text="About (Ctrl + Alt + A)" />
                           </items>
