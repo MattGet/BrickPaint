@@ -131,4 +131,19 @@ public abstract class ArtMath {
         }
         gc.strokePolygon(xPoints, yPoints, sides);
     }
+
+    public static boolean compare(double value1, double value2, double range){
+        if (value1 >= value2){
+            if (Math.abs(value1) - Math.abs(value2) <= range){
+                return true;
+            }
+            else return false;
+        }
+        else {
+            if (Math.abs(value2) - Math.abs(value1) <= range){
+                return true;
+            }
+            else return false;
+        }
+    }
 }

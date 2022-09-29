@@ -71,6 +71,7 @@
                               <ToggleButton mnemonicParsing="false" text="Circle" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Ellipse" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" text="Polygon" textAlignment="CENTER" />
+                              <ToggleButton mnemonicParsing="false" text="Custom Shape" textAlignment="CENTER" />
                               <ToggleButton mnemonicParsing="false" onAction="#handleGrabber" text="Color Grabber" textAlignment="CENTER" />
                             </toggles>
                            <opaqueInsets>
@@ -89,6 +90,9 @@
                                  </VBox.margin>
                               </ComboBox>
                            </children>
+                           <padding>
+                              <Insets bottom="7.5" />
+                           </padding>
                         </VBox>
                         <ColorPicker fx:id="colorPicker" translateX="30.0" />
                         <VBox alignment="CENTER" prefHeight="100.0" prefWidth="150.0" translateX="50.0" translateY="-10.0">

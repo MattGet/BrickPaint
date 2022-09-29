@@ -165,6 +165,8 @@ public class BrickPaintController {
                 } else if (cGroup.getToggles().indexOf(button) == 9) {
                     return BrickTools.Polygon;
                 }else if (cGroup.getToggles().indexOf(button) == 10) {
+                    return BrickTools.CustomShape;
+                }else if (cGroup.getToggles().indexOf(button) == 11) {
                     return BrickTools.ColorGrabber;
                 }
             }
