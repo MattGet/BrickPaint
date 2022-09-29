@@ -1,17 +1,12 @@
 package com.example.brickpaint;
 
-import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -19,42 +14,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import javax.swing.event.ChangeListener;
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 import static com.example.brickpaint.BrickPaintController.clamp;
 
 public class ButtonManager {
-    private ToolBar Parent;
-    private BrickPaintController controller;
-    private List<ToggleButton> toggles;
-    private final HashMap<ToggleButton, SelectionListener> toggleButtonToSelectionListener = new HashMap<>();
-
-    public ComboBox<Integer> lineWidth = new ComboBox<>();
-    public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
-
-    /**
-     * allows the user to enter or select a value for the current canvas's width
-     */
-    public ComboBox<Double> cWidth = new ComboBox<>();
-    /**
-     * allows the user to enter or select a value for the current canvas's height
-     */
-    public ComboBox<Double> cHeight = new ComboBox<>();
-
-    /**
-     * allows the user to enter or select a value for the number of sides the polygon tools should have
-     */
-    public ComboBox<Integer> polySides = new ComboBox<>();
-
-    public ColorPicker colorPicker = new ColorPicker(Color.BLACK);
-
-    private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse, tPolygon, tCustom, tGrabber;
-    private ToggleButton tClipboard, tSelect, tCrop, tPaste, tCut;
-
     private static final Image clip = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/clipboard-icon.png")));
-    private static final Image poin= new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/pointer-icon.png")));
+    private static final Image poin = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/pointer-icon.png")));
     private static final Image penc = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/pencil-icon.png")));
     private static final Image rain = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/rainbow.png")));
     private static final Image eras = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/eraser.png")));
@@ -68,8 +37,33 @@ public class ButtonManager {
     private static final Image cust = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/customPoly.png")));
     private static final Image grab = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/dropper.png")));
     private static final Image selc = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/Cursor-Select-icon.png")));
+    private final HashMap<ToggleButton, SelectionListener> toggleButtonToSelectionListener = new HashMap<>();
+    private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse, tPolygon, tCustom, tGrabber;
+    public ComboBox<Integer> lineWidth = new ComboBox<>();
+    public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
+    /**
+     * allows the user to enter or select a value for the current canvas's width
+     */
+    public ComboBox<Double> cWidth = new ComboBox<>();
+    /**
+     * allows the user to enter or select a value for the current canvas's height
+     */
+    public ComboBox<Double> cHeight = new ComboBox<>();
+    /**
+     * allows the user to enter or select a value for the number of sides the polygon tools should have
+     */
+    public ComboBox<Integer> polySides = new ComboBox<>();
+    public ColorPicker colorPicker = new ColorPicker(Color.BLACK);
+    private final ToolBar Parent;
+    private final BrickPaintController controller;
+    private final List<ToggleButton> toggles;
+    private final ToggleButton tClipboard;
+    private final ToggleButton tSelect;
+    private ToggleButton tCrop;
+    private ToggleButton tPaste;
+    private ToggleButton tCut;
 
-    public ButtonManager(ToolBar parent, BrickPaintController cont){
+    public ButtonManager(ToolBar parent, BrickPaintController cont) {
         Parent = parent;
         controller = cont;
         tClipboard = new ToggleButton();
@@ -145,7 +139,7 @@ public class ButtonManager {
         lineStyle.setValue(BrickTools.SolidLine);
         lineStyle.setMaxWidth(100);
         lineStyle.setPrefWidth(100);
-        polySides.getItems().addAll(3,4,5,6,7,8,10,12,16,20,24,36);
+        polySides.getItems().addAll(3, 4, 5, 6, 7, 8, 10, 12, 16, 20, 24, 36);
         polySides.setValue(6);
         polySides.setEditable(true);
         polySides.setMaxWidth(100);
@@ -195,20 +189,38 @@ public class ButtonManager {
         color.setSpacing(10);
         color.setAlignment(Pos.BASELINE_CENTER);
 
-        HBox everything  = new HBox(clipBoard, s1, image, s2, tools, s3, shapes, s4, style, s6, color, s5, canvas);
+        HBox everything = new HBox(clipBoard, s1, image, s2, tools, s3, shapes, s4, style, s6, color, s5, canvas);
         everything.setSpacing(10);
         parent.getItems().addAll(everything);
-        toggles = new ArrayList<>(){{
-            add(tPointer); add(tPencil); add(tRainbow); add(tEraser); add(tLine); add(tRect); add(tRRect); add(tSquare);
-            add(tCircle); add(tEllipse); add(tPolygon); add(tCustom); add(tGrabber); add(tClipboard);
+        toggles = new ArrayList<>() {{
+            add(tPointer);
+            add(tPencil);
+            add(tRainbow);
+            add(tEraser);
+            add(tLine);
+            add(tRect);
+            add(tRRect);
+            add(tSquare);
+            add(tCircle);
+            add(tEllipse);
+            add(tPolygon);
+            add(tCustom);
+            add(tGrabber);
+            add(tClipboard);
             add(tSelect);
         }};
         Setup();
     }
 
-    private void Setup(){
-        Iterator<ToggleButton> var2 = toggles.iterator();
-        for (ToggleButton toggleButton: toggles) {
+    private static ImageView getImage(Image image) {
+        ImageView curr = new ImageView(image);
+        curr.setFitHeight(20);
+        curr.setFitWidth(20);
+        return curr;
+    }
+
+    private void Setup() {
+        for (ToggleButton toggleButton : toggles) {
             SelectionListener selectionListener = new SelectionListener(toggleButton);
             this.toggleButtonToSelectionListener.put(toggleButton, selectionListener);
             toggleButton.selectedProperty().addListener(selectionListener);
@@ -219,11 +231,9 @@ public class ButtonManager {
         tGrabber.setOnAction(this::handleGrabber);
     }
 
-
-
-    public BrickTools getSelectedToggle(){
-        for (int i = 0; i <= toggles.size() -1; i++) {
-            if (toggles.get(i).isSelected()){
+    public BrickTools getSelectedToggle() {
+        for (int i = 0; i <= toggles.size() - 1; i++) {
+            if (toggles.get(i).isSelected()) {
                 return posToTool(i);
             }
         }
@@ -277,45 +287,45 @@ public class ButtonManager {
         }
     }
 
-    private BrickTools posToTool(Integer pos){
-        switch (pos+1){
+    private BrickTools posToTool(Integer pos) {
+        switch (pos + 1) {
             case 1 -> {
                 return BrickTools.Pointer;
             }
-            case 2 ->{
+            case 2 -> {
                 return BrickTools.Pencil;
             }
-            case 3 ->{
+            case 3 -> {
                 return BrickTools.RainbowPencil;
             }
-            case 4 ->{
+            case 4 -> {
                 return BrickTools.Eraser;
             }
-            case 5 ->{
+            case 5 -> {
                 return BrickTools.Line;
             }
-            case 6 ->{
+            case 6 -> {
                 return BrickTools.Rectangle;
             }
-            case 7 ->{
+            case 7 -> {
                 return BrickTools.RoundRectangle;
             }
-            case 8 ->{
+            case 8 -> {
                 return BrickTools.Square;
             }
-            case 9 ->{
+            case 9 -> {
                 return BrickTools.Circle;
             }
-            case 10 ->{
+            case 10 -> {
                 return BrickTools.Oval;
             }
-            case 11 ->{
+            case 11 -> {
                 return BrickTools.Polygon;
             }
-            case 12 ->{
+            case 12 -> {
                 return BrickTools.CustomShape;
             }
-            case 13 ->{
+            case 13 -> {
                 return BrickTools.ColorGrabber;
             }
             default -> {
@@ -324,55 +334,16 @@ public class ButtonManager {
         }
     }
 
-
-    private void togglesChanged(ListChangeListener.Change<? extends ToggleButton> changed) {
-        while (changed.next()) {
-            Iterator var2;
-            ToggleButton toggleButton;
-            SelectionListener selectionListener;
-            if (changed.wasAdded()) {
-                var2 = changed.getAddedSubList().iterator();
-
-                while (var2.hasNext()) {
-                    toggleButton = (ToggleButton) var2.next();
-                    selectionListener = new SelectionListener(toggleButton);
-                    this.toggleButtonToSelectionListener.put(toggleButton, selectionListener);
-                    toggleButton.selectedProperty().addListener(selectionListener);
-                }
-            }
-
-            if (changed.wasRemoved()) {
-                var2 = changed.getRemoved().iterator();
-
-                while (var2.hasNext()) {
-                    toggleButton = (ToggleButton) var2.next();
-                    selectionListener = (SelectionListener) this.toggleButtonToSelectionListener.get(toggleButton);
-                    toggleButton.selectedProperty().removeListener(selectionListener);
-                    this.toggleButtonToSelectionListener.remove(toggleButton);
-                }
-            }
-        }
-    }
-
-
-    private static ImageView getImage(Image image){
-        ImageView curr = new ImageView(image);
-        curr.setFitHeight(20);
-        curr.setFitWidth(20);
-        return curr;
-    }
-
-
     private class SelectionListener implements InvalidationListener {
-        private ToggleButton toggleButton;
+        private final ToggleButton toggleButton;
 
         public SelectionListener(ToggleButton toggleButton) {
             this.toggleButton = toggleButton;
         }
 
         public void invalidated(Observable observable) {
-            if (this.toggleButton.isSelected()){
-                for (ToggleButton toggle: toggles) {
+            if (this.toggleButton.isSelected()) {
+                for (ToggleButton toggle : toggles) {
                     if (toggle != this.toggleButton) toggle.setSelected(false);
                 }
             }

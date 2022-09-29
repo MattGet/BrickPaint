@@ -212,8 +212,8 @@ public class CanvasPanel {
      * @param event Mouse Event from Input class
      */
     private void onMousePressed(MouseEvent event) {
+        initialTouch = new Point2D(event.getX(), event.getY());
         if (event.getButton() == MouseButton.PRIMARY) {
-            initialTouch = new Point2D(event.getX(), event.getY());
             if (controller.getToolType() != BrickTools.Pointer) {
                 undoManager.setMark();
                 initDraw(canvas.getGraphicsContext2D());
@@ -236,14 +236,13 @@ public class CanvasPanel {
                 controller.buttonManager.resetGrabber();
             }
             if (controller.getToolType() == BrickTools.CustomShape) {
-                Point2D currPoint = new Point2D(event.getX(), event.getY());
                 initDraw(canvas.getGraphicsContext2D());
                 initDraw(sketchCanvas.getGraphicsContext2D());
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 if (polyLine.size() > 0) {
                     for (Point2D point : polyLine) {
-                        System.out.println("XComp = " + ArtMath.compare(point.getX(), event.getX(), 10d));
-                        System.out.println("YComp = " + ArtMath.compare(point.getY(), event.getY(), 10d));
+                        //System.out.println("XComp = " + ArtMath.compare(point.getX(), event.getX(), 10d));
+                        //System.out.println("YComp = " + ArtMath.compare(point.getY(), event.getY(), 10d));
                         if (ArtMath.compare(point.getX(), event.getX(), 10d) && ArtMath.compare(point.getY(), event.getY(), 10d)) {
                             gc.strokeLine(polyLine.get(polyLine.size() - 1).getX(), polyLine.get(polyLine.size() - 1).getY(), point.getX(), point.getY());
                             drawingPolyLine = false;
@@ -251,14 +250,29 @@ public class CanvasPanel {
                             System.out.println("Matched point");
                             return;
                         }
+                        else drawingPolyLine = true;
                     }
                     gc.strokeLine(polyLine.get(polyLine.size() - 1).getX(), polyLine.get(polyLine.size() - 1).getY(), event.getX(), event.getY());
                 } else {
-                    System.out.println("First point");
+                    //System.out.println("First point");
                     undoManager.LogU(this);
                     drawingPolyLine = true;
                 }
-                polyLine.add(currPoint);
+                polyLine.add(initialTouch);
+            }
+        }
+        if (event.getButton() == MouseButton.SECONDARY){
+            if (controller.getToolType() == BrickTools.CustomShape) {
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                if (polyLine.size() <= 1) {
+                    drawingPolyLine = false;
+                    polyLine.clear();
+                }
+                else{
+                    gc.strokeLine(polyLine.get(polyLine.size() - 1).getX(), polyLine.get(polyLine.size() - 1).getY(), event.getX(), event.getY());
+                    polyLine.clear();
+                    drawingPolyLine = false;
+                }
             }
         }
     }
