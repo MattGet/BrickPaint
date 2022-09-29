@@ -1,22 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.gluonhq.charm.glisten.control.ToggleButtonGroup?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.ColorPicker?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.brickpaint.BrickPaintController">
@@ -57,75 +48,7 @@
                         </Menu>
                     </menus>
                   </MenuBar>
-                  <ToolBar prefHeight="100.0" prefWidth="1920.0" VBox.vgrow="NEVER">
-                     <items>
-                        <ToggleButtonGroup fx:id="cGroup" nodeOrientation="LEFT_TO_RIGHT" selectionType="SINGLE">
-                            <toggles>
-                              <ToggleButton fx:id="Pointer" selected="true" text="Pointer" textAlignment="CENTER" />
-                              <ToggleButton text="Pencil" textAlignment="CENTER" />
-                              <ToggleButton mnemonicParsing="false" text="Rainbow Pencil" textAlignment="CENTER" />
-                              <ToggleButton text="Eraser" textAlignment="CENTER" />
-                                <ToggleButton text="Line" textAlignment="CENTER" />
-                                <ToggleButton text="Rectangle" textAlignment="CENTER" />
-                              <ToggleButton mnemonicParsing="false" text="Square" textAlignment="CENTER" />
-                              <ToggleButton mnemonicParsing="false" text="Circle" textAlignment="CENTER" />
-                              <ToggleButton mnemonicParsing="false" text="Ellipse" textAlignment="CENTER" />
-                              <ToggleButton mnemonicParsing="false" text="Polygon" textAlignment="CENTER" />
-                              <ToggleButton mnemonicParsing="false" text="Custom Shape" textAlignment="CENTER" />
-                              <ToggleButton mnemonicParsing="false" onAction="#handleGrabber" text="Color Grabber" textAlignment="CENTER" />
-                            </toggles>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <padding>
-                              <Insets top="37.5" />
-                           </padding>
-                        </ToggleButtonGroup>
-                        <VBox alignment="CENTER" prefHeight="100.0" prefWidth="150.0">
-                           <children>
-                              <Label text="Polygon Sides" textAlignment="CENTER" />
-                              <ComboBox fx:id="polySides" editable="true" prefWidth="150.0" promptText="Polygon Sides">
-                                 <VBox.margin>
-                                    <Insets bottom="10.0" />
-                                 </VBox.margin>
-                              </ComboBox>
-                           </children>
-                           <padding>
-                              <Insets bottom="7.5" />
-                           </padding>
-                        </VBox>
-                        <ColorPicker fx:id="colorPicker" translateX="30.0" />
-                        <VBox alignment="CENTER" prefHeight="100.0" prefWidth="150.0" translateX="50.0" translateY="-10.0">
-                           <children>
-                              <Label text="Line Width &amp; Style" textAlignment="CENTER" />
-                              <ComboBox fx:id="lineWidth" editable="true" prefWidth="150.0" promptText="Line Width">
-                                 <VBox.margin>
-                                    <Insets bottom="10.0" />
-                                 </VBox.margin>
-                              </ComboBox>
-                              <ChoiceBox fx:id="lineType" prefWidth="150.0" />
-                           </children>
-                        </VBox>
-                        <GridPane maxHeight="60.0" maxWidth="200.0" translateX="80.0">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                           <children>
-                              <Label text="Canvas Width:" textAlignment="CENTER" textOverrun="CLIP" wrapText="true" />
-                              <Label prefHeight="23.0" prefWidth="126.0" text="Canvas Height:" textAlignment="CENTER" GridPane.rowIndex="1" />
-                              <ComboBox fx:id="cWidth" editable="true" onAction="#handleCWidth" prefWidth="150.0" GridPane.columnIndex="1" />
-                              <ComboBox fx:id="cHeight" editable="true" onAction="#handleCHeight" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                           </children>
-                           <padding>
-                              <Insets left="10.0" />
-                           </padding>
-                        </GridPane>
-                     </items>
+                  <ToolBar fx:id="toolBar" prefHeight="100.0" prefWidth="1920.0" VBox.vgrow="NEVER">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin></ToolBar>

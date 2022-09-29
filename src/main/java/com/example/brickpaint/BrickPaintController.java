@@ -6,6 +6,7 @@ import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -33,35 +34,7 @@ public class BrickPaintController {
      */
     public List<CanvasPanel> canvasPanels = new ArrayList<>();
 
-    /**
-     * allows the user to select the current color from a colorpicker menu
-     */
-    @FXML
-    public ColorPicker colorPicker;
-    /**
-     * allows the user to select the current line width from a dropdown menu
-     */
-    @FXML
-    public ComboBox<Double> lineWidth;
 
-    /**
-     * allows the user to enter or select a value for the current canvas's width
-     */
-    @FXML
-    public ComboBox<Double> cWidth;
-    /**
-     * allows the user to enter or select a value for the current canvas's height
-     */
-    @FXML
-    public ComboBox<Double> cHeight;
-
-    @FXML
-    public ComboBox<Integer> polySides;
-    /**
-     * allows the user to select their desired line style from a dropdown menu
-     */
-    @FXML
-    protected ChoiceBox<BrickTools> lineType;
     /**
      * A dictionary of the files used to save the canvasPanel, created after the first SaveAs is called
      */
@@ -80,32 +53,21 @@ public class BrickPaintController {
      */
     @FXML
     private TabPane tabs;
-    /**
-     * A group of buttons representing available tools in the application, restricted so that only one may be pressed
-     * at a time
-     */
+
     @FXML
-    private ToggleButtonGroup cGroup;
+    private ToolBar toolBar;
+
+    public ButtonManager buttonManager;
 
     /**
      * Called when the program starts from the application class
      */
     protected void Start() {
         Scene scene = root.getScene();
+        buttonManager = new ButtonManager(toolBar, this);
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         addTab();
-        lineWidth.getItems().addAll(1d, 2d, 4d, 8d, 10d, 12d, 14d, 18d, 24d, 30d, 36d, 48d, 60d, 72d);
-        lineWidth.setValue(10d);
-        lineType.getItems().addAll(BrickTools.SolidLine, BrickTools.DashedLine);
-        lineType.setValue(BrickTools.SolidLine);
-        cWidth.getItems().addAll(256d, 512d, 720d, 1024d, 1080d, 1280d, 1440d, 1920d);
-        cHeight.getItems().addAll(256d, 512d, 720d, 1024d, 1080d, 1280d, 1440d, 1920d);
-        colorPicker.setValue(Color.BLACK);
-        cGroup.getToggles().get(0).setSelected(true);
-        cGroup.getToggles().get(0).setGraphic(new Icon(MaterialDesignIcon.MOUSE));
-        polySides.getItems().addAll(3,4,5,6,7,8,10,12,16,20,24,36);
-        polySides.setValue(6);
     }
 
     /**
@@ -142,86 +104,9 @@ public class BrickPaintController {
      * @return int
      */
     public BrickTools getToolType() {
-        for (ToggleButton button : cGroup.getToggles()) {
-            if (button.isSelected()) {
-                if (cGroup.getToggles().indexOf(button) == 0) {
-                    return BrickTools.Pointer;
-                } else if (cGroup.getToggles().indexOf(button) == 1) {
-                    return BrickTools.Pencil;
-                } else if (cGroup.getToggles().indexOf(button) == 2) {
-                    return BrickTools.RainbowPencil;
-                } else if (cGroup.getToggles().indexOf(button) == 3) {
-                    return BrickTools.Eraser;
-                } else if (cGroup.getToggles().indexOf(button) == 4) {
-                    return BrickTools.Line;
-                } else if (cGroup.getToggles().indexOf(button) == 5) {
-                    return BrickTools.Rectangle;
-                } else if (cGroup.getToggles().indexOf(button) == 6) {
-                    return BrickTools.Square;
-                } else if (cGroup.getToggles().indexOf(button) == 7) {
-                    return BrickTools.Circle;
-                } else if (cGroup.getToggles().indexOf(button) == 8) {
-                    return BrickTools.Oval;
-                } else if (cGroup.getToggles().indexOf(button) == 9) {
-                    return BrickTools.Polygon;
-                }else if (cGroup.getToggles().indexOf(button) == 10) {
-                    return BrickTools.CustomShape;
-                }else if (cGroup.getToggles().indexOf(button) == 11) {
-                    return BrickTools.ColorGrabber;
-                }
-            }
-        }
-        return BrickTools.Pointer;
+        return buttonManager.getSelectedToggle();
     }
 
-    /**
-     * Sets the current selected tool to the standard mouse pointer
-     */
-    public void resetGrabber() {
-        cGroup.getToggles().get(0).setSelected(true);
-    }
-
-    /**
-     * Changes the mouse cursor when the grabber tool is selected
-     */
-    @FXML
-    private void handleGrabber() {
-        Image temp = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/dropper.png")));
-        ImageCursor cursor = new ImageCursor(temp, 0, temp.getHeight());
-        root.getScene().setCursor(cursor);
-    }
-
-    /**
-     * Updates the current canvas's width when the user changes its value
-     */
-    @FXML
-    protected void handleCWidth() {
-        try {
-            String value = cWidth.getEditor().getText();
-            double numb = Double.parseDouble(value);
-            numb = clamp(numb, 0d, 2000d);
-            this.getCanvas().setSizeX(numb);
-            //System.out.println("Set Width");
-        } catch (Exception e) {
-            System.out.println("Canvas Width input was Invalid");
-        }
-    }
-
-    /**
-     * Updates the current canvas's height when the user changes its value
-     */
-    @FXML
-    protected void handleCHeight() {
-        try {
-            String value = cHeight.getEditor().getText();
-            double numb = Double.parseDouble(value);
-            numb = clamp(numb, 0d, 2000d);
-            this.getCanvas().setSizeY(numb);
-            //System.out.println("Set Height");
-        } catch (Exception e) {
-            System.out.println("Canvas Height input was Invalid");
-        }
-    }
 
     /**
      * Handles the action when a close button is pressed

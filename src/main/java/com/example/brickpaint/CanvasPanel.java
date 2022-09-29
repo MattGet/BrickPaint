@@ -177,8 +177,8 @@ public class CanvasPanel {
      * Updates the size number of the current canvas in the toolbar
      */
     public void UpdateSize() {
-        controller.cHeight.getEditor().setText(String.valueOf(canvas.getHeight()));
-        controller.cWidth.getEditor().setText(String.valueOf(canvas.getWidth()));
+        controller.buttonManager.cHeight.getEditor().setText(String.valueOf(canvas.getHeight()));
+        controller.buttonManager.cWidth.getEditor().setText(String.valueOf(canvas.getWidth()));
     }
 
     /**
@@ -231,9 +231,9 @@ public class CanvasPanel {
                 parameters.setFill(Color.TRANSPARENT);
                 WritableImage snap = canvas.snapshot(parameters, null);
                 PixelReader reader = snap.getPixelReader();
-                controller.colorPicker.setValue(reader.getColor((int) event.getX(), (int) event.getY()));
+                controller.buttonManager.colorPicker.setValue(reader.getColor((int) event.getX(), (int) event.getY()));
                 root.getScene().setCursor(Cursor.DEFAULT);
-                controller.resetGrabber();
+                controller.buttonManager.resetGrabber();
             }
             if (controller.getToolType() == BrickTools.CustomShape) {
                 Point2D currPoint = new Point2D(event.getX(), event.getY());
@@ -281,6 +281,11 @@ public class CanvasPanel {
                     ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
+                case RoundRectangle -> {
+                    undoManager.LogU(this);
+                    ArtMath.DrawRoundedRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                    sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                }
                 case Square -> {
                     undoManager.LogU(this);
                     ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
@@ -300,7 +305,7 @@ public class CanvasPanel {
                     undoManager.LogU(this);
                     int sides = 6;
                     try {
-                        sides = BrickPaintController.clamp(Integer.parseInt(controller.polySides.getEditor().getText()), 3, 1000);
+                        sides = BrickPaintController.clamp(Integer.parseInt(controller.buttonManager.polySides.getEditor().getText()), 3, 1000);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -320,11 +325,11 @@ public class CanvasPanel {
      * @param gc The graphics context to set parameters for
      */
     private void initDraw(GraphicsContext gc) {
-        gc.setFill(controller.colorPicker.getValue());
-        gc.setStroke(controller.colorPicker.getValue());
-        double width = Double.parseDouble(controller.lineWidth.getEditor().getText());
+        gc.setFill(controller.buttonManager.colorPicker.getValue());
+        gc.setStroke(controller.buttonManager.colorPicker.getValue());
+        double width = Double.parseDouble(controller.buttonManager.lineWidth.getEditor().getText());
         gc.setLineWidth(width);
-        if (controller.lineType.getValue() == BrickTools.DashedLine) {
+        if (controller.buttonManager.lineStyle.getValue() == BrickTools.DashedLine) {
             //System.out.println("Setting dashed");
             gc.setLineDashes(width * 2, width * 2, width * 2, width * 2);
         } else {
@@ -341,13 +346,7 @@ public class CanvasPanel {
             gc.setEffect(blur);
         } else if (controller.getToolType() == BrickTools.Eraser) {
             gc.setEffect(null);
-        }
-        else {
-            gc.setLineCap(StrokeLineCap.SQUARE);
-            gc.setEffect(null);
-        }
-
-        if (controller.getToolType() == BrickTools.CustomShape){
+        } else if (controller.getToolType() == BrickTools.CustomShape){
             gc.setLineCap(StrokeLineCap.ROUND);
             gc.setLineJoin(StrokeLineJoin.ROUND);
         }
@@ -378,7 +377,7 @@ public class CanvasPanel {
             parameters.setFill(Color.TRANSPARENT);
             WritableImage snap = canvas.snapshot(parameters, null);
             PixelReader reader = snap.getPixelReader();
-            controller.colorPicker.setValue(reader.getColor((int) event.getX(), (int) event.getY()));
+            controller.buttonManager.colorPicker.setValue(reader.getColor((int) event.getX(), (int) event.getY()));
         }
         if (controller.getToolType() == BrickTools.CustomShape){
             if (drawingPolyLine) {
@@ -432,7 +431,7 @@ public class CanvasPanel {
                     gc.stroke();
                 }
                 case Eraser -> {
-                    double size = controller.lineWidth.getValue() * 2;
+                    double size = controller.buttonManager.lineWidth.getValue() * 2;
                     gc.clearRect(event.getX() - size / 2, event.getY() - size / 2, size, size);
                 }
                 case Line -> {
@@ -442,6 +441,10 @@ public class CanvasPanel {
                 case Rectangle -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                }
+                case RoundRectangle -> {
+                    sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                    ArtMath.DrawRoundedRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
                 }
                 case Square -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
@@ -458,7 +461,7 @@ public class CanvasPanel {
                 case Polygon -> {
                     int sides = 6;
                     try {
-                        sides = BrickPaintController.clamp(Integer.parseInt(controller.polySides.getEditor().getText()), 3, 1000);
+                        sides = BrickPaintController.clamp(Integer.parseInt(controller.buttonManager.polySides.getEditor().getText()), 3, 1000);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

@@ -35,6 +35,30 @@ public abstract class ArtMath {
             }
         }
     }
+    /**
+     * Draws a Rectangle in the desired direction based on the cursor location
+     *
+     * @param x1 start x cord
+     * @param y1 start y cord
+     * @param x2 mouse x cord
+     * @param y2 mouse y cord
+     * @param gc the graphics content to draw the shape on
+     */
+    public static void DrawRoundedRect(double x1, double y1, double x2, double y2, GraphicsContext gc) {
+        double w = Math.abs(x2 - x1);
+        double h = Math.abs(y2 - y1);
+        {
+            if (x2 >= x1 && y2 >= y1) {         //draw down & right
+                gc.strokeRoundRect(x1, y1, w, h, w/10, w/10);
+            } else if (x2 >= x1 && y1 >= y2) {  //drawing up & right
+                gc.strokeRoundRect(x1, y2, w, h, w/10, w/10);
+            } else if (x1 >= x2 && y2 >= y1) {  //draw down & left
+                gc.strokeRoundRect(x2, y1, w, h, w/10, w/10);
+            } else {                            //draw up & left
+                gc.strokeRoundRect(x2, y2, w, h, w/10, w/10);
+            }
+        }
+    }
 
     /**
      * Draws a Square in the desired direction based on the cursor location

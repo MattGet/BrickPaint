@@ -10,6 +10,7 @@ public enum BrickTools {
     Eraser,
     Line,
     Rectangle,
+    RoundRectangle,
     Square,
     Circle,
     Oval,
@@ -18,4 +19,5 @@ public enum BrickTools {
     SolidLine,
     DashedLine,
     ColorGrabber,
+    Nothing,
 }
