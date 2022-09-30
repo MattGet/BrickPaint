@@ -20,7 +20,7 @@ public class BrickPaintApp extends Application {
     /**
      * start of the application
      *
-     * @param args
+     * @param args Command line arguments
      */
     public static void main(String[] args) {
         launch();
@@ -29,7 +29,7 @@ public class BrickPaintApp extends Application {
     /**
      * start of javaFX program
      *
-     * @param stage
+     * @param stage Primary stage of the application
      * @throws IOException
      */
     @Override

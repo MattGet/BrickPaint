@@ -74,11 +74,21 @@ public class BrickKeys {
                 controller.handleSaveImage();
             }
 
-            if (key.getCode() == KeyCode.E && key.isControlDown() && key.isAltDown()) {
-                controller.OnClose(new WindowEvent(scene.getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
-            }
             if (key.getCode() == KeyCode.C && key.isControlDown() && key.isAltDown()) {
                 controller.handleClear();
+            } else if (key.getCode() == KeyCode.C && key.isControlDown()) {
+                controller.getCanvas().selectionCopy();
+            }
+
+            if(key.getCode() == KeyCode.V && key.isControlDown()){
+                controller.getCanvas().selectionPaste();
+            }
+            if(key.getCode() == KeyCode.X && key.isControlDown()){
+                controller.getCanvas().selectionCut();
+            }
+
+            if (key.getCode() == KeyCode.E && key.isControlDown() && key.isAltDown()) {
+                controller.OnClose(new WindowEvent(scene.getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
             }
             if (key.getCode() == KeyCode.I && key.isControlDown()) {
                 controller.handleInsertImage();

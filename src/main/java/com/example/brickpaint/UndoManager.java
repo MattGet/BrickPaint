@@ -1,22 +1,47 @@
 package com.example.brickpaint;
 
 import javafx.scene.SnapshotParameters;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import java.util.Stack;
 
+
+/**
+ * Handles undo and redo implementation for a JavaFX canvas
+ *
+ * @author matde
+ */
 public class UndoManager {
+
+    /**
+     * The stack of logged actions available to undo
+     */
     private final Stack<Image> history = new Stack<>();
+
+    /**
+     * The stack of actions that were undone
+     */
     private final Stack<Image> trash = new Stack<>();
+
+    /**
+     * A position in the history stack to track in order to later go back to
+     */
     private int Mark;
 
+    /**
+     * Sets the value of Mark
+     */
     public void setMark() {
         Mark = history.size();
     }
 
+    /**
+     * Will reset the provided canvas to the point in history denoted by the mark value
+     *
+     * @param panel The canvas to preform this action on
+     */
     public void mergeToMark(CanvasPanel panel) {
         int curr = history.size() - Mark;
         Image temp = history.pop();
@@ -28,6 +53,11 @@ public class UndoManager {
         LogU(panel);
     }
 
+    /**
+     * Push the current canvas to history as an image
+     *
+     * @param panel The canvas to take a snapshot of
+     */
     public void LogU(CanvasPanel panel) {
         Image image = getUnScaledImage(panel.root);
         history.push(image);
@@ -38,6 +68,11 @@ public class UndoManager {
         System.out.println("Called LogU");
     }
 
+    /**
+     * @hidden
+     *
+     * @param panel The panel to log an image of
+     */
     public void LogR(CanvasPanel panel) {
         Image image = getUnScaledImage(panel.root);
         trash.push(image);
@@ -48,6 +83,11 @@ public class UndoManager {
         System.out.println("Called LogR");
     }
 
+    /**
+     * Resets the provided canvas to the last logged state
+     *
+     * @param panel The canvas to write the logged history to
+     */
     public void Undo(CanvasPanel panel) {
         panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
         if (history.size() == 0) {
@@ -65,6 +105,11 @@ public class UndoManager {
         System.out.println("Called Undo");
     }
 
+    /**
+     * Re-write the last undo action to the provided canvas
+     *
+     * @param panel The canvas to re-write the logged undo to
+     */
     public void Redo(CanvasPanel panel){
         if (trash.size() == 0) {
             return;
@@ -82,7 +127,13 @@ public class UndoManager {
         System.out.println("Called Redo");
     }
 
-    public Image getUnScaledImage(StackPane canvas) {
+    /**
+     * Helper function to return an image of the unscaled canvas
+     *
+     * @param canvas the parent Node of the canvas
+     * @return Unscaled javaFX image of the canvas
+     */
+    public static Image getUnScaledImage(StackPane canvas) {
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
         double y = canvas.getScaleY();

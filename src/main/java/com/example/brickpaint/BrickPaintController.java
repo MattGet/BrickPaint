@@ -1,25 +1,22 @@
 package com.example.brickpaint;
 
-import com.gluonhq.charm.glisten.control.Icon;
-import com.gluonhq.charm.glisten.control.ToggleButtonGroup;
-import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Cursor;
-import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -45,21 +42,30 @@ public class BrickPaintController {
     @FXML
     private AnchorPane root;
     /**
-     * The instance of the BrickKeys class that manages keybinds for this controller
+     * The instance of the BrickKeys class that manages KeyBinds for this controller
      */
     private BrickKeys keyBinds;
     /**
-     * The node that manages all of the canvas panel tabs within the application
+     * The node that manages all the canvas panel tabs within the application
      */
     @FXML
     private TabPane tabs;
 
+    /**
+     * The toolbar in which all the tools GUI will be constructed under
+     */
     @FXML
     private ToolBar toolBar;
 
+    /**
+     * The MenuBar in which all the menu GUI is constructed under
+     */
     @FXML
     private MenuBar menuBar;
 
+    /**
+     * The instance of ButtonManager which contains the tool GUI for this controller
+     */
     public ButtonManager buttonManager;
 
     /**
@@ -104,7 +110,7 @@ public class BrickPaintController {
 
 
     /**
-     * Returns the current tool selection from the tooltype toggle group as a BrickTools enum value
+     * Returns the current tool selection from the button manager as a BrickTools enum value
      *
      * @return int
      */
@@ -246,11 +252,28 @@ public class BrickPaintController {
         }
     }
 
+    /**
+     * Helper function which return a value restricted between min and max
+     *
+     * @param val The double to evaluate
+     * @param min The minimum value which to return
+     * @param max The maximum value which to return
+     * @return Double value between min and max
+     */
    public static double clamp(double val, double min, double max){
         if (val > max) val = max;
         else if (val < min) val = min;
         return val;
     }
+
+    /**
+     * Helper function which return a value restricted between min and max
+     *
+     * @param val The int to evaluate
+     * @param min The minimum value which to return
+     * @param max The maximum value which to return
+     * @return Integer value between min and max
+     */
     public static int clamp(int val, int min, int max){
         if (val > max) val = max;
         else if (val < min) val = min;

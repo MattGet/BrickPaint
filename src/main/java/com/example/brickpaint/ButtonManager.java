@@ -21,6 +21,11 @@ import java.util.Objects;
 
 import static com.example.brickpaint.BrickPaintController.clamp;
 
+/**
+ * Sets up all toolbar buttons for the application as well as their graphics, layout, listeners, and methods
+ *
+ * @author matde
+ */
 public class ButtonManager {
     private static final Image paste = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/clipboard-icon.png")));
     private static final Image poin = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/pointer-icon.png")));
@@ -47,7 +52,7 @@ public class ButtonManager {
     private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse,
             tPolygon, tCustom, tGrabber, tSelect;
 
-    private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH;;
+    private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH;
     public ComboBox<Integer> lineWidth = new ComboBox<>();
     public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
     /**
@@ -67,6 +72,13 @@ public class ButtonManager {
     private final BrickPaintController controller;
     private final List<ToggleButton> toggles;
 
+    /**
+     * Default Constructor for the Button Manager, creates all the buttons with parameters and lays them out
+     * in a predefined manner
+     *
+     * @param parent The toolbar to create the buttons under
+     * @param cont The controller class in charge of the application
+     */
     public ButtonManager(ToolBar parent, BrickPaintController cont) {
         Parent = parent;
         controller = cont;
@@ -268,6 +280,12 @@ public class ButtonManager {
         Setup();
     }
 
+    /**
+     * Helper function to create an imageview of size 20x20
+     *
+     * @param image The image to add to the imageView
+     * @return 20x20 ImageView
+     */
     private static ImageView getImage(Image image) {
         ImageView curr = new ImageView(image);
         curr.setFitHeight(20);
@@ -275,6 +293,10 @@ public class ButtonManager {
         return curr;
     }
 
+
+    /**
+     * sets up all the event listeners for the buttons and toggle buttons
+     */
     private void Setup() {
         for (ToggleButton toggleButton : toggles) {
             SelectionListener selectionListener = new SelectionListener(toggleButton);
@@ -285,8 +307,17 @@ public class ButtonManager {
         cWidth.setOnAction(this::handleCWidth);
         cHeight.setOnAction(this::handleCHeight);
         tGrabber.setOnAction(this::handleGrabber);
+        tCopy.setOnAction(this::handleCopy);
+        tCut.setOnAction(this::handleCut);
+        tClipboard.setOnAction(this::handlePaste);
+        tCrop.setOnAction(this::handleCrop);
     }
 
+    /**
+     * Will return the currently selected toggle button as an enum type
+     *
+     * @return type BrickTools
+     */
     public BrickTools getSelectedToggle() {
         for (int i = 0; i <= toggles.size() - 1; i++) {
             if (toggles.get(i).isSelected()) {
@@ -297,10 +328,63 @@ public class ButtonManager {
     }
 
     /**
+     * Calls the paste method in the current canvas when the paste button is pressed
+     *
+     * @param event Button event
+     */
+    public void handlePaste(ActionEvent event){
+        controller.getCanvas().selectionPaste();
+    }
+
+    /**
+     * Calls the cut method in the current canvas when the paste button is pressed and the selection tool is active,
+     * otherwise it will set the selection tool to be active
+     *
+     * @param event Button event
+     */
+    public void handleCut(ActionEvent event){
+        if (getSelectedToggle() == BrickTools.SelectionTool){
+            controller.getCanvas().selectionCut();
+        }
+        else{
+            tSelect.setSelected(true);
+        }
+    }
+
+    /**
+     * Calls the copy method in the current canvas when the copy button is pressed and the selection tool is active,
+     * otherwise it will set the selection tool to be active
+     *
+     * @param event Button event
+     */
+    public void handleCopy(ActionEvent event){
+        if (getSelectedToggle() == BrickTools.SelectionTool){
+            controller.getCanvas().selectionCopy();
+        }
+        else{
+            tSelect.setSelected(true);
+        }
+    }
+
+    /**
+     * Calls the crop method in the current canvas when the crop button is pressed and the selection tool is active,
+     * otherwise it will set the selection tool to be active
+     *
+     * @param event Button event
+     */
+    public void handleCrop(ActionEvent event){
+        if (getSelectedToggle() == BrickTools.SelectionTool){
+            controller.getCanvas().selectionCrop();
+        }
+        else{
+            tSelect.setSelected(true);
+        }
+    }
+
+    /**
      * Sets the current selected tool to the standard mouse pointer
      */
-    public void resetGrabber() {
-        tGrabber.setSelected(false);
+    public void resetToggles() {
         tPointer.setSelected(true);
     }
 
@@ -343,6 +427,12 @@ public class ButtonManager {
         }
     }
 
+    /**
+     * Used to convert the index of the selected tool to an enum value
+     *
+     * @param pos index of selected tool
+     * @return enum of type BrickTools representing selected tool
+     */
     private BrickTools posToTool(Integer pos) {
         switch (pos + 1) {
             case 1 -> {
@@ -393,6 +483,11 @@ public class ButtonManager {
         }
     }
 
+    /**
+     * Tracks when a toggle button is selected and will deselect all other toggle buttons
+     *
+     * @author matde
+     */
     private class SelectionListener implements InvalidationListener {
         private final ToggleButton toggleButton;
 

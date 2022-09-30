@@ -1,7 +1,9 @@
 package com.example.brickpaint;
 
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -9,11 +11,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -22,7 +23,6 @@ import javafx.scene.shape.StrokeLineJoin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 
 /**
@@ -49,7 +49,7 @@ public class CanvasPanel {
     private final Double cWidth = 1024d;
     private final Double cHeight = 1024d;
     /**
-     * The root Node that all of the canvas components are created under
+     * The root Node that all the canvas components are created under
      */
     public StackPane root = new StackPane();
     /**
@@ -57,7 +57,7 @@ public class CanvasPanel {
      */
     public Canvas canvas = new Canvas();
     /**
-     * The viewport (scrollpane) that the entire canvas panel will reside within
+     * The viewport (ScrollPane) that the entire canvas panel will reside within
      */
     public ScrollPane scrollPane;
     /**
@@ -90,13 +90,18 @@ public class CanvasPanel {
 
     private final List<Point2D> polyLine = new ArrayList<>();
     private boolean drawingPolyLine = false;
+    private final boolean validDragSelection = false;
+    private boolean insideCanvas = false;
+    private double select1, select2, select3, select4;
+
+    private Image selection;
 
     /**
      * Default Constructor
      *
      * @param tPane        The parent of this class
      * @param name         The Name of the Canvas Panel
-     * @param keys         The instance of BrickKeys used for keybinds
+     * @param keys         The instance of BrickKeys used for key binds
      * @param controllerIn The controller class for this canvas
      */
     public CanvasPanel(TabPane tPane, String name, BrickKeys keys, BrickPaintController controllerIn) {
@@ -107,9 +112,9 @@ public class CanvasPanel {
     }
 
     /**
-     * Configures all of the settings of this Canvas Panel, should be called immediately after instantiation
+     * Configures all the settings of this Canvas Panel, should be called immediately after instantiation
      *
-     * @param keys The instance of BickKyes that this class should use
+     * @param keys The instance of BrickKeys that this class should use
      * @param name The name of the CanvasPanel
      */
     public void Setup(BrickKeys keys, String name) {
@@ -165,12 +170,23 @@ public class CanvasPanel {
         pane.setOnMousePressed(this::onMousePressed);
         pane.setOnMouseReleased(this::onMouseReleased);
         pane.setOnMouseMoved(this::onMove);
+        pane.setOnMouseEntered(this::mouseEnter);
+        pane.setOnMouseExited(this::mouseExit);
 
         parameters.setFill(Color.TRANSPARENT);
 
         operator = new AnimatedZoomOperator(keys);
         undoManager = new UndoManager();
         gc = canvas.getGraphicsContext2D();
+    }
+
+    private void mouseEnter(MouseEvent event){
+        insideCanvas = true;
+        root.getScene().setCursor(Cursor.CROSSHAIR);
+    }
+    private void mouseExit(MouseEvent event){
+        insideCanvas = false;
+        root.getScene().setCursor(Cursor.DEFAULT);
     }
 
     /**
@@ -233,7 +249,7 @@ public class CanvasPanel {
                 PixelReader reader = snap.getPixelReader();
                 controller.buttonManager.colorPicker.setValue(reader.getColor((int) event.getX(), (int) event.getY()));
                 root.getScene().setCursor(Cursor.DEFAULT);
-                controller.buttonManager.resetGrabber();
+                controller.buttonManager.resetToggles();
             }
             if (controller.getToolType() == BrickTools.CustomShape) {
                 initDraw(canvas.getGraphicsContext2D());
@@ -260,6 +276,16 @@ public class CanvasPanel {
                 }
                 polyLine.add(initialTouch);
             }
+            /*if (controller.getToolType() == BrickTools.SelectionTool){
+                validDragSelection = ArtMath.FindPoint(select1, select2, select2, select4, new Point2D(event.getX(), event.getY()));
+                System.out.println("valid = " + validDragSelection);
+                if (!validDragSelection && selection != null){
+                    System.out.println("exiting selection tool");
+                    controller.buttonManager.resetToggles();
+                    selection = null;
+                }
+            }
+             */
         }
         if (event.getButton() == MouseButton.SECONDARY){
             if (controller.getToolType() == BrickTools.CustomShape) {
@@ -326,8 +352,94 @@ public class CanvasPanel {
                     ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, gc);
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
+                case SelectionTool -> {
+                    sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    selection = getSubImage(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), this.canvas);
+                    //Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
+                    //sc.drawImage(selection, point.getX(), point.getY());
+                    if (insideCanvas){
+                        select1 = initialTouch.getX();
+                        select2 = initialTouch.getY();
+                        select3 = event.getX();
+                        select4 = event.getY();
+                        System.out.println("s3 = " + event.getX() + " s4 = " + event.getY());
+                    }
+
+                    //if(validDragSelection) validDragSelection = false;
+                }
                 default -> {
                 }
+            }
+        }
+    }
+
+    /**
+     * Writes the currently selected image to the system clipboard
+     */
+    public void selectionCopy(){
+        if (controller.getToolType() == BrickTools.SelectionTool){
+            sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putImage(selection);
+            clipboard.setContent(content);
+        }
+    }
+
+    /**
+     * Writes the currently selected image to the system clipboard and removes that area from the canvas
+     */
+    public void selectionCut(){
+        if (controller.getToolType() == BrickTools.SelectionTool) {
+            sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+
+            double x1 = select1;
+            double y1 = select2;
+            double x2 = select3;
+            double y2 = select4;
+            double w = Math.abs(x2 - x1);
+            double h = Math.abs(y2 - y1);
+            {
+                if (x2 >= x1 && y2 >= y1) {         //draw down & right
+                    gc.clearRect(x1, y1, w, h);
+                } else //draw down & left
+                    //draw up & left
+                    if (x2 >= x1) {  //drawing up & right
+                    gc.clearRect(x1, y2, w, h);
+                } else gc.clearRect(x2, Math.min(y2, y1), w, h);
+            }
+
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putImage(selection);
+            clipboard.setContent(content);
+        }
+    }
+
+    /**
+     * Draws the currently selected image to the canvas at the mouse position or top left of the canvas
+     */
+    public void selectionPaste(){
+        if (controller.getToolType() == BrickTools.SelectionTool){
+            if (selection != null){
+                Point2D point = new Point2D(currTouch.getX() - (selection.getWidth()/2), currTouch.getY() - (selection.getHeight()/2));
+               if(insideCanvas) BrickImage.Paste(this, selection, point);
+               else BrickImage.Paste(this, selection);
+            }
+        }
+    }
+
+    /**
+     * Resizes the canvas to the selected image
+     */
+    public void selectionCrop(){
+        if (controller.getToolType() == BrickTools.SelectionTool){
+            if (selection != null){
+                gc.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+                sc.clearRect(0,0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                BrickImage.Insert(this, selection);
+                selection = null;
             }
         }
     }
@@ -363,8 +475,13 @@ public class CanvasPanel {
         } else if (controller.getToolType() == BrickTools.CustomShape){
             gc.setLineCap(StrokeLineCap.ROUND);
             gc.setLineJoin(StrokeLineJoin.ROUND);
-        }
-        else {
+        } else if (controller.getToolType() == BrickTools.SelectionTool) {
+            gc.setLineWidth(2);
+            gc.setLineDashes(width/2, width/2, width/2, width/2);
+            gc.setLineDashOffset(10);
+            gc.setEffect(null);
+            gc.setStroke(Color.LIGHTBLUE);
+        } else {
             gc.setLineCap(StrokeLineCap.SQUARE);
             gc.setEffect(null);
         }
@@ -386,6 +503,7 @@ public class CanvasPanel {
      * @param event Mouse Event from Input class
      */
     private void onMove(MouseEvent event) {
+        currTouch = new Point2D(event.getX(), event.getY());
         if (controller.getToolType() == BrickTools.ColorGrabber) {
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);
@@ -420,7 +538,7 @@ public class CanvasPanel {
      */
     private void onDrag(MouseEvent event) {
         if (event.getButton() == MouseButton.PRIMARY) {
-            currTouch = new Point2D(event.getX(), event.getY());
+
             //System.out.println(controller.getToolType());
             switch (controller.getToolType()) {
                 case Pointer -> {
@@ -452,7 +570,7 @@ public class CanvasPanel {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     sc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                 }
-                case Rectangle -> {
+                case Rectangle-> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
                 }
@@ -482,10 +600,51 @@ public class CanvasPanel {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, sc);
                 }
+                case SelectionTool -> {
+                    sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    //System.out.println("selection");
+                    if (validDragSelection){
+                    //    Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
+                    //    sc.drawImage(selection, point.getX(), point.getY());
+                    //    System.out.println("dragging selection");
+                    }
+                }
                 default -> {
                 }
             }
         }
+    }
+
+    /**
+     * Returns the defined area of a Node as an image
+     *
+     * @param x1 xCord of mouse press
+     * @param y1 yCord of mouse press
+     * @param x2 xCord of mouse release
+     * @param y2 yCord of mouse release
+     * @param node node to take the image from
+     * @return Image
+     */
+    private Image getSubImage(double x1, double y1, double x2, double y2, Node node){
+        int w = (int )Math.abs(x1 - x2);
+        int h = (int)Math.abs(y1 - y2);
+        if (w <= 0 || h <= 0) return null;
+        SnapshotParameters parameters = new SnapshotParameters();
+        parameters.setFill(Color.TRANSPARENT);
+        WritableImage wImage = new WritableImage(w, h);
+        Rectangle2D rect;
+        if (x2 >= x1 && y2 >= y1) {                 //draw down & right
+           rect = new Rectangle2D(x1, y1, w, h);
+        } else if (x2 >= x1) {                      //drawing up & right
+            rect = new Rectangle2D(x1, y2, w, h);
+        } else if (y2 >= y1) {                      //draw down & left
+            rect = new Rectangle2D(x2, y1, w, h);
+        } else {                                    //draw up & left
+            rect = new Rectangle2D(x2, y2, w, h);
+        }
+        parameters.setViewport(rect);
+        return node.snapshot(parameters, wImage);
     }
 
     /**
