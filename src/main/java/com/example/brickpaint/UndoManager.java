@@ -18,12 +18,12 @@ public class UndoManager {
     /**
      * The stack of logged actions available to undo
      */
-    private final Stack<Image> history = new Stack<>();
+    private final Stack<Image> history = new Stack<Image>();
 
     /**
      * The stack of actions that were undone
      */
-    private final Stack<Image> trash = new Stack<>();
+    private final Stack<Image> trash = new Stack<Image>();
 
     /**
      * A position in the history stack to track in order to later go back to
@@ -44,17 +44,13 @@ public class UndoManager {
      */
     public void mergeToMark(CanvasPanel panel) {
         int curr = history.size() - Mark;
-        Image temp = history.pop();
         for (int i = 0; i < curr - 1; i++) {
             Undo(panel);
         }
-        panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
-        panel.canvas.getGraphicsContext2D().drawImage(temp, 0, 0);
-        LogU(panel);
     }
 
     /**
-     * Push the current canvas to history as an image
+     * Push the current canvas to history as an image, if the stack is larger than 100 items remove the oldest item
      *
      * @param panel The canvas to take a snapshot of
      */
@@ -66,14 +62,15 @@ public class UndoManager {
             System.out.println("removed item");
         }
         System.out.println("Called LogU");
+        trash.clear();
     }
 
     /**
-     * @hidden
+     * Push the current canvas to trash as an image, if the stack is larger than 100 items remove the oldest item
      *
-     * @param panel The panel to log an image of
+     * @param panel The canvas to take a snapshot of
      */
-    public void LogR(CanvasPanel panel) {
+    private void LogR(CanvasPanel panel) {
         Image image = getUnScaledImage(panel.root);
         trash.push(image);
         if (trash.size() >= 100) {
@@ -89,20 +86,24 @@ public class UndoManager {
      * @param panel The canvas to write the logged history to
      */
     public void Undo(CanvasPanel panel) {
-        panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
-        if (history.size() == 0) {
-            return;
+        if (! this.history.empty()){
+            LogR(panel);
+            panel.canvas.getGraphicsContext2D().setEffect(null);
+            panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
+            Image content = history.pop();
+            double y = panel.root.getScaleY();
+            double x = panel.root.getScaleX();
+            panel.root.setScaleY(1);
+            panel.root.setScaleX(1);
+            panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
+            panel.root.setScaleX(x);
+            panel.root.setScaleY(y);
+            System.out.println("Called Undo");
         }
-        Image content = history.pop();
-        double y = panel.root.getScaleY();
-        double x = panel.root.getScaleX();
-        panel.root.setScaleY(1);
-        panel.root.setScaleX(1);
-        panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
-        panel.root.setScaleX(x);
-        panel.root.setScaleY(y);
-        trash.push(content);
-        System.out.println("Called Undo");
+        else{
+            System.err.println("History stack was empty");
+        }
+
     }
 
     /**
@@ -111,20 +112,23 @@ public class UndoManager {
      * @param panel The canvas to re-write the logged undo to
      */
     public void Redo(CanvasPanel panel){
-        if (trash.size() == 0) {
-            return;
+        if (! trash.empty()){
+            panel.canvas.getGraphicsContext2D().setEffect(null);
+            panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
+            Image content = trash.pop();
+            double y = panel.root.getScaleY();
+            double x = panel.root.getScaleX();
+            panel.root.setScaleY(1);
+            panel.root.setScaleX(1);
+            panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
+            panel.root.setScaleX(x);
+            panel.root.setScaleY(y);
+            history.push(content);
+            System.out.println("Called Redo");
         }
-        panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
-        Image content = trash.pop();
-        double y = panel.root.getScaleY();
-        double x = panel.root.getScaleX();
-        panel.root.setScaleY(1);
-        panel.root.setScaleX(1);
-        panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
-        panel.root.setScaleX(x);
-        panel.root.setScaleY(y);
-        history.push(content);
-        System.out.println("Called Redo");
+        else {
+            System.err.println("Trash stack was empty");
+        }
     }
 
     /**

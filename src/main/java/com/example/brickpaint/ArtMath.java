@@ -40,15 +40,16 @@ public abstract class ArtMath {
     public static void DrawRoundedRect(double x1, double y1, double x2, double y2, GraphicsContext gc) {
         double w = abs(x2 - x1);
         double h = abs(y2 - y1);
+        double curveValue = w/3;
         {
             if (x2 >= x1 && y2 >= y1) {                                 //draw down & right
-                gc.strokeRoundRect(x1, y1, w, h, w/10, w/10);
+                gc.strokeRoundRect(x1, y1, w, h, curveValue, curveValue);
             } else if (x2 >= x1 && y1 >= y2) {                          //drawing up & right
-                gc.strokeRoundRect(x1, y2, w, h, w/10, w/10);
+                gc.strokeRoundRect(x1, y2, w, h, curveValue, curveValue);
             } else if (x1 >= x2 && y2 >= y1) {                          //draw down & left
-                gc.strokeRoundRect(x2, y1, w, h, w/10, w/10);
+                gc.strokeRoundRect(x2, y1, w, h, curveValue, curveValue);
             } else {                                                    //draw up & left
-                gc.strokeRoundRect(x2, y2, w, h, w/10, w/10);
+                gc.strokeRoundRect(x2, y2, w, h, curveValue, curveValue);
             }
         }
     }

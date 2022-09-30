@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -306,7 +307,6 @@ public class ButtonManager {
         tPointer.setSelected(true);
         cWidth.setOnAction(this::handleCWidth);
         cHeight.setOnAction(this::handleCHeight);
-        tGrabber.setOnAction(this::handleGrabber);
         tCopy.setOnAction(this::handleCopy);
         tCut.setOnAction(this::handleCut);
         tClipboard.setOnAction(this::handlePaste);
@@ -389,12 +389,34 @@ public class ButtonManager {
     }
 
     /**
-     * Changes the mouse cursor when the grabber tool is selected
+     * Changes the mouse cursor based on the selected tool
      */
-    private void handleGrabber(ActionEvent event) {
-        Image temp = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/dropper.png")));
-        ImageCursor cursor = new ImageCursor(temp, 0, temp.getHeight());
-        Parent.getScene().setCursor(cursor);
+    public void changeCursor() {
+        switch (getSelectedToggle()){
+            case Pointer -> {
+                Parent.getScene().setCursor(Cursor.DEFAULT);
+            }
+            case Pencil -> {
+                ImageCursor cursor = new ImageCursor(penc, 0, penc.getHeight());
+                Parent.getScene().setCursor(cursor);
+            }
+            case RainbowPencil -> {
+                ImageCursor cursor = new ImageCursor(rain, 0, rain.getHeight());
+                Parent.getScene().setCursor(cursor);
+            }
+            case Eraser -> {
+                ImageCursor cursor = new ImageCursor(eras, 0, eras.getHeight());
+                Parent.getScene().setCursor(cursor);
+            }
+            case ColorGrabber -> {
+                ImageCursor cursor = new ImageCursor(grab, 0, grab.getHeight());
+                Parent.getScene().setCursor(cursor);
+            }
+            case SelectionTool, Line, Rectangle, RoundRectangle, Square, Circle, Oval, Polygon, CustomShape -> {
+                Parent.getScene().setCursor(Cursor.CROSSHAIR);
+            }
+        }
+
     }
 
     /**

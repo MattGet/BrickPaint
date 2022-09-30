@@ -182,7 +182,7 @@ public class CanvasPanel {
 
     private void mouseEnter(MouseEvent event){
         insideCanvas = true;
-        root.getScene().setCursor(Cursor.CROSSHAIR);
+        controller.buttonManager.changeCursor();
     }
     private void mouseExit(MouseEvent event){
         insideCanvas = false;
@@ -392,6 +392,7 @@ public class CanvasPanel {
      */
     public void selectionCut(){
         if (controller.getToolType() == BrickTools.SelectionTool) {
+            undoManager.LogU(this);
             sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
 
             double x1 = select1;
@@ -423,6 +424,7 @@ public class CanvasPanel {
     public void selectionPaste(){
         if (controller.getToolType() == BrickTools.SelectionTool){
             if (selection != null){
+                undoManager.LogU(this);
                 Point2D point = new Point2D(currTouch.getX() - (selection.getWidth()/2), currTouch.getY() - (selection.getHeight()/2));
                if(insideCanvas) BrickImage.Paste(this, selection, point);
                else BrickImage.Paste(this, selection);
