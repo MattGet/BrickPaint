@@ -14,11 +14,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.controlsfx.control.ToggleSwitch;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.example.brickpaint.BrickPaintController.clamp;
 
@@ -53,6 +51,9 @@ public class ButtonManager {
     private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse,
             tPolygon, tCustom, tGrabber, tSelect;
 
+    public final ToggleSwitch tAutoSave;
+
+    public Label aSaveTime = new Label("Auto Save In 1m 25s");
     private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH;
     public ComboBox<Integer> lineWidth = new ComboBox<>();
     public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
@@ -259,7 +260,18 @@ public class ButtonManager {
         color.setSpacing(10);
         color.setAlignment(Pos.BASELINE_CENTER);
 
-        HBox everything = new HBox(clipBoard, s1, image, s2, tools, s3, shapes, s4, style, s6, color, s5, canvas);
+        Separator s7 = new Separator(Orientation.VERTICAL);
+
+        tAutoSave = new ToggleSwitch("AutoSave");
+        tAutoSave.setTooltip(new Tooltip("Turn AutoSave On or Off"));
+
+        Label bSave = new Label("Save");
+        bSave.paddingProperty().setValue(new Insets(35, 0, 0, 0));
+        VBox save = new VBox(tAutoSave, aSaveTime, bSave);
+        save.setSpacing(10);
+        save.setAlignment(Pos.BASELINE_CENTER);
+
+        HBox everything = new HBox(clipBoard, s1, image, s2, tools, s3, shapes, s4, style, s5, color, s6, canvas, s7, save);
         everything.setSpacing(10);
         parent.getItems().addAll(everything);
         toggles = new ArrayList<>() {{
@@ -311,6 +323,11 @@ public class ButtonManager {
         tCut.setOnAction(this::handleCut);
         tClipboard.setOnAction(this::handlePaste);
         tCrop.setOnAction(this::handleCrop);
+
+        tAutoSave.setSelected(true);
+        TimerTask saveManager = new AutoSaveManager(75, this);
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(saveManager, 0, 1000);
     }
 
     /**
@@ -503,6 +520,10 @@ public class ButtonManager {
                 return BrickTools.Nothing;
             }
         }
+    }
+
+    public void AutoSave(){
+        controller.saveAll();
     }
 
     /**

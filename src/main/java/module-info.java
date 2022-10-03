@@ -11,7 +11,9 @@ module com.example.brickpaint {
     requires com.gluonhq.charm.glisten;
     requires SimpleDialogFX;
     requires javafx.media;
+    requires org.controlsfx.controls;
 
     opens com.example.brickpaint to javafx.fxml;
     exports com.example.brickpaint;
+
 }

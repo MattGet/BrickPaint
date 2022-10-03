@@ -86,11 +86,18 @@ public class UndoManager {
      * @param panel The canvas to write the logged history to
      */
     public void Undo(CanvasPanel panel) {
-        if (! this.history.empty()){
+        if (!this.history.empty()){
             LogR(panel);
             panel.canvas.getGraphicsContext2D().setEffect(null);
             panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
-            Image content = history.pop();
+            Image content;
+            if (history.size() == 1){
+                content = history.peek();
+            }
+            else{
+                content = history.pop();
+            }
+
             double y = panel.root.getScaleY();
             double x = panel.root.getScaleX();
             panel.root.setScaleY(1);

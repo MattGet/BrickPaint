@@ -192,6 +192,15 @@ public class BrickPaintController {
         ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(), BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name));
     }
 
+    protected void saveAll(){
+        for (int i = 0; i <= tabs.getTabs().size() - 1; i++) {
+            if (ImageFile.containsKey(i)) BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i));
+            else {
+                ImageFile.putIfAbsent(i, BrickSave.saveImageASFromNode(canvasPanels.get(i).root, canvasPanels.get(i).Name));
+            }
+        }
+    }
+
 
     /**
      * Creates a new window based off of the About Brick FXML file and controller

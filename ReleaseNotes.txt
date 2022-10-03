@@ -1,5 +1,28 @@
 BrickPaint, A JavaFX Drawing App Created By Matthew Dembny
 
+BrickPaint Version 2022.9.4 -  09/30/2022
+
+New features:
+  * LiveDraw Round Rect, Polygon, Custom Shape
+  * Eraser Tool
+  * Selection Tool with Cut, Copy, Paste, and Crop
+  * Prompt Menu to Clear Canvas
+  * Undo/Redo
+  * Overhauled GUI
+  * Hotkeys for newly added features
+Known issues:
+  * Adding large images to the canvas may crash the JVM as it runs out of memory (VRam)
+  * Some (extra) buttons in the GUI don't work yet (this is intentional as their features have yet to be implemented)
+Expected next sprint:
+  * AutoSave
+  * Notifications (maybe)
+  * Handle changing image type with prompt/warning
+  * Unit Tests
+Links:
+  * Java Doc Website: https://mattget.github.io/PaintJavaDocs/com.example.brickpaint/module-summary.html
+  * Github Repo: https://github.com/MattGet/BrickPaint
+
+
 BrickPaint Version 2022.9.3 -  09/26/2022
 
 New features:
