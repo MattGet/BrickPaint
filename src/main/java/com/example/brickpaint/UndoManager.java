@@ -1,6 +1,7 @@
 package com.example.brickpaint;
 
 import javafx.scene.SnapshotParameters;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -55,7 +56,7 @@ public class UndoManager {
      * @param panel The canvas to take a snapshot of
      */
     public void LogU(CanvasPanel panel) {
-        Image image = getUnScaledImage(panel.root);
+        Image image = getUnScaledImage(panel.canvas);
         history.push(image);
         if (history.size() >= 100) {
             history.remove(0);
@@ -71,7 +72,7 @@ public class UndoManager {
      * @param panel The canvas to take a snapshot of
      */
     private void LogR(CanvasPanel panel) {
-        Image image = getUnScaledImage(panel.root);
+        Image image = getUnScaledImage(panel.canvas);
         trash.push(image);
         if (trash.size() >= 100) {
             trash.remove(0);
@@ -102,6 +103,8 @@ public class UndoManager {
             double x = panel.root.getScaleX();
             panel.root.setScaleY(1);
             panel.root.setScaleX(1);
+            panel.setSizeY(content.getHeight());
+            panel.setSizeX(content.getWidth());
             panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);
@@ -127,6 +130,8 @@ public class UndoManager {
             double x = panel.root.getScaleX();
             panel.root.setScaleY(1);
             panel.root.setScaleX(1);
+            panel.setSizeY(content.getHeight());
+            panel.setSizeX(content.getWidth());
             panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);
@@ -144,7 +149,7 @@ public class UndoManager {
      * @param canvas the parent Node of the canvas
      * @return Unscaled javaFX image of the canvas
      */
-    public static Image getUnScaledImage(StackPane canvas) {
+    public static Image getUnScaledImage(Canvas canvas) {
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
         double y = canvas.getScaleY();

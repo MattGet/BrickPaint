@@ -9,14 +9,23 @@ import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
 import org.controlsfx.control.ToggleSwitch;
 
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.List;
+
 
 import static com.example.brickpaint.BrickPaintController.clamp;
 
@@ -54,7 +63,7 @@ public class ButtonManager {
     public final ToggleSwitch tAutoSave;
 
     public Label aSaveTime = new Label("Auto Save In 1m 25s");
-    private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH;
+    private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH, tOpenFolder;
     public ComboBox<Integer> lineWidth = new ComboBox<>();
     public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
     /**
@@ -73,6 +82,12 @@ public class ButtonManager {
     private final ToolBar Parent;
     private final BrickPaintController controller;
     private final List<ToggleButton> toggles;
+
+    private TimerTask saveManager;
+
+    private Timer timer;
+
+    private boolean isAutoSaving = false;
 
     /**
      * Default Constructor for the Button Manager, creates all the buttons with parameters and lays them out
@@ -264,10 +279,12 @@ public class ButtonManager {
 
         tAutoSave = new ToggleSwitch("AutoSave");
         tAutoSave.setTooltip(new Tooltip("Turn AutoSave On or Off"));
+        tOpenFolder = new Button("Open Images Folder");
+        tOpenFolder.setTooltip(new Tooltip("Opens the folder where saved images are stored by default"));
 
         Label bSave = new Label("Save");
-        bSave.paddingProperty().setValue(new Insets(35, 0, 0, 0));
-        VBox save = new VBox(tAutoSave, aSaveTime, bSave);
+        bSave.paddingProperty().setValue(new Insets(0, 0, 0, 0));
+        VBox save = new VBox(tAutoSave, aSaveTime, tOpenFolder, bSave);
         save.setSpacing(10);
         save.setAlignment(Pos.BASELINE_CENTER);
 
@@ -323,11 +340,26 @@ public class ButtonManager {
         tCut.setOnAction(this::handleCut);
         tClipboard.setOnAction(this::handlePaste);
         tCrop.setOnAction(this::handleCrop);
+        tFlipV.setOnAction(this::handleFlipV);
+        tFlipH.setOnAction(this::handleFlipH);
+        tOpenFolder.setOnAction(this::handleOpenFolder);
 
         tAutoSave.setSelected(true);
-        TimerTask saveManager = new AutoSaveManager(75, this);
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(saveManager, 0, 1000);
+        startAutoSave();
+    }
+
+    public void startAutoSave(){
+        try {
+            if (timer == null) timer = new Timer();
+            if (saveManager == null) saveManager = new AutoSaveManager(70, this);
+            timer.scheduleAtFixedRate(saveManager, 0, 1000);
+        } catch (Exception e){
+            timer.cancel();
+            timer.purge();
+            timer = new Timer();
+            saveManager = new AutoSaveManager(300, this);
+            timer.scheduleAtFixedRate(saveManager, 0, 1000);
+        }
     }
 
     /**
@@ -395,6 +427,50 @@ public class ButtonManager {
         }
         else{
             tSelect.setSelected(true);
+        }
+    }
+
+    /**
+     * Calls the Flip Vertical method in the current canvas when the Flip Vertical button is pressed and the selection
+     * tool is active, otherwise it will set the selection tool to be active
+     *
+     * @param event Button event
+     */
+    public void handleFlipV(ActionEvent event){
+        if (getSelectedToggle() == BrickTools.SelectionTool){
+            controller.getCanvas().selectionFilpV();
+        }
+        else{
+            tSelect.setSelected(true);
+        }
+    }
+
+    /**
+     * Calls the Flip Horizontal method in the current canvas when the Flip Horizontal button is pressed and the selection
+     * tool is active, otherwise it will set the selection tool to be active
+     *
+     * @param event Button event
+     */
+    public void handleFlipH(ActionEvent event){
+        if (getSelectedToggle() == BrickTools.SelectionTool){
+            controller.getCanvas().selectionFilpH();
+        }
+        else{
+            tSelect.setSelected(true);
+        }
+    }
+
+    /**
+     * Opens the default images directory in the user's file explorer
+     *
+     * @param event Button event
+     */
+    public void handleOpenFolder(ActionEvent event){
+        Desktop desktop = Desktop.getDesktop();
+        try {
+            desktop.open(new File(BrickSave.savePath));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

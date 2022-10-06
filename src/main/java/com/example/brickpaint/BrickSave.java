@@ -6,6 +6,8 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageTypeSpecifier;
@@ -21,6 +23,8 @@ import java.io.IOException;
  */
 public abstract class BrickSave {
 
+    public static final String savePath = new String(System.getProperty("user.home") + "\\Documents\\BrickPaint\\Saved Images");
+
     /**
      * Takes a snapshot of a Node and saves it to the specified file
      *
@@ -30,10 +34,38 @@ public abstract class BrickSave {
     public static void saveImageFromNode(Node node, File file) {
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
-        WritableImage imageToSave = node.snapshot(parameters, null);
+        String type = file.toString().substring(file.toString().lastIndexOf(".") +1);
+        System.out.println("file type = " + type);
         try {
+            WritableImage imageToSave = node.snapshot(parameters, null);
             BufferedImage bImage = SwingFXUtils.fromFXImage(imageToSave, null);
-            ImageIO.write(bImage, "png", file);
+            if (type.equals("jpg")){
+                bImage = pngTojpg(bImage);
+            }
+            else if (type.equals("bmp")){
+                bImage = pngTobmp(bImage);
+            }
+
+            if (bImage != null) {
+                ImageIO.write(bImage, type, file);
+
+                if (node.getScene().getWindow().focusedProperty().get()){
+                    Notifications.create()
+                            .title("Saved Image")
+                            .text(file.getName() + " successfully saved!")
+                            .darkStyle()
+                            .hideAfter(new Duration(4000))
+                            .owner(node.getScene().getWindow())
+                            .threshold(3, Notifications.create()
+                                    .title("Saved Image")
+                                    .text("successfully saved all open tabs!")
+                                    .darkStyle()
+                                    .hideAfter(new Duration(4000))
+                                    .owner(node.getScene().getWindow()))
+                            .show();
+                }
+
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,6 +86,7 @@ public abstract class BrickSave {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save");
         fileChooser.setInitialFileName(Name);
+        fileChooser.setInitialDirectory(new File(savePath));
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("PNG", "*.png"),
                 new FileChooser.ExtensionFilter("TIFF", "*.tif"),
                 new FileChooser.ExtensionFilter("JPEG", "*.jpg"),
@@ -61,24 +94,22 @@ public abstract class BrickSave {
         //try to open file chooser and save the specified image
         try {
             File file = fileChooser.showSaveDialog(node.getScene().getWindow());
-            String type = fileChooser.getSelectedExtensionFilter().getExtensions().get(0).substring(2);
+            String type = file.toString().substring(file.toString().lastIndexOf(".") +1);
             System.out.println("File Type To Save = " + type);
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);
             WritableImage imageToSave = node.snapshot(parameters, null);
             BufferedImage bImage = SwingFXUtils.fromFXImage(imageToSave, null);
-            System.out.println("Image type = " + bImage.getType());
-            System.out.println("Data Type = " + bImage.getSampleModel().getDataType());
-            System.out.println("Bands = " + bImage.getSampleModel().getNumBands());
+            //System.out.println("Image type = " + bImage.getType());
+            //System.out.println("Data Type = " + bImage.getSampleModel().getDataType());
+            //System.out.println("Bands = " + bImage.getSampleModel().getNumBands());
             if (type.equals("jpg")){
                 bImage = pngTojpg(bImage);
             }
             else if (type.equals("bmp")){
                 bImage = pngTobmp(bImage);
             }
-            else {
-                System.out.println("Png/Tiff detected");
-            }
+
             //for (String name: ImageIO.getReaderFormatNames()){
             //    System.out.println("Format: " + name);
             //}
@@ -86,6 +117,19 @@ public abstract class BrickSave {
                 if (ImageIO.write(bImage, type, file)){
                     Desktop desktop = Desktop.getDesktop();
                     desktop.open(file);
+                    Notifications.create()
+                            .title("Saved Image")
+                            .text(file.getName() + " successfully saved!")
+                            .darkStyle()
+                            .hideAfter(new Duration(4000))
+                            .owner(node.getScene().getWindow())
+                            .threshold(3, Notifications.create()
+                                    .title("Saved Image")
+                                    .text("successfully saved all open tabs!")
+                                    .darkStyle()
+                                    .hideAfter(new Duration(4000))
+                                    .owner(node.getScene().getWindow()))
+                            .show();
                     return file;
                 }
                 else {

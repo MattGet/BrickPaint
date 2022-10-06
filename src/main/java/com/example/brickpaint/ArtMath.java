@@ -141,11 +141,13 @@ public abstract class ArtMath {
     public static void DrawPoly(double x1, double y1, double x2, double y2, int sides, GraphicsContext gc) {
         javafx.geometry.Point2D center = new javafx.geometry.Point2D((x1 + x2) / 2, (y1 + y2) / 2);
         double dist = Point2D.distance(x1, y1, x2, y2)/2;
+        double start = Math.atan2(y2 - y1, x2 - x1);
         double[] xPoints = new double[sides];
         double[] yPoints = new double[sides];
+
         for (int i = 0; i <= sides -1; i++){
-            xPoints[i] = center.getX() + (dist * cos((2* PI*i)/sides));
-            yPoints[i] = center.getY() + (dist * sin((2* PI*i)/sides));
+            xPoints[i] = center.getX() + (dist * cos((2* PI*i)/sides) + start);
+            yPoints[i] = center.getY() + (dist * sin((2* PI*i)/sides) + start);
         }
         gc.strokePolygon(xPoints, yPoints, sides);
     }

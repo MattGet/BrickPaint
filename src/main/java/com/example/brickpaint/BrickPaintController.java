@@ -13,6 +13,8 @@ import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,6 +81,15 @@ public class BrickPaintController {
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         addTab();
+
+        try{
+            Path path = Path.of(BrickSave.savePath);
+            if (!Files.exists(path)){
+                boolean test = new File(BrickSave.savePath).mkdirs();
+            }
+        } catch (Exception e){
+            System.err.println(e);
+        }
     }
 
     /**
@@ -177,6 +188,7 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImage() {
+        buttonManager.startAutoSave();
         if (ImageFile.get(tabs.getSelectionModel().getSelectedIndex()) == null) {
             ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(), BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name));
             return;
@@ -190,13 +202,16 @@ public class BrickPaintController {
     @FXML
     protected void handleSaveImageAs() {
         ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(), BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name));
+        buttonManager.startAutoSave();
     }
 
     protected void saveAll(){
         for (int i = 0; i <= tabs.getTabs().size() - 1; i++) {
             if (ImageFile.containsKey(i)) BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i));
             else {
-                ImageFile.putIfAbsent(i, BrickSave.saveImageASFromNode(canvasPanels.get(i).root, canvasPanels.get(i).Name));
+                String fullName = BrickSave.savePath+ "\\" + canvasPanels.get(i).Name + ".png";
+                ImageFile.putIfAbsent(i, new File(fullName));
+                BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i));
             }
         }
     }
@@ -247,12 +262,7 @@ public class BrickPaintController {
                     Platform.exit();
                 }
                 if (res.get().equals(save)) {
-                    for (int i = 0; i <= tabs.getTabs().size() - 1; i++) {
-                        if (ImageFile.containsKey(i)) continue;
-                        else {
-                            ImageFile.putIfAbsent(i, BrickSave.saveImageASFromNode(canvasPanels.get(i).root, canvasPanels.get(i).Name));
-                        }
-                    }
+                    saveAll();
                     Platform.exit();
                 }
             }

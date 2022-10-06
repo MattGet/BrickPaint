@@ -1,5 +1,6 @@
 package com.example.brickpaint;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
@@ -20,7 +21,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
+import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
 
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -371,6 +377,13 @@ public class CanvasPanel {
             ClipboardContent content = new ClipboardContent();
             content.putImage(selection);
             clipboard.setContent(content);
+            Notifications.create()
+                    .title("Copy Image")
+                    .text("Successfully Copied!")
+                    .darkStyle()
+                    .hideAfter(new Duration(4000))
+                    .owner(root.getScene().getWindow())
+                    .show();
         }
     }
 
@@ -401,6 +414,13 @@ public class CanvasPanel {
             ClipboardContent content = new ClipboardContent();
             content.putImage(selection);
             clipboard.setContent(content);
+            Notifications.create()
+                    .title("Cut Image")
+                    .text("Successfully Copied!")
+                    .darkStyle()
+                    .hideAfter(new Duration(4000))
+                    .owner(root.getScene().getWindow())
+                    .show();
         }
     }
 
@@ -425,10 +445,85 @@ public class CanvasPanel {
     public void selectionCrop(){
         if (controller.getToolType() == BrickTools.SelectionTool){
             if (selection != null){
+                undoManager.LogU(this);
                 gc.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
                 sc.clearRect(0,0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 BrickImage.Insert(this, selection);
                 selection = null;
+            }
+        }
+    }
+
+    public void selectionFilpV(){
+        if (controller.getToolType() == BrickTools.SelectionTool){
+            if (selection != null){
+                undoManager.LogU(this);
+                BufferedImage image = SwingFXUtils.fromFXImage(selection, null);
+                AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+
+                tx.translate(0, -image.getHeight(null));
+
+                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+
+                image = op.filter(image, null);
+
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+
+                double x1 = select1;
+                double y1 = select2;
+                double x2 = select3;
+                double y2 = select4;
+                double w = Math.abs(x2 - x1);
+                double h = Math.abs(y2 - y1);
+                {
+                    if (x2 >= x1 && y2 >= y1) {         //draw down & right
+                        gc.clearRect(x1, y1, w, h);
+                    } else //draw down & left
+                        //draw up & left
+                        if (x2 >= x1) {  //drawing up & right
+                            gc.clearRect(x1, y2, w, h);
+                        } else gc.clearRect(x2, Math.min(y2, y1), w, h);
+                }
+
+                Point2D point = ArtMath.getTopLeft(select1, select2, select3, select4);
+                BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null), point);
+            }
+        }
+    }
+
+    public void selectionFilpH(){
+        if (controller.getToolType() == BrickTools.SelectionTool){
+            if (selection != null){
+                undoManager.LogU(this);
+                BufferedImage image = SwingFXUtils.fromFXImage(selection, null);
+                AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+
+                tx.translate(-image.getWidth(null), 0);
+
+                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+
+                image = op.filter(image, null);
+
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+
+                double x1 = select1;
+                double y1 = select2;
+                double x2 = select3;
+                double y2 = select4;
+                double w = Math.abs(x2 - x1);
+                double h = Math.abs(y2 - y1);
+                {
+                    if (x2 >= x1 && y2 >= y1) {         //draw down & right
+                        gc.clearRect(x1, y1, w, h);
+                    } else //draw down & left
+                        //draw up & left
+                        if (x2 >= x1) {  //drawing up & right
+                            gc.clearRect(x1, y2, w, h);
+                        } else gc.clearRect(x2, Math.min(y2, y1), w, h);
+                }
+
+                Point2D point = ArtMath.getTopLeft(select1, select2, select3, select4);
+                BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null), point);
             }
         }
     }
@@ -484,6 +579,13 @@ public class CanvasPanel {
         gc.setEffect(null);
         sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        Notifications.create()
+                .title("Clear Canvas")
+                .text("Successfully Cleared!")
+                .darkStyle()
+                .hideAfter(new Duration(4000))
+                .owner(root.getScene().getWindow())
+                .show();
     }
 
     /**

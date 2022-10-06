@@ -120,12 +120,6 @@
       <element id="library" level="project" name="Maven: com.gluonhq.attach:util:4.0.13" />
       <element id="library" level="project" name="Maven: com.gluonhq.attach:storage:4.0.13" />
       <element id="library" level="project" name="Maven: com.gluonhq.attach:lifecycle:4.0.13" />
-      <element id="library" level="project" name="Maven: com.github.almasb:fxgl:17.1" />
-      <element id="library" level="project" name="Maven: com.github.almasb:fxgl-scene:17.1" />
-      <element id="library" level="project" name="Maven: com.github.almasb:fxgl-io:17.1" />
-      <element id="library" level="project" name="Maven: com.github.almasb:fxgl-gameplay:17.1" />
-      <element id="library" level="project" name="Maven: com.github.almasb:fxgl-entity:17.1" />
-      <element id="library" level="project" name="Maven: com.github.almasb:fxgl-core:17.1" />
       <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.12.1" />
       <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.12.1" />
       <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.12.1" />
