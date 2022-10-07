@@ -10,6 +10,12 @@ public class AutoSaveManager extends TimerTask {
     final int interval;
     final ButtonManager controller;
 
+    /**
+     * Default constructor for the AutoSaveManager class
+     *
+     * @param numb The time interval in seconds between saves
+     * @param main The ButtonManager class that owns this thread
+     */
     public AutoSaveManager(int numb, ButtonManager main){
         interval = numb;
         controller = main;
@@ -17,6 +23,10 @@ public class AutoSaveManager extends TimerTask {
     }
 
 
+    /**
+     * The tasks that the Thread shall run, it will count down the timer until it hits 0 updating the label as needed
+     * when it reaches 0 it will fire the saveAll method in the controller class
+     */
     @Override
     public void run() {
         Platform.runLater(() ->{

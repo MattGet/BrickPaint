@@ -3,6 +3,8 @@ package com.example.brickpaint;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -15,6 +17,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Handles saving a snapshot image of a JavaFX Node with user created or predefined files
@@ -87,7 +90,8 @@ public abstract class BrickSave {
         fileChooser.setTitle("Save");
         fileChooser.setInitialFileName(Name);
         fileChooser.setInitialDirectory(new File(savePath));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("PNG", "*.png"),
+        FileChooser.ExtensionFilter PNG = new FileChooser.ExtensionFilter("PNG", "*.png");
+        fileChooser.getExtensionFilters().addAll(PNG,
                 new FileChooser.ExtensionFilter("TIFF", "*.tif"),
                 new FileChooser.ExtensionFilter("JPEG", "*.jpg"),
                 new FileChooser.ExtensionFilter("BMP", "*.bmp"));
@@ -104,10 +108,59 @@ public abstract class BrickSave {
             //System.out.println("Data Type = " + bImage.getSampleModel().getDataType());
             //System.out.println("Bands = " + bImage.getSampleModel().getNumBands());
             if (type.equals("jpg")){
-                bImage = pngTojpg(bImage);
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.getButtonTypes().remove(ButtonType.OK);
+                alert.getButtonTypes().remove(ButtonType.CANCEL);
+                ButtonType Continue = new ButtonType("Continue");
+                ButtonType Exit = new ButtonType("Exit");
+                ButtonType Save = new ButtonType("Save as Png");
+                alert.getButtonTypes().add(Save);
+                alert.getButtonTypes().add(Exit);
+                alert.getButtonTypes().add(Continue);
+                alert.setHeaderText("Saving Your Drawing as a JPEG will remove its transparency and reduce color accuracy," +
+                        " but will reduce its file size. \n\nDo you wish to continue?");
+                alert.setTitle("Image Compression Requested");
+                alert.initOwner(node.getScene().getWindow());
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent()) {
+                    if (result.get().equals(Continue))
+                        bImage = pngTojpg(bImage);
+                    if (result.get().equals(Exit)) {
+                        return null;
+                    }
+                    if (result.get().equals(Save)){
+                        file = changeExtension(file, "png");
+                        type = "png";
+                    }
+                }
             }
             else if (type.equals("bmp")){
-                bImage = pngTobmp(bImage);
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.getButtonTypes().remove(ButtonType.OK);
+                alert.getButtonTypes().remove(ButtonType.CANCEL);
+                ButtonType Continue = new ButtonType("Continue");
+                ButtonType Exit = new ButtonType("Exit");
+                ButtonType Save = new ButtonType("Save as Png");
+                alert.getButtonTypes().add(Save);
+                alert.getButtonTypes().add(Exit);
+                alert.getButtonTypes().add(Continue);
+                alert.setHeaderText("Saving Your Drawing as a BMP will remove its transparency and reduce color accuracy.\n\n" +
+                        "Do you wish to continue?");
+                alert.setTitle("Bit Map Requested");
+                alert.initOwner(node.getScene().getWindow());
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent()) {
+                    if (result.get().equals(Continue))
+                        bImage = pngTojpg(bImage);
+                    if (result.get().equals(Exit)) {
+                        return null;
+                    }
+                    if (result.get().equals(Save)){
+                        file = changeExtension(file, "png");
+                        type = "png";
+                    }
+                }
+
             }
 
             //for (String name: ImageIO.getReaderFormatNames()){
@@ -144,7 +197,27 @@ public abstract class BrickSave {
         }
     }
 
+    /**
+     * Helper function that will modify the extension of a file
+     *
+     * @param f File to Modify
+     * @param newExtension The extension the file should be changed to
+     * @return The renamed file
+     */
+    public static File changeExtension(File f, String newExtension) {
+        int i = f.getName().lastIndexOf('.');
+        String name = f.getName().substring(0,i + 1);
+        return new File(f.getParent(), name + newExtension);
+    }
 
+
+    /**
+     * Will convert a png image down to an image format compatible with the jpg Image Writer,
+     * this will result in a loss of transparency
+     *
+     * @param image The image to convert
+     * @return A new image with less data that can be saved as a jpg using the ImageIO Image Writer
+     */
     private static BufferedImage pngTojpg(BufferedImage image){
         if (image.getType() == 3 || image.getType() == 2){
             BufferedImage newBufferedImage = new BufferedImage(
@@ -160,13 +233,21 @@ public abstract class BrickSave {
                             java.awt.Color.WHITE,
                             null);
 
-            System.out.println("Changed File type to: " + newBufferedImage.getType());
-            System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
-            System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
+            System.out.println("Changed File type to jpeg");
+            //System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
+            //System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
             return newBufferedImage;
         }
         else return null;
     }
+
+    /**
+     * Will convert a png image down to an image format compatible with the bmp Image Writer,
+     * this will result in a loss of transparency and color accuracy
+     *
+     * @param image The image to convert
+     * @return A new image with less data that can be saved as a bmp using the ImageIO Image Writer
+     */
     private static BufferedImage pngTobmp(BufferedImage image){
         if (image.getType() == 3 || image.getType() == 2){
             BufferedImage newBufferedImage = new BufferedImage(
@@ -182,15 +263,17 @@ public abstract class BrickSave {
                             java.awt.Color.WHITE,
                             null);
 
-            System.out.println("Changed File type to: " + newBufferedImage.getType());
-            System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
-            System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
+            System.out.println("Changed File type to bmp");
+            //System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
+            //System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
             return newBufferedImage;
         }
         else return null;
     }
 
     /*
+    Image Conversion Useful Info:
+
     Tiff can accept any type
     JPEG requires alpha be false and bit-depth between 1-8
     Bmp requires bands 3/1 and type 0 (byte)

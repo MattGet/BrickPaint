@@ -7,8 +7,9 @@ module com.example.brickpaint {
     requires com.gluonhq.charm.glisten;
     requires javafx.media;
     requires org.controlsfx.controls;
+    requires javafx.graphics;
+    requires org.apache.commons.io;
 
     opens com.example.brickpaint to javafx.fxml;
     exports com.example.brickpaint;
-
 }

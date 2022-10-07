@@ -60,7 +60,7 @@ public class ButtonManager {
     private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse,
             tPolygon, tCustom, tGrabber, tSelect;
 
-    public final ToggleSwitch tAutoSave;
+    public final ToggleSwitch tAutoSave, tFillShapes;
 
     public Label aSaveTime = new Label("Auto Save In 1m 25s");
     private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH, tOpenFolder;
@@ -267,12 +267,17 @@ public class ButtonManager {
         Label lCG = new Label("Select Color       ");
         HBox v11 = new HBox(lCG, tGrabber);
         v11.setAlignment(Pos.BASELINE_CENTER);
+        v11.translateYProperty().setValue(-5);
+
+        tFillShapes = new ToggleSwitch("Fill Shapes");
+        tFillShapes.setTooltip(new Tooltip("Will fill any drawn shapes with the selected color"));
 
         Label bColor = new Label("Color");
-        bColor.paddingProperty().setValue(new Insets(13, 0, 0, 0));
-        colorPicker.setMinHeight(30);
-        VBox color = new VBox(colorPicker, v11, bColor);
-        color.setSpacing(10);
+        bColor.paddingProperty().setValue(new Insets(3, 0, 0, 0));
+        colorPicker.setMinHeight(25);
+        colorPicker.translateYProperty().setValue(-10);
+        VBox color = new VBox(colorPicker, v11, tFillShapes, bColor);
+        color.setSpacing(5);
         color.setAlignment(Pos.BASELINE_CENTER);
 
         Separator s7 = new Separator(Orientation.VERTICAL);
@@ -348,10 +353,14 @@ public class ButtonManager {
         startAutoSave();
     }
 
+    /**
+     * Will start the auto save thread if not already started, if it exists already it will cancel the thread's
+     * scheduled execution and create a new one, essentially resetting the autosave timer.
+     */
     public void startAutoSave(){
         try {
             if (timer == null) timer = new Timer();
-            if (saveManager == null) saveManager = new AutoSaveManager(70, this);
+            if (saveManager == null) saveManager = new AutoSaveManager(300, this);
             timer.scheduleAtFixedRate(saveManager, 0, 1000);
         } catch (Exception e){
             timer.cancel();
@@ -598,6 +607,11 @@ public class ButtonManager {
         }
     }
 
+    /**
+     * Internal Method Used to call the controller method from the AutoSave Thread managed by this class
+     *
+     * @hidden
+     */
     public void AutoSave(){
         controller.saveAll();
     }
@@ -614,6 +628,11 @@ public class ButtonManager {
             this.toggleButton = toggleButton;
         }
 
+        /**
+         * Will de-select all other toggles when a new toggle is selected
+         *
+         * @param observable Selection event
+         */
         public void invalidated(Observable observable) {
             if (this.toggleButton.isSelected()) {
                 for (ToggleButton toggle : toggles) {

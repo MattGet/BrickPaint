@@ -105,6 +105,7 @@ public class UndoManager {
             panel.root.setScaleX(1);
             panel.setSizeY(content.getHeight());
             panel.setSizeX(content.getWidth());
+            panel.UpdateSize();
             panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);
@@ -132,6 +133,7 @@ public class UndoManager {
             panel.root.setScaleX(1);
             panel.setSizeY(content.getHeight());
             panel.setSizeX(content.getWidth());
+            panel.UpdateSize();
             panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);

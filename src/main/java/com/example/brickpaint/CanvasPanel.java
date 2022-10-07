@@ -1,5 +1,6 @@
 package com.example.brickpaint;
 
+import javafx.beans.Observable;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -24,6 +25,7 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 
+import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -99,6 +101,8 @@ public class CanvasPanel {
     private final boolean validDragSelection = false;
     private boolean insideCanvas = false;
     private double select1, select2, select3, select4;
+
+    private boolean useFill = false;
 
     private Image selection;
 
@@ -185,12 +189,38 @@ public class CanvasPanel {
         undoManager = new UndoManager();
         gc = canvas.getGraphicsContext2D();
         canvas.getGraphicsContext2D().clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+
+        controller.buttonManager.tFillShapes.selectedProperty().addListener(this::updateFill);
+        this.useFill = controller.buttonManager.tFillShapes.isSelected();
+
+        controller.tabs.getSelectionModel().select(tab);
     }
 
+    /**
+     * Will update whether to fill in shapes when the fill toggle is changed
+     *
+     * @param event selectedProperty Event Listener
+     */
+    private void updateFill(Observable event){
+        this.useFill = controller.buttonManager.tFillShapes.isSelected();
+    }
+
+
+    /**
+     * Handles actions when the mouse enter the canvas area, used to update cursor
+     *
+     * @param event Mouse event
+     */
     private void mouseEnter(MouseEvent event){
         insideCanvas = true;
         controller.buttonManager.changeCursor();
     }
+
+    /**
+     * Handles when the mouse exits the canvas area, used to update cursor
+     *
+     * @param event Mouse event
+     */
     private void mouseExit(MouseEvent event){
         insideCanvas = false;
         root.getScene().setCursor(Cursor.DEFAULT);
@@ -264,6 +294,13 @@ public class CanvasPanel {
                             if (ArtMath.compare(point.getX(), event.getX(), 10d) && ArtMath.compare(point.getY(), event.getY(), 10d)) {
                                 gc.strokeLine(polyLine.get(polyLine.size() - 1).getX(), polyLine.get(polyLine.size() - 1).getY(), point.getX(), point.getY());
                                 drawingPolyLine = false;
+                                double[] xPoints = new double[polyLine.size()];
+                                double[] yPoints = new double[polyLine.size()];
+                                for (int i = 0; i<= polyLine.size() -1; i++) {
+                                    xPoints[i] = polyLine.get(i).getX();
+                                    yPoints[i] = polyLine.get(i).getY();
+                                }
+                                if (useFill) gc.fillPolygon(xPoints, yPoints, polyLine.size());
                                 polyLine.clear();
                                 System.out.println("Matched point");
                                 return;
@@ -316,23 +353,23 @@ public class CanvasPanel {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
                 case Rectangle -> {
-                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc, useFill);
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
                 case RoundRectangle -> {
-                    ArtMath.DrawRoundedRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                    ArtMath.DrawRoundedRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc, useFill);
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
                 case Square -> {
-                    ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                    ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc, useFill);
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
                 case Circle -> {
-                    ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                    ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc, useFill);
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
                 case Oval -> {
-                    ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc);
+                    ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), gc, useFill);
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
                 case Polygon -> {
@@ -342,12 +379,12 @@ public class CanvasPanel {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, gc);
+                    ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, gc, useFill);
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 }
                 case SelectionTool -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, false);
                     selection = getSubImage(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), this.canvas);
                     //Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                     //sc.drawImage(selection, point.getX(), point.getY());
@@ -454,6 +491,9 @@ public class CanvasPanel {
         }
     }
 
+    /**
+     * Takes the current selection and flips it vertically as if it were rotated along the x-axis in 3D space
+     */
     public void selectionFilpV(){
         if (controller.getToolType() == BrickTools.SelectionTool){
             if (selection != null){
@@ -491,6 +531,9 @@ public class CanvasPanel {
         }
     }
 
+    /**
+     * Takes the current selection and flips it horizontally as if it were rotated along the y-axis in 3D space
+     */
     public void selectionFilpH(){
         if (controller.getToolType() == BrickTools.SelectionTool){
             if (selection != null){
@@ -663,23 +706,23 @@ public class CanvasPanel {
                 }
                 case Rectangle-> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, useFill);
                 }
                 case RoundRectangle -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawRoundedRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    ArtMath.DrawRoundedRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, useFill);
                 }
                 case Square -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    ArtMath.DrawSquare(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, useFill);
                 }
                 case Circle -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    ArtMath.DrawCircle(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, useFill);
                 }
                 case Oval -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    ArtMath.DrawOval(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, useFill);
                 }
                 case Polygon -> {
                     int sides = 6;
@@ -689,11 +732,11 @@ public class CanvasPanel {
                         e.printStackTrace();
                     }
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, sc);
+                    ArtMath.DrawPoly(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sides, sc, useFill);
                 }
                 case SelectionTool -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc);
+                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, false);
                     //System.out.println("selection");
                     if (validDragSelection){
                     //    Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());

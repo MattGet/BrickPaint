@@ -51,7 +51,7 @@ public class BrickPaintController {
      * The node that manages all the canvas panel tabs within the application
      */
     @FXML
-    private TabPane tabs;
+    protected TabPane tabs;
 
     /**
      * The toolbar in which all the tools GUI will be constructed under
@@ -205,6 +205,9 @@ public class BrickPaintController {
         buttonManager.startAutoSave();
     }
 
+    /**
+     * Will iterate through all open tabs and save them as a png using the name of the tab
+     */
     protected void saveAll(){
         for (int i = 0; i <= tabs.getTabs().size() - 1; i++) {
             if (ImageFile.containsKey(i)) BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i));

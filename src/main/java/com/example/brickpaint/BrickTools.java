@@ -1,7 +1,7 @@
 package com.example.brickpaint;
 
 /**
- * Enum for all of the tool options in the BrickPaint App
+ * Enum for all the tool options in the BrickPaint App
  */
 public enum BrickTools {
     Pointer,

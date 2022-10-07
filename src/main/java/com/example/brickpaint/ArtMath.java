@@ -22,11 +22,12 @@ public abstract class ArtMath {
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
      */
-    public static void DrawRect(double x1, double y1, double x2, double y2, GraphicsContext gc) {
+    public static void DrawRect(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double w = abs(x2 - x1);
         double h = abs(y2 - y1);
         javafx.geometry.Point2D point = getTopLeft(x1, y1, x2, y2);
         gc.strokeRect(point.getX(), point.getY(), w, h);
+        if (fill) gc.fillRect(point.getX(), point.getY(), w, h);
     }
     /**
      * Draws a Rectangle in the desired direction based on the cursor location
@@ -37,21 +38,13 @@ public abstract class ArtMath {
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
      */
-    public static void DrawRoundedRect(double x1, double y1, double x2, double y2, GraphicsContext gc) {
+    public static void DrawRoundedRect(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double w = abs(x2 - x1);
         double h = abs(y2 - y1);
         double curveValue = w/3;
-        {
-            if (x2 >= x1 && y2 >= y1) {                                 //draw down & right
-                gc.strokeRoundRect(x1, y1, w, h, curveValue, curveValue);
-            } else if (x2 >= x1 && y1 >= y2) {                          //drawing up & right
-                gc.strokeRoundRect(x1, y2, w, h, curveValue, curveValue);
-            } else if (x1 >= x2 && y2 >= y1) {                          //draw down & left
-                gc.strokeRoundRect(x2, y1, w, h, curveValue, curveValue);
-            } else {                                                    //draw up & left
-                gc.strokeRoundRect(x2, y2, w, h, curveValue, curveValue);
-            }
-        }
+        javafx.geometry.Point2D point = getTopLeft(x1, y1, x2, y2);
+        gc.strokeRoundRect(point.getX(), point.getY(), w, h, curveValue, curveValue);
+        if (fill) gc.fillRoundRect(point.getX(), point.getY(), w, h, curveValue, curveValue);
     }
 
     /**
@@ -63,7 +56,7 @@ public abstract class ArtMath {
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
      */
-    public static void DrawSquare(double x1, double y1, double x2, double y2, GraphicsContext gc) {
+    public static void DrawSquare(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double w = abs(x2 - x1);
         double h = abs(y2 - y1);
         if (w > h) h = w;
@@ -71,12 +64,16 @@ public abstract class ArtMath {
         {
             if (x2 >= x1 && y2 >= y1) {         //draw down & right
                 gc.strokeRect(x1, y1, w, h);
+                if (fill) gc.fillRect(x1, y1, w, h);
             } else if (x2 >= x1 && y1 >= y2) {  //draw up & right
                 gc.strokeRect(x1, y2, w, h);
+                if (fill) gc.fillRect(x1, y2, w, h);
             } else if (x1 >= x2 && y2 >= y1) {  //draw down & left
                 gc.strokeRect(x2, y1, w, h);
+                if (fill) gc.fillRect(x2, y1, w, h);
             } else {                            //draw up & left
                 gc.strokeRect(x2, y2, w, h);
+                if (fill) gc.fillRect(x2, y2, w, h);
             }
         }
     }
@@ -90,17 +87,11 @@ public abstract class ArtMath {
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
      */
-    public static void DrawCircle(double x1, double y1, double x2, double y2, GraphicsContext gc) {
+    public static void DrawCircle(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double dist = Point2D.distance(x1, y1, x2, y2);
-        if (x2 >= x1 && y2 >= y1) {             //draw down & right
-            gc.strokeOval(x1, y1, dist, dist);
-        } else if (x2 >= x1 && y1 >= y2) {      //draw up & right
-            gc.strokeOval(x1, y2, dist, dist);
-        } else if (x1 >= x2 && y2 >= y1) {      //draw down & left
-            gc.strokeOval(x2, y1, dist, dist);
-        } else {                                //draw up & left
-            gc.strokeOval(x2, y2, dist, dist);
-        }
+        javafx.geometry.Point2D point = getTopLeft(x1, y1, x2, y2);
+        gc.strokeOval(point.getX(), point.getY(), dist, dist);
+        if (fill) gc.fillOval(point.getX(), point.getY(), dist, dist);
     }
 
     /**
@@ -112,24 +103,28 @@ public abstract class ArtMath {
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
      */
-    public static void DrawOval(double x1, double y1, double x2, double y2, GraphicsContext gc) {
+    public static void DrawOval(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double w = abs(x2 - x1);
         double h = abs(y2 - y1);
         {
             if (x2 >= x1 && y2 >= y1) {         //draw down & right
                 gc.strokeOval(x1, y1, w, h);
+                if (fill) gc.fillOval(x1, y1, w, h);
             } else if (x2 >= x1 && y1 >= y2) {  //draw up & right
                 gc.strokeOval(x1, y2, w, h);
+                if (fill) gc.fillOval(x1, y2, w, h);
             } else if (x1 >= x2 && y2 >= y1) {  //draw down & left
                 gc.strokeOval(x2, y1, w, h);
+                if (fill) gc.fillOval(x2, y1, w, h);
             } else {                            //draw up & left
                 gc.strokeOval(x2, y2, w, h);
+                if (fill) gc.fillOval(x2, y2, w, h);
             }
         }
     }
 
     /**
-     * Draws a Rectangle in the desired direction based on the cursor location
+     * Draws a Polygon in the desired direction based on the cursor location
      *
      * @param x1 start x cord
      * @param y1 start y cord
@@ -138,7 +133,7 @@ public abstract class ArtMath {
      * @param sides number of sides polygon should have
      * @param gc the graphics content to draw the shape on
      */
-    public static void DrawPoly(double x1, double y1, double x2, double y2, int sides, GraphicsContext gc) {
+    public static void DrawPoly(double x1, double y1, double x2, double y2, int sides, GraphicsContext gc, boolean fill) {
         javafx.geometry.Point2D center = new javafx.geometry.Point2D((x1 + x2) / 2, (y1 + y2) / 2);
         double dist = Point2D.distance(x1, y1, x2, y2)/2;
         double start = Math.atan2(y2 - y1, x2 - x1);
@@ -146,10 +141,11 @@ public abstract class ArtMath {
         double[] yPoints = new double[sides];
 
         for (int i = 0; i <= sides -1; i++){
-            xPoints[i] = center.getX() + (dist * cos((2* PI*i)/sides) + start);
-            yPoints[i] = center.getY() + (dist * sin((2* PI*i)/sides) + start);
+            xPoints[i] = center.getX() + (dist * cos((2* PI*i)/sides + start));
+            yPoints[i] = center.getY() + (dist * sin((2* PI*i)/sides + start));
         }
         gc.strokePolygon(xPoints, yPoints, sides);
+        if (fill) gc.fillPolygon(xPoints, yPoints, sides);
     }
 
     /**
@@ -169,6 +165,15 @@ public abstract class ArtMath {
         }
     }
 
+    /**
+     * Takes in two points on a rectangle and will return the value of the top left point of the ractangle
+     *
+     * @param x1 point 1 x
+     * @param y1 point 1 y
+     * @param x2 point 2 x
+     * @param y2 point 2 y
+     * @return Point2D corresponding to the top left of the rectangle
+     */
     public static javafx.geometry.Point2D getTopLeft(double x1, double y1, double x2, double y2){
         double w = abs(x2 - x1);
         double h = abs(y2 - y1);
@@ -183,8 +188,12 @@ public abstract class ArtMath {
         }
     }
 
-    // function to find if given point
-    // lies inside a given rectangle or not.
+    /**
+     * @hidden
+     *
+     * function to find if given point
+     * lies inside a given rectangle or not.
+     */
     public static boolean FindPoint(double x1, double y1, double x2,
                                     double y2, javafx.geometry.Point2D point)
     {
