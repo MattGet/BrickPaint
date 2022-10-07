@@ -4,6 +4,9 @@ import javafx.application.Platform;
 
 import java.util.TimerTask;
 
+/**
+ * Threading implementation of a timer that updates a visual countdown and runs save all when completed
+ */
 public class AutoSaveManager extends TimerTask {
 
     public int time;
