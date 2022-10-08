@@ -5,6 +5,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
@@ -73,6 +74,9 @@ public class CanvasPanel {
      * The viewport (ScrollPane) that the entire canvas panel will reside within
      */
     public ScrollPane scrollPane;
+
+    private Group ScrollContent;
+
     /**
      * A dummy canvas used to draw objects with a live preview before they are drawn on the real canvas
      */
@@ -163,7 +167,9 @@ public class CanvasPanel {
         pane.setPrefWidth(cWidth);
         pane.getStyleClass().add("border");
 
-        scrollPane = new ScrollPane(pane);
+
+        ScrollContent = new Group(pane);
+        scrollPane = new ScrollPane(ScrollContent);
         scrollPane.setPrefViewportWidth(cWidth);
         scrollPane.setPrefViewportHeight(cHeight);
         Tab tab = new Tab(name, scrollPane);

@@ -4,6 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
@@ -70,18 +71,23 @@ public class AnimatedZoomOperator {
         // determine scale
         double oldScale = node.getScaleX();
         double scale = clamp(oldScale * factor, 0.01, 10);
-        //double f = (scale / oldScale) - 1;
+        if (x < 0)
+            scale /= factor;
+        else
+            scale *= factor;
 
-        // determine offset that we will have to move the node
-        //Bounds bounds = node.localToScene(node.getBoundsInLocal());
-        //double dx = (x - (bounds.getWidth() / 2 + bounds.getMinX()));
-        //double dy = (y - (bounds.getHeight() / 2 + bounds.getMinY()));
+        double f = (scale / oldScale)-1;
+
+        double dx = (x - (node.getBoundsInParent().getWidth()/2 + node.getBoundsInParent().getMinX()));
+        double dy = (y - (node.getBoundsInParent().getHeight()/2 + node.getBoundsInParent().getMinY()));
 
         // timeline that scales and moves the node
         timeline.getKeyFrames().clear();
         timeline.getKeyFrames().addAll(
-                new KeyFrame(Duration.millis(300), new KeyValue(node.scaleXProperty(), scale)),
-                new KeyFrame(Duration.millis(300), new KeyValue(node.scaleYProperty(), scale))
+                new KeyFrame(Duration.millis(200), new KeyValue(node.translateXProperty(), node.getTranslateX() - f * dx)),
+                new KeyFrame(Duration.millis(200), new KeyValue(node.translateYProperty(), node.getTranslateY() - f * dy)),
+                new KeyFrame(Duration.millis(200), new KeyValue(node.scaleXProperty(), scale)),
+                new KeyFrame(Duration.millis(200), new KeyValue(node.scaleYProperty(), scale))
         );
         timeline.play();
     }
@@ -98,21 +104,13 @@ public class AnimatedZoomOperator {
         if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)) {
             return;
         }
-        y = clamp(y, 80, 1080);
-        x = clamp(x, 0, 1920);
-        // determine scale
-        double oldScale = node.getScaleX();
-        double scale = clamp(oldScale * factor, 0.01, 1);
-        double f = (scale / oldScale);
-
         // determine offset that we will have to move the node
         Bounds bounds = node.localToScene(node.getBoundsInLocal());
+
         //Bounds parent = node.getParent().localToScene(node.getParent().getBoundsInLocal());
         double dx = (x - (bounds.getWidth() / 2 + bounds.getMinX()));
         double dy = (y - (bounds.getHeight() / 2 + bounds.getMinY()));
 
-        double moveX = f * dx;
-        double moveY = f * dy;
 
         //System.out.println("Bounds X = " + (bounds.getWidth() / 2 + bounds.getMinX()));
         //System.out.println("Bounds Y = " + (bounds.getHeight() / 2 + bounds.getMinY()));
@@ -123,8 +121,8 @@ public class AnimatedZoomOperator {
         // timeline that scales and moves the node
         timeline.getKeyFrames().clear();
         timeline.getKeyFrames().addAll(
-                new KeyFrame(Duration.millis(100), new KeyValue(node.translateXProperty(), node.getTranslateX() + moveX)),
-                new KeyFrame(Duration.millis(100), new KeyValue(node.translateYProperty(), node.getTranslateY() + moveY))
+                new KeyFrame(Duration.millis(100), new KeyValue(node.translateXProperty(), node.getTranslateX() + dx)),
+                new KeyFrame(Duration.millis(100), new KeyValue(node.translateYProperty(), node.getTranslateY() + dy))
         );
         timeline.play();
     }

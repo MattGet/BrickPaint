@@ -18,6 +18,8 @@ public class FloodFill implements Callable<Object> {
     private final Point start;
     private final CanvasPanel panel;
 
+    private final PixelWriter writer;
+
     public FloodFill(WritableImage Image, int x2, int y2, Color newColor, Color replace, double Sensitivity, CanvasPanel panelIn) {
         colorToReplace = replace;
         NewColor = newColor;
@@ -25,10 +27,11 @@ public class FloodFill implements Callable<Object> {
         start = new Point(x2, y2);
         panel = panelIn;
         sensitivity = Sensitivity;
+        writer = Image.getPixelWriter();
     }
 
-    private static boolean compareColor(int[] point) {
-        Color color = image.getPixelReader().getColor(point[0], point[1]);
+    private static boolean compareColor(int x, int y) {
+        Color color = image.getPixelReader().getColor(x, y);
         return (withinTolerance(color, colorToReplace, sensitivity));
     }
 
@@ -46,7 +49,6 @@ public class FloodFill implements Callable<Object> {
 
     @Override
     public Object call() {
-        PixelWriter writer = image.getPixelWriter();
 
         if (NewColor.equals(colorToReplace)) {
             System.out.println("Finished Flood Fill");
@@ -59,23 +61,17 @@ public class FloodFill implements Callable<Object> {
 
         while (!stack.isEmpty()) {
             int[] point = stack.pop();
-            if (!compareColor(point)) {
-                continue;
-            }
             int x = point[0];
             int y = point[1];
 
-
-            writer.setColor(point[0], point[1], NewColor);
-
             try {
-                //push(stack, x - 1, y - 1);
+                push(stack, x - 1, y - 1);
                 push(stack, x - 1, y);
-                //push(stack, x - 1, y + 1);
+                push(stack, x - 1, y + 1);
                 push(stack, x, y + 1);
-                //push(stack, x + 1, y + 1);
+                push(stack, x + 1, y + 1);
                 push(stack, x + 1, y);
-                //push(stack, x + 1, y - 1);
+                push(stack, x + 1, y - 1);
                 push(stack, x, y - 1);
             }
             catch (Exception e){
@@ -95,6 +91,12 @@ public class FloodFill implements Callable<Object> {
         if (x <= 0 || x >= image.getWidth() ||
                 y <= 0 || y >= image.getHeight()) {
             return;
+        }
+        else if (!compareColor(x, y)) {
+            return;
+        }
+        else{
+            writer.setColor(x, y, NewColor);
         }
         stack.push(new int[]{x, y});
     }
