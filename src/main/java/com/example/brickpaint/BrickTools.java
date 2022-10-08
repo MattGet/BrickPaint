@@ -20,5 +20,6 @@ public enum BrickTools {
     DashedLine,
     ColorGrabber,
     SelectionTool,
+    BucketFill,
     Nothing,
 }

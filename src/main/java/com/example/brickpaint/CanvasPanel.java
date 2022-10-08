@@ -25,12 +25,15 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 
-import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -56,6 +59,8 @@ public class CanvasPanel {
     private final SnapshotParameters parameters = new SnapshotParameters();
     private final Double cWidth = 1024d;
     private final Double cHeight = 1024d;
+    private final List<Point2D> polyLine = new ArrayList<>();
+    private final boolean validDragSelection = false;
     /**
      * The root Node that all the canvas components are created under
      */
@@ -78,6 +83,10 @@ public class CanvasPanel {
      */
     public AnchorPane pane = new AnchorPane();
     /**
+     * Manages Undo and Redo operations on this canvas
+     */
+    public UndoManager undoManager;
+    /**
      * Coordinates of the most recent mouse press
      */
     private Point2D initialTouch;
@@ -89,16 +98,9 @@ public class CanvasPanel {
      * The instance of the zoom operator class that controls the movement and scale of this canvas panel
      */
     private AnimatedZoomOperator operator;
-    /**
-     * Manages Undo and Redo operations on this canvas
-     */
-    public UndoManager undoManager;
     private GraphicsContext gc = canvas.getGraphicsContext2D();
     private int curr = 0;
-
-    private final List<Point2D> polyLine = new ArrayList<>();
     private boolean drawingPolyLine = false;
-    private final boolean validDragSelection = false;
     private boolean insideCanvas = false;
     private double select1, select2, select3, select4;
 
@@ -188,7 +190,7 @@ public class CanvasPanel {
         operator = new AnimatedZoomOperator(keys);
         undoManager = new UndoManager();
         gc = canvas.getGraphicsContext2D();
-        canvas.getGraphicsContext2D().clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         controller.buttonManager.tFillShapes.selectedProperty().addListener(this::updateFill);
         this.useFill = controller.buttonManager.tFillShapes.isSelected();
@@ -201,17 +203,16 @@ public class CanvasPanel {
      *
      * @param event selectedProperty Event Listener
      */
-    private void updateFill(Observable event){
+    private void updateFill(Observable event) {
         this.useFill = controller.buttonManager.tFillShapes.isSelected();
     }
-
 
     /**
      * Handles actions when the mouse enter the canvas area, used to update cursor
      *
      * @param event Mouse event
      */
-    private void mouseEnter(MouseEvent event){
+    private void mouseEnter(MouseEvent event) {
         insideCanvas = true;
         controller.buttonManager.changeCursor();
     }
@@ -221,7 +222,7 @@ public class CanvasPanel {
      *
      * @param event Mouse event
      */
-    private void mouseExit(MouseEvent event){
+    private void mouseExit(MouseEvent event) {
         insideCanvas = false;
         root.getScene().setCursor(Cursor.DEFAULT);
     }
@@ -258,7 +259,6 @@ public class CanvasPanel {
         pane.setPrefHeight(y);
     }
 
-
     /**
      * Handles all actions that should occur when the mouse is pressed down, also records the pointer position
      *
@@ -267,8 +267,8 @@ public class CanvasPanel {
     private void onMousePressed(MouseEvent event) {
         initialTouch = new Point2D(event.getX(), event.getY());
         if (event.getButton() == MouseButton.PRIMARY) {
-            switch (controller.getToolType()){
-                case Pencil, RainbowPencil, Eraser ->{
+            switch (controller.getToolType()) {
+                case Pencil, RainbowPencil, Eraser -> {
                     undoManager.LogU(this);
                     gc.beginPath();
                     gc.moveTo(event.getX(), event.getY());
@@ -296,7 +296,7 @@ public class CanvasPanel {
                                 drawingPolyLine = false;
                                 double[] xPoints = new double[polyLine.size()];
                                 double[] yPoints = new double[polyLine.size()];
-                                for (int i = 0; i<= polyLine.size() -1; i++) {
+                                for (int i = 0; i <= polyLine.size() - 1; i++) {
                                     xPoints[i] = polyLine.get(i).getX();
                                     yPoints[i] = polyLine.get(i).getY();
                                 }
@@ -304,8 +304,7 @@ public class CanvasPanel {
                                 polyLine.clear();
                                 System.out.println("Matched point");
                                 return;
-                            }
-                            else drawingPolyLine = true;
+                            } else drawingPolyLine = true;
                         }
                         gc.strokeLine(polyLine.get(polyLine.size() - 1).getX(), polyLine.get(polyLine.size() - 1).getY(), event.getX(), event.getY());
                     } else {
@@ -319,19 +318,18 @@ public class CanvasPanel {
                     undoManager.LogU(this);
                 }
             }
-            if (controller.getToolType() != BrickTools.Pointer){
+            if (controller.getToolType() != BrickTools.Pointer) {
                 initDraw(gc);
                 initDraw(sc);
             }
         }
-        if (event.getButton() == MouseButton.SECONDARY){
+        if (event.getButton() == MouseButton.SECONDARY) {
             if (controller.getToolType() == BrickTools.CustomShape) {
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 if (polyLine.size() <= 1) {
                     drawingPolyLine = false;
                     polyLine.clear();
-                }
-                else{
+                } else {
                     gc.strokeLine(polyLine.get(polyLine.size() - 1).getX(), polyLine.get(polyLine.size() - 1).getY(), event.getX(), event.getY());
                     polyLine.clear();
                     drawingPolyLine = false;
@@ -388,7 +386,7 @@ public class CanvasPanel {
                     selection = getSubImage(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), this.canvas);
                     //Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                     //sc.drawImage(selection, point.getX(), point.getY());
-                    if (insideCanvas){
+                    if (insideCanvas) {
                         select1 = initialTouch.getX();
                         select2 = initialTouch.getY();
                         select3 = event.getX();
@@ -398,17 +396,45 @@ public class CanvasPanel {
 
                     //if(validDragSelection) validDragSelection = false;
                 }
+                case BucketFill -> {
+                    FloodFill(event.getX(), event.getY());
+                }
                 default -> {
                 }
             }
         }
     }
 
+    private java.awt.Color getColor() {
+        Color c = controller.buttonManager.colorPicker.getValue();
+        return new java.awt.Color((int) c.getRed(), (int) c.getGreen(), (int) c.getBlue());
+    }
+
+    public void FloodFill(double x, double y) {
+
+        undoManager.LogU(this);
+        System.out.println("starting flood fill");
+        WritableImage canvasSnapshot = canvas.snapshot(parameters, null);
+        Color startingColor = canvasSnapshot.getPixelReader().getColor((int) x, (int) y);
+        FloodFill fill = new FloodFill(canvasSnapshot, (int) x, (int) y,
+                controller.buttonManager.colorPicker.getValue(), startingColor,
+                controller.buttonManager.fillSensitivity.getValue(), this);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            executor.invokeAll(List.of(fill), 1, TimeUnit.SECONDS); // Timeout of 1 seconds
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        executor.shutdown();
+    }
+
+
     /**
      * Writes the currently selected image to the system clipboard
      */
-    public void selectionCopy(){
-        if (controller.getToolType() == BrickTools.SelectionTool){
+    public void selectionCopy() {
+        if (controller.getToolType() == BrickTools.SelectionTool) {
             sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             Clipboard clipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
@@ -427,7 +453,7 @@ public class CanvasPanel {
     /**
      * Writes the currently selected image to the system clipboard and removes that area from the canvas
      */
-    public void selectionCut(){
+    public void selectionCut() {
         if (controller.getToolType() == BrickTools.SelectionTool) {
             sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             undoManager.LogU(this);
@@ -443,8 +469,8 @@ public class CanvasPanel {
                 } else //draw down & left
                     //draw up & left
                     if (x2 >= x1) {  //drawing up & right
-                    gc.clearRect(x1, y2, w, h);
-                } else gc.clearRect(x2, Math.min(y2, y1), w, h);
+                        gc.clearRect(x1, y2, w, h);
+                    } else gc.clearRect(x2, Math.min(y2, y1), w, h);
             }
 
             Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -464,14 +490,14 @@ public class CanvasPanel {
     /**
      * Draws the currently selected image to the canvas at the mouse position or top left of the canvas
      */
-    public void selectionPaste(){
-        if (controller.getToolType() == BrickTools.SelectionTool){
-            if (selection != null){
-                sc.clearRect(0,0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+    public void selectionPaste() {
+        if (controller.getToolType() == BrickTools.SelectionTool) {
+            if (selection != null) {
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 undoManager.LogU(this);
-                Point2D point = new Point2D(currTouch.getX() - (selection.getWidth()/2), currTouch.getY() - (selection.getHeight()/2));
-               if(insideCanvas) BrickImage.Paste(this, selection, point);
-               else BrickImage.Paste(this, selection);
+                Point2D point = new Point2D(currTouch.getX() - (selection.getWidth() / 2), currTouch.getY() - (selection.getHeight() / 2));
+                if (insideCanvas) BrickImage.Paste(this, selection, point);
+                else BrickImage.Paste(this, selection);
             }
         }
     }
@@ -479,29 +505,38 @@ public class CanvasPanel {
     /**
      * Resizes the canvas to the selected image
      */
-    public void selectionCrop(){
-        if (controller.getToolType() == BrickTools.SelectionTool){
-            if (selection != null){
+    public void selectionCrop() {
+        if (controller.getToolType() == BrickTools.SelectionTool) {
+            if (selection != null) {
                 undoManager.LogU(this);
-                gc.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
-                sc.clearRect(0,0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 BrickImage.Insert(this, selection);
                 selection = null;
             }
         }
     }
 
+
     /**
-     * Takes the current selection and flips it vertically as if it were rotated along the x-axis in 3D space
+     * Takes the current selection and flips it horizontally or vertically as if it were rotated along the y/x axis in 3D space
      */
-    public void selectionFilpV(){
-        if (controller.getToolType() == BrickTools.SelectionTool){
-            if (selection != null){
+    public void selectionMirror(boolean horizontal) {
+        if (controller.getToolType() == BrickTools.SelectionTool) {
+            if (selection != null) {
                 undoManager.LogU(this);
                 BufferedImage image = SwingFXUtils.fromFXImage(selection, null);
-                AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+                AffineTransform tx = new AffineTransform();
+                if (horizontal) {
+                    tx = AffineTransform.getScaleInstance(-1, 1);
 
-                tx.translate(0, -image.getHeight(null));
+                    tx.translate(-image.getWidth(null), 0);
+                } else {
+                    tx = AffineTransform.getScaleInstance(1, -1);
+
+                    tx.translate(0, -image.getHeight(null));
+                }
+
 
                 AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 
@@ -531,19 +566,49 @@ public class CanvasPanel {
         }
     }
 
-    /**
-     * Takes the current selection and flips it horizontally as if it were rotated along the y-axis in 3D space
-     */
-    public void selectionFilpH(){
-        if (controller.getToolType() == BrickTools.SelectionTool){
-            if (selection != null){
+    public void mirror(boolean horizontal) {
+        if (controller.getToolType() != BrickTools.SelectionTool) {
+            if (canvas != null) {
                 undoManager.LogU(this);
-                BufferedImage image = SwingFXUtils.fromFXImage(selection, null);
-                AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+                Image screenshot = canvas.snapshot(parameters, null);
+                BufferedImage image = SwingFXUtils.fromFXImage(screenshot, null);
+                AffineTransform tx = new AffineTransform();
+                if (horizontal) {
+                    tx = AffineTransform.getScaleInstance(-1, 1);
 
-                tx.translate(-image.getWidth(null), 0);
+                    tx.translate(-image.getWidth(null), 0);
+                } else {
+                    tx = AffineTransform.getScaleInstance(1, -1);
+
+                    tx.translate(0, -image.getHeight(null));
+                }
+
 
                 AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+
+                image = op.filter(image, null);
+
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null));
+            }
+        }
+    }
+
+    /**
+     * Takes the current selection and rotates it 90 degrees to the right
+     */
+    public void selectionRotate(boolean right) {
+        if (controller.getToolType() == BrickTools.SelectionTool) {
+            if (selection != null) {
+                undoManager.LogU(this);
+                BufferedImage image = SwingFXUtils.fromFXImage(selection, null);
+                AffineTransformOp op;
+                if (right) {
+                    op = new AffineTransformOp(rotateClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+                } else {
+                    op = new AffineTransformOp(rotateCounterClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+                }
 
                 image = op.filter(image, null);
 
@@ -566,11 +631,62 @@ public class CanvasPanel {
                 }
 
                 Point2D point = ArtMath.getTopLeft(select1, select2, select3, select4);
-                BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null), point);
+                BrickImage.PasteRotate(this, SwingFXUtils.toFXImage(image, null), new Point2D(point.getX() + w / 2, point.getY() + h / 2));
             }
         }
     }
 
+    public void rotate(boolean right) {
+        if (controller.getToolType() != BrickTools.SelectionTool) {
+            if (canvas != null) {
+                undoManager.LogU(this);
+                Image screenshot = canvas.snapshot(parameters, null);
+                BufferedImage image = SwingFXUtils.fromFXImage(screenshot, null);
+                AffineTransformOp op;
+                if (right) {
+                    op = new AffineTransformOp(rotateClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+                } else {
+                    op = new AffineTransformOp(rotateCounterClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+                }
+
+                image = op.filter(image, null);
+
+                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                BrickImage.PasteRotate(this, SwingFXUtils.toFXImage(image, null), new Point2D(canvas.getWidth() / 2, canvas.getHeight() / 2));
+            }
+        }
+    }
+
+    /**
+     * Rotates clockwise 90 degrees. Uses rotation on center and then translating it to origin
+     *
+     * @param source buffered image
+     * @return rotated buffered image
+     * @see <a href="https://www.quickprogrammingtips.com/java/how-to-rotate-an-image-using-affine-transform-in-java.html">Source Code</a>
+     */
+    private AffineTransform rotateClockwise90(BufferedImage source) {
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(Math.PI / 2, source.getWidth() / 2d, source.getHeight() / 2d);
+        double offset = (source.getWidth() - source.getHeight()) / 2d;
+        transform.translate(offset, offset);
+        return transform;
+    }
+
+    /**
+     * Rotates counter-clockwise 90 degrees. Uses rotation on center and then translating it to origin
+     *
+     * @param source buffered image
+     * @return rotated buffered image
+     * @see <a href="https://www.quickprogrammingtips.com/java/how-to-rotate-an-image-using-affine-transform-in-java.html">Source Code</a>
+     */
+    private AffineTransform rotateCounterClockwise90(BufferedImage source) {
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(-Math.PI / 2, source.getWidth() / 2d, source.getHeight() / 2d);
+        double offset = (source.getWidth() - source.getHeight()) / 2d;
+        transform.translate(-offset, -offset);
+        return transform;
+    }
 
     /**
      * Sets the parameters for drawing in the specified graphics content
@@ -599,12 +715,12 @@ public class CanvasPanel {
             //gc.setEffect(blur);
         } else if (controller.getToolType() == BrickTools.Eraser) {
             gc.setEffect(null);
-        } else if (controller.getToolType() == BrickTools.CustomShape){
+        } else if (controller.getToolType() == BrickTools.CustomShape) {
             gc.setLineCap(StrokeLineCap.ROUND);
             gc.setLineJoin(StrokeLineJoin.ROUND);
         } else if (controller.getToolType() == BrickTools.SelectionTool) {
             gc.setLineWidth(2);
-            gc.setLineDashes(width/2, width/2, width/2, width/2);
+            gc.setLineDashes(width / 2, width / 2, width / 2, width / 2);
             gc.setLineDashOffset(10);
             gc.setEffect(null);
             gc.setStroke(Color.LIGHTBLUE);
@@ -645,7 +761,7 @@ public class CanvasPanel {
             PixelReader reader = snap.getPixelReader();
             controller.buttonManager.colorPicker.setValue(reader.getColor((int) event.getX(), (int) event.getY()));
         }
-        if (controller.getToolType() == BrickTools.CustomShape){
+        if (controller.getToolType() == BrickTools.CustomShape) {
             if (drawingPolyLine) {
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 if (polyLine.size() > 1) {
@@ -656,8 +772,7 @@ public class CanvasPanel {
                         }
                     }
                     sc.strokeLine(polyLine.get(polyLine.size() - 1).getX(), polyLine.get(polyLine.size() - 1).getY(), event.getX(), event.getY());
-                }
-                else {
+                } else {
                     sc.strokeLine(polyLine.get(0).getX(), polyLine.get(0).getY(), event.getX(), event.getY());
                 }
             }
@@ -704,7 +819,7 @@ public class CanvasPanel {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     sc.strokeLine(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
                 }
-                case Rectangle-> {
+                case Rectangle -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, useFill);
                 }
@@ -738,10 +853,10 @@ public class CanvasPanel {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, false);
                     //System.out.println("selection");
-                    if (validDragSelection){
-                    //    Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
-                    //    sc.drawImage(selection, point.getX(), point.getY());
-                    //    System.out.println("dragging selection");
+                    if (validDragSelection) {
+                        //    Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
+                        //    sc.drawImage(selection, point.getX(), point.getY());
+                        //    System.out.println("dragging selection");
                     }
                 }
                 default -> {
@@ -753,23 +868,23 @@ public class CanvasPanel {
     /**
      * Returns the defined area of a Node as an image
      *
-     * @param x1 xCord of mouse press
-     * @param y1 yCord of mouse press
-     * @param x2 xCord of mouse release
-     * @param y2 yCord of mouse release
+     * @param x1   xCord of mouse press
+     * @param y1   yCord of mouse press
+     * @param x2   xCord of mouse release
+     * @param y2   yCord of mouse release
      * @param node node to take the image from
      * @return Image
      */
-    private Image getSubImage(double x1, double y1, double x2, double y2, Node node){
-        int w = (int )Math.abs(x1 - x2);
-        int h = (int)Math.abs(y1 - y2);
+    private Image getSubImage(double x1, double y1, double x2, double y2, Node node) {
+        int w = (int) Math.abs(x1 - x2);
+        int h = (int) Math.abs(y1 - y2);
         if (w <= 0 || h <= 0) return null;
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
         WritableImage wImage = new WritableImage(w, h);
         Rectangle2D rect;
         if (x2 >= x1 && y2 >= y1) {                 //draw down & right
-           rect = new Rectangle2D(x1, y1, w, h);
+            rect = new Rectangle2D(x1, y1, w, h);
         } else if (x2 >= x1) {                      //drawing up & right
             rect = new Rectangle2D(x1, y2, w, h);
         } else if (y2 >= y1) {                      //draw down & left

@@ -68,7 +68,7 @@ public class BrickPaintAppTest {
     }
 
     @Test
-    public void testAutoSaveOn(FxRobot robot){
+    public void testAutoSaveButton(FxRobot robot){
         robot.clickOn(1230, 50, MouseButton.PRIMARY);
 
         assertFalse(controller.buttonManager.tAutoSave.isSelected());
@@ -78,7 +78,5 @@ public class BrickPaintAppTest {
     public void testDefaultTabCreated(FxRobot robot){
        assertEquals(controller.tabs.getTabs().size(), 1);
     }
-
-
 
 }

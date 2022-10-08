@@ -56,14 +56,20 @@ public class ButtonManager {
     private static final Image vflip = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/Actions-object-flip-vertical-icon.png")));
     private static final Image hflip = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/Actions-object-flip-horizontal-icon.png")));
 
+    private static final Image rRight = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/right_rotate_icon.png")));
+    private static final Image rLeft = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/left_rotate_icon.png")));
+
+    private static final Image bucket = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/bucket.png")));
+
+
     private final HashMap<ToggleButton, SelectionListener> toggleButtonToSelectionListener = new HashMap<>();
     private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse,
-            tPolygon, tCustom, tGrabber, tSelect;
+            tPolygon, tCustom, tGrabber, tSelect, tBucket;
 
     public final ToggleSwitch tAutoSave, tFillShapes;
 
     public Label aSaveTime = new Label("Auto Save In 1m 25s");
-    private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH, tOpenFolder;
+    private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH, tRright, tRleft, tOpenFolder;
     public ComboBox<Integer> lineWidth = new ComboBox<>();
     public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
     /**
@@ -78,6 +84,9 @@ public class ButtonManager {
      * allows the user to enter or select a value for the number of sides the polygon tools should have
      */
     public ComboBox<Integer> polySides = new ComboBox<>();
+
+    public Spinner<Double> fillSensitivity = new Spinner<Double>(0.0d, 0.9d, 0.40d, 0.05d);
+
     public ColorPicker colorPicker = new ColorPicker(Color.BLACK);
     private final ToolBar Parent;
     private final BrickPaintController controller;
@@ -135,10 +144,16 @@ public class ButtonManager {
         tFlipH = new Button();
         tFlipH.setGraphic(getImage(hflip));
         tFlipH.setTooltip(new Tooltip("Flip selection horizontally"));
-        HBox h1 = new HBox(tSelect, tCrop);
+        tRright = new Button();
+        tRright.setGraphic(getImage(rRight));
+        tRright.setTooltip(new Tooltip("Rotate Image right 90"));
+        tRleft = new Button();
+        tRleft.setGraphic(getImage(rLeft));
+        tRleft.setTooltip(new Tooltip("Rotate Image left 90"));
+        HBox h1 = new HBox(tSelect, tFlipV, tRright);
         h1.setSpacing(10);
         h1.paddingProperty().setValue(new Insets(10, 0, 10, 0));
-        HBox h2 = new HBox(tFlipV, tFlipH);
+        HBox h2 = new HBox(tCrop, tFlipH, tRleft);
         h2.setSpacing(10);
 
         Label bImage = new Label("Selection");
@@ -148,13 +163,15 @@ public class ButtonManager {
 
         Separator s2 = new Separator(Orientation.VERTICAL);
 
+        fillSensitivity.setMaxWidth(65);
+        fillSensitivity.setTooltip(new Tooltip("Fill Sensitivity"));
         tPointer = new ToggleButton();
         tPointer.setGraphic(getImage(poin));
         tPointer.setTooltip(new Tooltip("Mouse Pointer"));
         tEraser = new ToggleButton();
         tEraser.setGraphic(getImage(eras));
         tEraser.setTooltip(new Tooltip("Eraser"));
-        HBox v1 = new HBox(tPointer, tEraser);
+        HBox v1 = new HBox(tPointer, tEraser, fillSensitivity);
         v1.paddingProperty().setValue(new Insets(10, 0, 0, 0));
         v1.setSpacing(10);
 
@@ -164,7 +181,12 @@ public class ButtonManager {
         tRainbow = new ToggleButton();
         tRainbow.setGraphic(getImage(rain));
         tRainbow.setTooltip(new Tooltip("Rainbow Pencil"));
-        HBox v2 = new HBox(tPencil, tRainbow);
+        tBucket = new ToggleButton();
+        tBucket.setGraphic(getImage(bucket));
+        tBucket.setTooltip(new Tooltip("Bucket Fill"));
+        tBucket.setMaxWidth(65);
+        tBucket.setPrefWidth(65);
+        HBox v2 = new HBox(tPencil, tRainbow, tBucket);
         v2.setSpacing(10);
 
         Label bTools = new Label("Tools");
@@ -311,6 +333,7 @@ public class ButtonManager {
             add(tCustom);
             add(tGrabber);
             add(tSelect);
+            add(tBucket);
         }};
         Setup();
     }
@@ -347,6 +370,8 @@ public class ButtonManager {
         tCrop.setOnAction(this::handleCrop);
         tFlipV.setOnAction(this::handleFlipV);
         tFlipH.setOnAction(this::handleFlipH);
+        tRright.setOnAction(this::handleRotateR);
+        tRleft.setOnAction(this::handleRotateL);
         tOpenFolder.setOnAction(this::handleOpenFolder);
 
         tAutoSave.setSelected(true);
@@ -440,32 +465,58 @@ public class ButtonManager {
     }
 
     /**
-     * Calls the Flip Vertical method in the current canvas when the Flip Vertical button is pressed and the selection
-     * tool is active, otherwise it will set the selection tool to be active
+     * Will mirror the selected area across the y axis or if no area is selected it will mirror the entire canvas
      *
      * @param event Button event
      */
     public void handleFlipV(ActionEvent event){
         if (getSelectedToggle() == BrickTools.SelectionTool){
-            controller.getCanvas().selectionFilpV();
+            controller.getCanvas().selectionMirror(false);
         }
         else{
-            tSelect.setSelected(true);
+            controller.getCanvas().mirror(false);
         }
     }
 
     /**
-     * Calls the Flip Horizontal method in the current canvas when the Flip Horizontal button is pressed and the selection
-     * tool is active, otherwise it will set the selection tool to be active
+     * Will mirror the selected area across the x axis or if no area is selected it will mirror the entire canvas
      *
      * @param event Button event
      */
     public void handleFlipH(ActionEvent event){
         if (getSelectedToggle() == BrickTools.SelectionTool){
-            controller.getCanvas().selectionFilpH();
+            controller.getCanvas().selectionMirror(true);
         }
         else{
-            tSelect.setSelected(true);
+            controller.getCanvas().mirror(true);
+        }
+    }
+
+    /**
+     * Rotates the selected image 90 degrees to the right or if no area is selected will rotate the entire canvas
+     *
+     * @param event Button event
+     */
+    public void handleRotateR(ActionEvent event){
+        if (getSelectedToggle() == BrickTools.SelectionTool){
+            controller.getCanvas().selectionRotate(true);
+        }
+        else{
+            controller.getCanvas().rotate(true);
+        }
+    }
+
+    /**
+     * Rotates the selected image 90 degrees to the left or if no area is selected will rotate the entire canvas
+     *
+     * @param event Button event
+     */
+    public void handleRotateL(ActionEvent event){
+        if (getSelectedToggle() == BrickTools.SelectionTool){
+            controller.getCanvas().selectionRotate(false);
+        }
+        else{
+            controller.getCanvas().rotate(false);
         }
     }
 
@@ -512,6 +563,10 @@ public class ButtonManager {
             }
             case ColorGrabber -> {
                 ImageCursor cursor = new ImageCursor(grab, 0, grab.getHeight());
+                Parent.getScene().setCursor(cursor);
+            }
+            case BucketFill -> {
+                ImageCursor cursor = new ImageCursor(bucket, bucket.getWidth(), bucket.getHeight());
                 Parent.getScene().setCursor(cursor);
             }
             case SelectionTool, Line, Rectangle, RoundRectangle, Square, Circle, Oval, Polygon, CustomShape -> {
@@ -600,6 +655,9 @@ public class ButtonManager {
             }
             case 14 -> {
                 return BrickTools.SelectionTool;
+            }
+            case 15 ->{
+                return BrickTools.BucketFill;
             }
             default -> {
                 return BrickTools.Nothing;

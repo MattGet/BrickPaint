@@ -46,4 +46,22 @@ public abstract class BrickImage {
         panel.canvas.getGraphicsContext2D().drawImage(image, 0, 0);
     }
 
+    /**
+     * Adds an image to a Canvas component in javaFX at a specified position and rescales the canvas if needed
+     *
+     * @param image The image to insert into the canvas
+     * @param panel The CanvasPanel Class to add the image to
+     * @param point the location of the top left of the image
+     */
+    public static void PasteRotate(CanvasPanel panel, Image image, Point2D point){
+        double x = image.getWidth();
+        double y = image.getHeight();
+        if (x > panel.canvas.getWidth()) panel.setSizeX(x);
+        if (y > panel.canvas.getHeight()) panel.setSizeY(y);
+        panel.UpdateSize();
+        panel.canvas.getGraphicsContext2D().drawImage(image,
+                BrickPaintController.clamp(point.getX() - x/2, 0, panel.canvas.getWidth()),
+                BrickPaintController.clamp(point.getY() - y/2, 0, panel.canvas.getHeight()));
+    }
+
 }
