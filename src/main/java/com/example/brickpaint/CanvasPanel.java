@@ -1,6 +1,7 @@
 package com.example.brickpaint;
 
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -23,6 +24,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
+import javafx.scene.transform.Transform;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 
@@ -181,6 +183,7 @@ public class CanvasPanel {
 
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
 
         UpdateSize();
         pane.setOnScroll(this::onScroll);
@@ -416,11 +419,18 @@ public class CanvasPanel {
         return new java.awt.Color((int) c.getRed(), (int) c.getGreen(), (int) c.getBlue());
     }
 
-    public void FloodFill(double x, double y) {
+    public static WritableImage pixelScaleAwareCanvasSnapshot(Canvas canvas, double pixelScale) {
+        WritableImage writableImage = new WritableImage((int)Math.rint(pixelScale*canvas.getWidth()), (int)Math.rint(pixelScale*canvas.getHeight()));
+        SnapshotParameters spa = new SnapshotParameters();
+        spa.setTransform(Transform.scale(pixelScale, pixelScale));
+        return canvas.snapshot(spa, writableImage);
+    }
 
+    public void FloodFill(double x, double y) {
+        gc.setEffect(null);
         undoManager.LogU(this);
         System.out.println("starting flood fill");
-        WritableImage canvasSnapshot = canvas.snapshot(parameters, null);
+        WritableImage canvasSnapshot = pixelScaleAwareCanvasSnapshot(this.canvas, 0.8);
         Color startingColor = canvasSnapshot.getPixelReader().getColor((int) x, (int) y);
         FloodFill fill = new FloodFill(canvasSnapshot, (int) x, (int) y,
                 controller.buttonManager.colorPicker.getValue(), startingColor,
@@ -797,12 +807,7 @@ public class CanvasPanel {
             //System.out.println(controller.getToolType());
             switch (controller.getToolType()) {
                 case Pointer -> {
-                    double zoomFactor = 1.5;
-                    if (event.getY() <= 0) {
-                        // zoom out
-                        zoomFactor = 1 / zoomFactor;
-                    }
-                    operator.pan(pane, zoomFactor, event.getSceneX(), event.getSceneY());
+
                 }
                 case RainbowPencil -> {
                     if (curr >= 5) {
@@ -908,12 +913,8 @@ public class CanvasPanel {
      * @param event Scroll event from Input class
      */
     public void onScroll(ScrollEvent event) {
-        double zoomFactor = 1.5;
-        if (event.getDeltaY() <= 0) {
-            // zoom out
-            zoomFactor = 1 / zoomFactor;
-        }
-        operator.zoom(pane, zoomFactor, event.getSceneX(), event.getSceneY());
+        final double zoomFactor = event.getDeltaY() > 0 ? 1.2 : 1 / 1.2;
+        operator.zoom(ScrollContent, pane, zoomFactor, event.getSceneX(), event.getSceneY(), scrollPane);
         UpdateSize();
     }
 }

@@ -5,16 +5,18 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 
 /**
  * Handles methods that manipulate the position and size of nodes within javafx
  *
- * @author Aerus
+ * @author Fabian
  * @author matde
- * @see <a href="https://stackoverflow.com/a/29545368">Source Code</a>
+ * @see <a href="https://stackoverflow.com/a/38719541">Source Code</a>
  */
 public class AnimatedZoomOperator {
 
@@ -60,70 +62,39 @@ public class AnimatedZoomOperator {
      * handles animating/scaling a node within a 2d axis based on mouse input
      *
      * @param node   The node to zoom in/out
-     * @param factor Scaling value that determines how much the node is scaled with each call
+     * @param zoomFactor Scaling value that determines how much the node is scaled with each call
      * @param x      X cord from which to zoom about (Optional)
      * @param y      Y cord from which to zoom about (Optional)
      */
-    public void zoom(Node node, double factor, double x, double y) {
+    public void zoom(Group group, Node node, double zoomFactor, double x, double y, ScrollPane scrollPane) {
         if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)) {
             return;
         }
-        // determine scale
-        double oldScale = node.getScaleX();
-        double scale = clamp(oldScale * factor, 0.01, 10);
-        if (x < 0)
-            scale /= factor;
-        else
-            scale *= factor;
 
-        double f = (scale / oldScale)-1;
+        Bounds groupBounds = group.getLayoutBounds();
+        final Bounds viewportBounds = scrollPane.getViewportBounds();
 
-        double dx = (x - (node.getBoundsInParent().getWidth()/2 + node.getBoundsInParent().getMinX()));
-        double dy = (y - (node.getBoundsInParent().getHeight()/2 + node.getBoundsInParent().getMinY()));
+        // calculate pixel offsets from [0, 1] range
+        double valX = scrollPane.getHvalue() * (groupBounds.getWidth() - viewportBounds.getWidth());
+        double valY = scrollPane.getVvalue() * (groupBounds.getHeight() - viewportBounds.getHeight());
 
-        // timeline that scales and moves the node
-        timeline.getKeyFrames().clear();
-        timeline.getKeyFrames().addAll(
-                new KeyFrame(Duration.millis(200), new KeyValue(node.translateXProperty(), node.getTranslateX() - f * dx)),
-                new KeyFrame(Duration.millis(200), new KeyValue(node.translateYProperty(), node.getTranslateY() - f * dy)),
-                new KeyFrame(Duration.millis(200), new KeyValue(node.scaleXProperty(), scale)),
-                new KeyFrame(Duration.millis(200), new KeyValue(node.scaleYProperty(), scale))
-        );
-        timeline.play();
-    }
+        // convert content coordinates to zoomTarget coordinates
+        Point2D posInZoomTarget = node.parentToLocal(group.parentToLocal(new Point2D(x, y)));
 
-    /**
-     * handles animating/moving a node across a 2d axis based on mouse input
-     *
-     * @param node   The node to move/pan
-     * @param factor Scaling factor that determines how much the node is moved each time
-     * @param x      X cord of the mouse pointer
-     * @param y      Y cord of the mouse pointer
-     */
-    public void pan(Node node, double factor, double x, double y) {
-        if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)) {
-            return;
-        }
-        // determine offset that we will have to move the node
-        Bounds bounds = node.localToScene(node.getBoundsInLocal());
+        // calculate adjustment of scroll position (pixels)
+        Point2D adjustment = node.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
 
-        //Bounds parent = node.getParent().localToScene(node.getParent().getBoundsInLocal());
-        double dx = (x - (bounds.getWidth() / 2 + bounds.getMinX()));
-        double dy = (y - (bounds.getHeight() / 2 + bounds.getMinY()));
+        // do the resizing
+        node.setScaleX(zoomFactor * node.getScaleX());
+        node.setScaleY(zoomFactor * node.getScaleY());
 
+        // refresh ScrollPane scroll positions & content bounds
+        scrollPane.layout();
 
-        //System.out.println("Bounds X = " + (bounds.getWidth() / 2 + bounds.getMinX()));
-        //System.out.println("Bounds Y = " + (bounds.getHeight() / 2 + bounds.getMinY()));
-        //System.out.println("X = " + x + " Y = " + y);
-        //System.out.println("moveX = " + moveX + "moveY = " + moveY);
-
-
-        // timeline that scales and moves the node
-        timeline.getKeyFrames().clear();
-        timeline.getKeyFrames().addAll(
-                new KeyFrame(Duration.millis(100), new KeyValue(node.translateXProperty(), node.getTranslateX() + dx)),
-                new KeyFrame(Duration.millis(100), new KeyValue(node.translateYProperty(), node.getTranslateY() + dy))
-        );
-        timeline.play();
+        // convert back to [0, 1] range
+        // (too large/small values are automatically corrected by ScrollPane)
+        groupBounds = group.getLayoutBounds();
+        scrollPane.setHvalue((valX + adjustment.getX()) * zoomFactor / (groupBounds.getWidth() - viewportBounds.getWidth()));
+        scrollPane.setVvalue((valY + adjustment.getY()) * zoomFactor / (groupBounds.getHeight() - viewportBounds.getHeight()));
     }
 }

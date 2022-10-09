@@ -2,6 +2,7 @@ package com.example.brickpaint;
 
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 
 /**
  * Handles common image functions for javaFX applications

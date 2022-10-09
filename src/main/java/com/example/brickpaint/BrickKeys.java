@@ -3,6 +3,7 @@ package com.example.brickpaint;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.WindowEvent;
@@ -108,6 +109,9 @@ public class BrickKeys {
         node.setTranslateY(0);
         node.setScaleX(1);
         node.setScaleY(1);
+        ScrollPane pane = controller.getCanvas().scrollPane;
+        pane.setVvalue(0d);
+        pane.setHvalue(0d);
     }
 
 

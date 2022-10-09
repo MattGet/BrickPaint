@@ -81,7 +81,6 @@ public class BrickPaintController {
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         addTab();
-
         try{
             Path path = Path.of(BrickSave.savePath);
             if (!Files.exists(path)){

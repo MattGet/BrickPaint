@@ -1,6 +1,7 @@
 package com.example.brickpaint;
 
 import javafx.application.Platform;
+import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
@@ -82,7 +83,9 @@ public class FloodFill implements Callable<Object> {
 
         Platform.runLater(() -> {
             System.out.println("Finished Flood Fill");
-            BrickImage.Paste(panel, image);
+            Image result = image;
+            panel.canvas.getGraphicsContext2D().clearRect(0,0, panel.canvas.getWidth(), panel.canvas.getHeight());
+            panel.canvas.getGraphicsContext2D().drawImage(result, 0, 0, image.getWidth(), image.getHeight(), 0, 0, panel.canvas.getWidth(), panel.canvas.getWidth());
         });
         return null;
     }

@@ -75,11 +75,11 @@ public class ButtonManager {
     /**
      * allows the user to enter or select a value for the current canvas's width
      */
-    public ComboBox<Double> cWidth = new ComboBox<>();
+    public ComboBox<Integer> cWidth = new ComboBox<>();
     /**
      * allows the user to enter or select a value for the current canvas's height
      */
-    public ComboBox<Double> cHeight = new ComboBox<>();
+    public ComboBox<Integer> cHeight = new ComboBox<>();
     /**
      * allows the user to enter or select a value for the number of sides the polygon tools should have
      */
@@ -262,8 +262,8 @@ public class ButtonManager {
 
         Separator s5 = new Separator(Orientation.VERTICAL);
 
-        cWidth.getItems().addAll(256d, 512d, 720d, 1024d, 1080d, 1280d, 1440d, 1920d);
-        cHeight.getItems().addAll(256d, 512d, 720d, 1024d, 1080d, 1280d, 1440d, 1920d);
+        cWidth.getItems().addAll(256, 512, 720, 1024, 1080, 1280, 1440, 1920);
+        cHeight.getItems().addAll(2256, 512, 720, 1024, 1080, 1280, 1440, 1920);
         cWidth.setEditable(true);
         cHeight.setEditable(true);
         cWidth.setMaxWidth(100);
