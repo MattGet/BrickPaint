@@ -3,6 +3,7 @@ package com.example.brickpaint;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
@@ -17,6 +18,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
@@ -24,19 +26,18 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
-import javafx.scene.transform.Transform;
+import javafx.stage.Screen;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 /**
@@ -59,7 +60,7 @@ public class CanvasPanel {
      */
     private final TabPane parent;
 
-    private final SnapshotParameters parameters = new SnapshotParameters();
+    public final SnapshotParameters parameters = new SnapshotParameters();
     private final Double cWidth = 1024d;
     private final Double cHeight = 1024d;
     private final List<Point2D> polyLine = new ArrayList<>();
@@ -419,30 +420,57 @@ public class CanvasPanel {
         return new java.awt.Color((int) c.getRed(), (int) c.getGreen(), (int) c.getBlue());
     }
 
-    public static WritableImage pixelScaleAwareCanvasSnapshot(Canvas canvas, double pixelScale) {
-        WritableImage writableImage = new WritableImage((int)Math.rint(pixelScale*canvas.getWidth()), (int)Math.rint(pixelScale*canvas.getHeight()));
-        SnapshotParameters spa = new SnapshotParameters();
-        spa.setTransform(Transform.scale(pixelScale, pixelScale));
-        return canvas.snapshot(spa, writableImage);
+
+    public WritableImage getScaledImage(){
+        Bounds bounds = canvas.getLayoutBounds();
+        double scale = Toolkit.getDefaultToolkit().getScreenResolution() / Screen.getPrimary().getDpi();
+        scale = 1;
+        int imageWidth = (int) Math.round(bounds.getWidth() * scale);
+        int imageHeight = (int) Math.round(bounds.getHeight() * scale);
+        SnapshotParameters snapPara = new SnapshotParameters();
+        snapPara.setFill(Color.TRANSPARENT);
+        snapPara.setTransform(javafx.scene.transform.Transform.scale(scale, scale));
+        WritableImage snapshot = new WritableImage(imageWidth, imageHeight);
+        snapshot = canvas.snapshot(snapPara, snapshot);
+        return snapshot;
     }
+
+
+   private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
 
     public void FloodFill(double x, double y) {
         gc.setEffect(null);
         undoManager.LogU(this);
         System.out.println("starting flood fill");
-        WritableImage canvasSnapshot = pixelScaleAwareCanvasSnapshot(this.canvas, 0.8);
-        Color startingColor = canvasSnapshot.getPixelReader().getColor((int) x, (int) y);
-        FloodFill fill = new FloodFill(canvasSnapshot, (int) x, (int) y,
-                controller.buttonManager.colorPicker.getValue(), startingColor,
-                controller.buttonManager.fillSensitivity.getValue(), this);
+        WritableImage canvasSnapshot = getScaledImage();
+        Color startingColor = canvasSnapshot.getPixelReader().getColor((int) Math.floor(x), (int) Math.floor(y));
+        FloodFill fill = new FloodFill(this, canvasSnapshot, (int) Math.floor(x),
+                (int) Math.floor(y), startingColor, controller.buttonManager.colorPicker.getValue(), controller.buttonManager.fillSensitivity.getValue());
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<WritableImage> result =  executor.submit(fill);
         try {
-            executor.invokeAll(List.of(fill), 1, TimeUnit.SECONDS); // Timeout of 1 seconds
-        } catch (InterruptedException e) {
+         WritableImage img = result.get(3, TimeUnit.SECONDS);
+         if (img != null){
+             System.out.println("Finished Flood Fill Successfully!");
+             render(img, 0, 0, (int) img.getWidth(), (int) img.getHeight(), 0, 0);
+             System.gc();
+         }
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
-        executor.shutdown();
+    }
+
+    public final void render( WritableImage image, int sx, int sy, int sw, int sh, int tx, int ty) {
+        PixelReader reader = getScaledImage().getPixelReader();
+        for (int x = 0; x < sw; x++) {
+            for (int y = 0; y < sh; y++) {
+                Color color = image.getPixelReader().getColor(sx + x, sy + y);
+                if (color != reader.getColor(sx + x, sy + y)) {
+                    gc.getPixelWriter().setColor(tx + x, ty + y, color);
+                }
+            }
+        }
     }
 
 

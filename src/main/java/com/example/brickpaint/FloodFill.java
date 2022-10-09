@@ -1,42 +1,44 @@
 package com.example.brickpaint;
 
 import javafx.application.Platform;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 import java.awt.Point;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
-public class FloodFill implements Callable<Object> {
+public class FloodFill implements Callable<WritableImage> {
 
-    private static Color colorToReplace;
-    private static Color NewColor;
-    private static double sensitivity;
-    private static WritableImage image;
+    private final Color colorToReplace;
+    private final Color NewColor;
+    private final double sensitivity;
     private final Point start;
     private final CanvasPanel panel;
-
+    private final WritableImage image;
     private final PixelWriter writer;
 
-    public FloodFill(WritableImage Image, int x2, int y2, Color newColor, Color replace, double Sensitivity, CanvasPanel panelIn) {
+    public FloodFill(CanvasPanel panelIn, WritableImage imageIn, int x2, int y2, Color replace, Color newColor, double Sense) {
         colorToReplace = replace;
         NewColor = newColor;
-        image = Image;
+        sensitivity = Sense;
         start = new Point(x2, y2);
         panel = panelIn;
-        sensitivity = Sensitivity;
-        writer = Image.getPixelWriter();
+        image = imageIn;
+        writer = image.getPixelWriter();
     }
 
-    private static boolean compareColor(int x, int y) {
+    private boolean compareColor(int x, int y) {
         Color color = image.getPixelReader().getColor(x, y);
         return (withinTolerance(color, colorToReplace, sensitivity));
     }
 
-    private static boolean withinTolerance(Color a, Color b, double epsilon) {
+    private boolean withinTolerance(Color a, Color b, double epsilon) {
         return
                 withinTolerance(a.getRed(), b.getRed(), epsilon) &&
                         withinTolerance(a.getGreen(), b.getGreen(), epsilon) &&
@@ -44,19 +46,18 @@ public class FloodFill implements Callable<Object> {
                         withinTolerance(a.getOpacity(), b.getOpacity(), epsilon);
     }
 
-    private static boolean withinTolerance(double a, double b, double epsilon) {
+    private boolean withinTolerance(double a, double b, double epsilon) {
         return Math.abs(a - b) <= epsilon;
     }
 
     @Override
-    public Object call() {
-
+    public WritableImage call() {
         if (NewColor.equals(colorToReplace)) {
-            System.out.println("Finished Flood Fill");
+            System.out.println("Finished Flood Fill, colors matched");
             return null;
         }
 
-        ArrayDeque<int[]> stack = new ArrayDeque<int[]>((int) (image.getWidth() * image.getHeight()));
+        ArrayDeque<int[]> stack = new ArrayDeque<int[]>((int) Math.ceil((image.getHeight() * image.getWidth())));
 
         stack.add(new int[]{start.x, start.y});
 
@@ -80,15 +81,9 @@ public class FloodFill implements Callable<Object> {
                 return null;
             }
         }
-
-        Platform.runLater(() -> {
-            System.out.println("Finished Flood Fill");
-            Image result = image;
-            panel.canvas.getGraphicsContext2D().clearRect(0,0, panel.canvas.getWidth(), panel.canvas.getHeight());
-            panel.canvas.getGraphicsContext2D().drawImage(result, 0, 0, image.getWidth(), image.getHeight(), 0, 0, panel.canvas.getWidth(), panel.canvas.getWidth());
-        });
-        return null;
+        return image;
     }
+
 
     private void push(ArrayDeque<int[]> stack, int x, int y) {
         if (x <= 0 || x >= image.getWidth() ||
@@ -96,6 +91,7 @@ public class FloodFill implements Callable<Object> {
             return;
         }
         else if (!compareColor(x, y)) {
+            writer.setColor(x, y, NewColor);
             return;
         }
         else{

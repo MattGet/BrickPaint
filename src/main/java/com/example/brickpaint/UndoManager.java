@@ -58,7 +58,7 @@ public class UndoManager {
     public void LogU(CanvasPanel panel) {
         Image image = getUnScaledImage(panel.canvas);
         history.push(image);
-        if (history.size() >= 100) {
+        if (history.size() >= 20) {
             history.remove(0);
             System.out.println("removed item");
         }
@@ -74,7 +74,7 @@ public class UndoManager {
     private void LogR(CanvasPanel panel) {
         Image image = getUnScaledImage(panel.canvas);
         trash.push(image);
-        if (trash.size() >= 100) {
+        if (trash.size() >= 20) {
             trash.remove(0);
             System.out.println("removed item");
         }
