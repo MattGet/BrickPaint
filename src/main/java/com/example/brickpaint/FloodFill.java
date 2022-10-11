@@ -19,16 +19,14 @@ public class FloodFill implements Callable<WritableImage> {
     private final Color NewColor;
     private final double sensitivity;
     private final Point start;
-    private final CanvasPanel panel;
     private final WritableImage image;
     private final PixelWriter writer;
 
-    public FloodFill(CanvasPanel panelIn, WritableImage imageIn, int x2, int y2, Color replace, Color newColor, double Sense) {
+    public FloodFill( WritableImage imageIn, int x2, int y2, Color replace, Color newColor, double Sense) {
         colorToReplace = replace;
         NewColor = newColor;
         sensitivity = Sense;
         start = new Point(x2, y2);
-        panel = panelIn;
         image = imageIn;
         writer = image.getPixelWriter();
     }

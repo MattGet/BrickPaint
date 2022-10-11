@@ -85,7 +85,7 @@ public class ButtonManager {
      */
     public ComboBox<Integer> polySides = new ComboBox<>();
 
-    public Spinner<Double> fillSensitivity = new Spinner<Double>(0.0d, 0.9d, 0.40d, 0.05d);
+    public Spinner<Double> fillSensitivity = new Spinner<Double>(0.0d, 0.9d, 0.25d, 0.05d);
 
     public ColorPicker colorPicker = new ColorPicker(Color.BLACK);
     private final ToolBar Parent;

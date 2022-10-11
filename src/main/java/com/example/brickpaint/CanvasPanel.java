@@ -443,15 +443,17 @@ public class CanvasPanel {
         gc.setEffect(null);
         undoManager.LogU(this);
         System.out.println("starting flood fill");
+        double sensitivity = controller.buttonManager.fillSensitivity.getValue();
+        Color setColor = controller.buttonManager.colorPicker.getValue();
         WritableImage canvasSnapshot = getScaledImage();
         Color startingColor = canvasSnapshot.getPixelReader().getColor((int) Math.floor(x), (int) Math.floor(y));
-        FloodFill fill = new FloodFill(this, canvasSnapshot, (int) Math.floor(x),
-                (int) Math.floor(y), startingColor, controller.buttonManager.colorPicker.getValue(), controller.buttonManager.fillSensitivity.getValue());
+        FloodFill fill = new FloodFill(canvasSnapshot, (int) Math.floor(x),
+                (int) Math.floor(y), startingColor, setColor, sensitivity);
 
         Future<WritableImage> result =  executor.submit(fill);
         try {
          WritableImage img = result.get(3, TimeUnit.SECONDS);
-         if (img != null){
+         if (img != null) {
              System.out.println("Finished Flood Fill Successfully!");
              render(img, 0, 0, (int) img.getWidth(), (int) img.getHeight(), 0, 0);
              System.gc();
