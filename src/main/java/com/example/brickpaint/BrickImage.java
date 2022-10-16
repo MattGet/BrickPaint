@@ -1,8 +1,16 @@
 package com.example.brickpaint;
 
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+import javafx.stage.Screen;
+
+import java.awt.*;
 
 /**
  * Handles common image functions for javaFX applications
@@ -65,4 +73,30 @@ public abstract class BrickImage {
                 BrickPaintController.clamp(point.getY() - y/2, 0, panel.canvas.getHeight()));
     }
 
+    public static final void render(WritableImage image, Canvas canvas, int sx, int sy, int sw, int sh, int tx, int ty) {
+        PixelReader reader = getScaledImage(canvas).getPixelReader();
+        for (int x = 0; x < sw; x++) {
+            for (int y = 0; y < sh; y++) {
+                Color color = image.getPixelReader().getColor(sx + x, sy + y);
+                if (color != reader.getColor(sx + x, sy + y)) {
+                    canvas.getGraphicsContext2D().getPixelWriter().setColor(tx + x, ty + y, color);
+                }
+            }
+        }
+    }
+
+
+    public static WritableImage getScaledImage(Canvas canvas){
+        Bounds bounds = canvas.getLayoutBounds();
+        double scale;
+        scale = 1;
+        int imageWidth = (int) Math.round(bounds.getWidth() * scale);
+        int imageHeight = (int) Math.round(bounds.getHeight() * scale);
+        SnapshotParameters snapPara = new SnapshotParameters();
+        snapPara.setFill(Color.TRANSPARENT);
+        snapPara.setTransform(javafx.scene.transform.Transform.scale(scale, scale));
+        WritableImage snapshot = new WritableImage(imageWidth, imageHeight);
+        snapshot = canvas.snapshot(snapPara, snapshot);
+        return snapshot;
+    }
 }

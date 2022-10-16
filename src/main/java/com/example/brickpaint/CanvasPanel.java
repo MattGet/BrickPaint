@@ -421,19 +421,7 @@ public class CanvasPanel {
     }
 
 
-    public WritableImage getScaledImage(){
-        Bounds bounds = canvas.getLayoutBounds();
-        double scale = Toolkit.getDefaultToolkit().getScreenResolution() / Screen.getPrimary().getDpi();
-        scale = 1;
-        int imageWidth = (int) Math.round(bounds.getWidth() * scale);
-        int imageHeight = (int) Math.round(bounds.getHeight() * scale);
-        SnapshotParameters snapPara = new SnapshotParameters();
-        snapPara.setFill(Color.TRANSPARENT);
-        snapPara.setTransform(javafx.scene.transform.Transform.scale(scale, scale));
-        WritableImage snapshot = new WritableImage(imageWidth, imageHeight);
-        snapshot = canvas.snapshot(snapPara, snapshot);
-        return snapshot;
-    }
+
 
 
    private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -445,7 +433,7 @@ public class CanvasPanel {
         System.out.println("starting flood fill");
         double sensitivity = controller.buttonManager.fillSensitivity.getValue();
         Color setColor = controller.buttonManager.colorPicker.getValue();
-        WritableImage canvasSnapshot = getScaledImage();
+        WritableImage canvasSnapshot = BrickImage.getScaledImage(this.canvas);
         Color startingColor = canvasSnapshot.getPixelReader().getColor((int) Math.floor(x), (int) Math.floor(y));
         FloodFill fill = new FloodFill(canvasSnapshot, (int) Math.floor(x),
                 (int) Math.floor(y), startingColor, setColor, sensitivity);
@@ -455,7 +443,7 @@ public class CanvasPanel {
          WritableImage img = result.get(3, TimeUnit.SECONDS);
          if (img != null) {
              System.out.println("Finished Flood Fill Successfully!");
-             render(img, 0, 0, (int) img.getWidth(), (int) img.getHeight(), 0, 0);
+             BrickImage.render(img, this.canvas, 0, 0, (int) img.getWidth(), (int) img.getHeight(), 0, 0);
              System.gc();
          }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -463,17 +451,7 @@ public class CanvasPanel {
         }
     }
 
-    public final void render( WritableImage image, int sx, int sy, int sw, int sh, int tx, int ty) {
-        PixelReader reader = getScaledImage().getPixelReader();
-        for (int x = 0; x < sw; x++) {
-            for (int y = 0; y < sh; y++) {
-                Color color = image.getPixelReader().getColor(sx + x, sy + y);
-                if (color != reader.getColor(sx + x, sy + y)) {
-                    gc.getPixelWriter().setColor(tx + x, ty + y, color);
-                }
-            }
-        }
-    }
+
 
 
     /**
@@ -608,12 +586,13 @@ public class CanvasPanel {
 
                 Point2D point = ArtMath.getTopLeft(select1, select2, select3, select4);
                 BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null), point);
+                selection = null;
             }
+            else mirror(horizontal);
         }
     }
 
     public void mirror(boolean horizontal) {
-        if (controller.getToolType() != BrickTools.SelectionTool) {
             if (canvas != null) {
                 undoManager.LogU(this);
                 Image screenshot = canvas.snapshot(parameters, null);
@@ -638,7 +617,6 @@ public class CanvasPanel {
                 gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null));
             }
-        }
     }
 
     /**
@@ -678,12 +656,13 @@ public class CanvasPanel {
 
                 Point2D point = ArtMath.getTopLeft(select1, select2, select3, select4);
                 BrickImage.PasteRotate(this, SwingFXUtils.toFXImage(image, null), new Point2D(point.getX() + w / 2, point.getY() + h / 2));
+                selection = null;
             }
+            else rotate(right);
         }
     }
 
     public void rotate(boolean right) {
-        if (controller.getToolType() != BrickTools.SelectionTool) {
             if (canvas != null) {
                 undoManager.LogU(this);
                 Image screenshot = canvas.snapshot(parameters, null);
@@ -701,7 +680,6 @@ public class CanvasPanel {
                 gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 BrickImage.PasteRotate(this, SwingFXUtils.toFXImage(image, null), new Point2D(canvas.getWidth() / 2, canvas.getHeight() / 2));
             }
-        }
     }
 
     /**

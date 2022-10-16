@@ -262,14 +262,17 @@ public class BrickPaintController {
                     event.consume();
                 if (res.get().equals(ButtonType.YES)) {
                     Platform.exit();
+                    System.exit(0);
                 }
                 if (res.get().equals(save)) {
                     saveAll();
                     Platform.exit();
+                    System.exit(0);
                 }
             }
         } else {
             Platform.exit();
+            System.exit(0);
         }
     }
 
