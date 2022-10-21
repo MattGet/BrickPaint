@@ -249,7 +249,7 @@ public class CanvasPanel {
         sketchCanvas.setWidth(x);
         pane.setPrefWidth(x);
         root.setPrefWidth(x);
-        controller.logger.info("[{}] Changed Canvas Width To {}", this.Name, x);
+        BrickPaintController.logger.info("[{}] Changed Canvas Width To {}", this.Name, x);
     }
 
     /**
@@ -262,7 +262,7 @@ public class CanvasPanel {
         sketchCanvas.setHeight(y);
         root.setPrefHeight(y);
         pane.setPrefHeight(y);
-        controller.logger.info("[{}] Changed Canvas Hieght To {}", this.Name, y);
+        BrickPaintController.logger.info("[{}] Changed Canvas Hieght To {}", this.Name, y);
     }
 
     /**
@@ -353,7 +353,7 @@ public class CanvasPanel {
      */
     private void genericLog(){
         if (insideCanvas){
-            controller.logger.info("[{}] Using {} Tool", this.Name, controller.getToolType().toString());
+            BrickPaintController.logger.info("[{}] Using {} Tool", this.Name, controller.getToolType().toString());
         }
     }
 
@@ -466,7 +466,7 @@ public class CanvasPanel {
              System.gc();
          }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            controller.logger.error("[{}] Flood Fill Operation Encountered a Fatal Error!", this.Name);
+            BrickPaintController.logger.error("[{}] Flood Fill Operation Encountered a Fatal Error!", this.Name);
             throw new RuntimeException(e);
         }
     }
@@ -484,7 +484,7 @@ public class CanvasPanel {
             ClipboardContent content = new ClipboardContent();
             content.putImage(selection);
             clipboard.setContent(content);
-            controller.logger.info("[{}] Copied Selected Image", this.Name);
+            BrickPaintController.logger.info("[{}] Copied Selected Image", this.Name);
             Notifications.create()
                     .title("Copy Image")
                     .text("Successfully Copied!")
@@ -522,7 +522,7 @@ public class CanvasPanel {
             ClipboardContent content = new ClipboardContent();
             content.putImage(selection);
             clipboard.setContent(content);
-            controller.logger.info("[{}] Cut Selected Image", this.Name);
+            BrickPaintController.logger.info("[{}] Cut Selected Image", this.Name);
             Notifications.create()
                     .title("Cut Image")
                     .text("Successfully Copied!")
@@ -544,7 +544,7 @@ public class CanvasPanel {
                 Point2D point = new Point2D(currTouch.getX() - (selection.getWidth() / 2), currTouch.getY() - (selection.getHeight() / 2));
                 if (insideCanvas) BrickImage.Paste(this, selection, point);
                 else BrickImage.Paste(this, selection);
-                controller.logger.info("[{}] Pasted Selected Image", this.Name);
+                BrickPaintController.logger.info("[{}] Pasted Selected Image", this.Name);
             }
         }
     }
@@ -560,7 +560,7 @@ public class CanvasPanel {
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 BrickImage.Insert(this, selection);
                 selection = null;
-                controller.logger.info("[{}] Cropped Selected Image", this.Name);
+                BrickPaintController.logger.info("[{}] Cropped Selected Image", this.Name);
             }
         }
     }
@@ -582,13 +582,13 @@ public class CanvasPanel {
 
                     tx.translate(-image.getWidth(null), 0);
 
-                    controller.logger.info("[{}] Mirrored Selected Image Horizontally", this.Name);
+                    BrickPaintController.logger.info("[{}] Mirrored Selected Image Horizontally", this.Name);
                 } else {
                     tx = AffineTransform.getScaleInstance(1, -1);
 
                     tx.translate(0, -image.getHeight(null));
 
-                    controller.logger.info("[{}] Mirrored Selected Image Vertically", this.Name);
+                    BrickPaintController.logger.info("[{}] Mirrored Selected Image Vertically", this.Name);
                 }
 
 
@@ -638,13 +638,13 @@ public class CanvasPanel {
 
                     tx.translate(-image.getWidth(null), 0);
 
-                    controller.logger.info("[{}] Mirrored Canvas Horizontally", this.Name);
+                    BrickPaintController.logger.info("[{}] Mirrored Canvas Horizontally", this.Name);
                 } else {
                     tx = AffineTransform.getScaleInstance(1, -1);
 
                     tx.translate(0, -image.getHeight(null));
 
-                    controller.logger.info("[{}] Mirrored Canvas Vertically", this.Name);
+                    BrickPaintController.logger.info("[{}] Mirrored Canvas Vertically", this.Name);
                 }
 
 
@@ -672,11 +672,11 @@ public class CanvasPanel {
                 if (right) {
                     op = new AffineTransformOp(rotateClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
 
-                    controller.logger.info("[{}] Rotated Selection 90 Degrees Clockwise", this.Name);
+                    BrickPaintController.logger.info("[{}] Rotated Selection 90 Degrees Clockwise", this.Name);
                 } else {
                     op = new AffineTransformOp(rotateCounterClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
 
-                    controller.logger.info("[{}] Rotated Selection 90 Degrees Counter Clockwise", this.Name);
+                    BrickPaintController.logger.info("[{}] Rotated Selection 90 Degrees Counter Clockwise", this.Name);
                 }
 
                 image = op.filter(image, null);
@@ -721,11 +721,11 @@ public class CanvasPanel {
                 if (right) {
                     op = new AffineTransformOp(rotateClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
 
-                    controller.logger.info("[{}] Rotated Canvas 90 Degrees Clockwise", this.Name);
+                    BrickPaintController.logger.info("[{}] Rotated Canvas 90 Degrees Clockwise", this.Name);
                 } else {
                     op = new AffineTransformOp(rotateCounterClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
 
-                    controller.logger.info("[{}] Rotated Canvas 90 Degrees Counter Clockwise", this.Name);
+                    BrickPaintController.logger.info("[{}] Rotated Canvas 90 Degrees Counter Clockwise", this.Name);
                 }
 
                 image = op.filter(image, null);
@@ -917,7 +917,7 @@ public class CanvasPanel {
                     try {
                         sides = BrickPaintController.clamp(Integer.parseInt(controller.buttonManager.polySides.getEditor().getText()), 3, 1000);
                     } catch (Exception e) {
-                        controller.logger.error("[{}] PolySides Input was invalid!", this.Name);
+                        BrickPaintController.logger.error("[{}] PolySides Input was invalid!", this.Name);
                         e.printStackTrace();
                     }
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());

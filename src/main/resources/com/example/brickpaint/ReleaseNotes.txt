@@ -1,5 +1,21 @@
 BrickPaint, A JavaFX Drawing App Created By Matthew Dembny
 
+BrickPaint Version 2022.10.2 -  10/21/2022
+
+New features:
+  * Added Threaded Flood Fill Tool
+  * Massively Improved zooming in, it will now zoom in relative to the mouse position
+  * Implemented Logging through log4j2, logs all user actions to a file and the console
+Known issues:
+  * Adding large images to the canvas may crash the JVM as it runs out of memory (VRam)
+  * Drawing Writable or Buffered Images to the canvas will cause the image to be blurry due to a bug involving HighDPI
+Expected next sprint:
+  * Clean up the codebase and dependencies some more
+  * Possibly Dark Mode
+Links:
+  * Java Doc Website: https://mattget.github.io/PaintJavaDocs/com.example.brickpaint/module-summary.html
+  * Github Repo: https://github.com/MattGet/BrickPaint
+
 BrickPaint Version 2022.10.1 -  10/07/2022
 
 New features:
