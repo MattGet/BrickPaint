@@ -1,7 +1,5 @@
 package com.example.brickpaint;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -9,7 +7,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
-import javafx.util.Duration;
 
 /**
  * Handles methods that manipulate the position and size of nodes within javafx
@@ -38,24 +35,6 @@ public class AnimatedZoomOperator {
     public AnimatedZoomOperator(BrickKeys keys) {
         Keys = keys;
         this.timeline = new Timeline(60);
-    }
-
-    /**
-     * Used to restrict a double value to a certain range of values
-     *
-     * @param val The value to evaluate
-     * @param min The minimum value this function can return
-     * @param max The maximum value this function can return
-     * @return Value between Min and Max limits
-     */
-    public static double clamp(double val, double min, double max) {
-        if (val < min) {
-            return min;
-        }
-        if (val > max) {
-            return max;
-        }
-        return val;
     }
 
     /**

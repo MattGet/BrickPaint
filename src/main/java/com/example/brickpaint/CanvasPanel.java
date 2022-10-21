@@ -1,9 +1,7 @@
 package com.example.brickpaint;
 
 import javafx.beans.Observable;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
@@ -18,7 +16,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
@@ -26,16 +23,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
-import javafx.stage.Screen;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 
-import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -64,7 +58,7 @@ public class CanvasPanel {
     private final Double cWidth = 1024d;
     private final Double cHeight = 1024d;
     private final List<Point2D> polyLine = new ArrayList<>();
-    private final boolean validDragSelection = false;
+    //private final boolean validDragSelection = false;
     /**
      * The root Node that all the canvas components are created under
      */
@@ -255,6 +249,7 @@ public class CanvasPanel {
         sketchCanvas.setWidth(x);
         pane.setPrefWidth(x);
         root.setPrefWidth(x);
+        controller.logger.info("[{}] Changed Canvas Width To {}", this.Name, x);
     }
 
     /**
@@ -267,6 +262,7 @@ public class CanvasPanel {
         sketchCanvas.setHeight(y);
         root.setPrefHeight(y);
         pane.setPrefHeight(y);
+        controller.logger.info("[{}] Changed Canvas Hieght To {}", this.Name, y);
     }
 
     /**
@@ -283,6 +279,7 @@ public class CanvasPanel {
                     gc.beginPath();
                     gc.moveTo(event.getX(), event.getY());
                     gc.stroke();
+                    genericLog();
                 }
                 case ColorGrabber -> {
                     SnapshotParameters parameters = new SnapshotParameters();
@@ -292,6 +289,7 @@ public class CanvasPanel {
                     controller.buttonManager.colorPicker.setValue(reader.getColor((int) event.getX(), (int) event.getY()));
                     root.getScene().setCursor(Cursor.DEFAULT);
                     controller.buttonManager.resetToggles();
+                    genericLog();
                 }
                 case CustomShape -> {
                     initDraw(canvas.getGraphicsContext2D());
@@ -312,7 +310,8 @@ public class CanvasPanel {
                                 }
                                 if (useFill) gc.fillPolygon(xPoints, yPoints, polyLine.size());
                                 polyLine.clear();
-                                System.out.println("Matched point");
+                                //System.out.println("Matched point");
+                                genericLog();
                                 return;
                             } else drawingPolyLine = true;
                         }
@@ -326,6 +325,7 @@ public class CanvasPanel {
                 }
                 case Line, Rectangle, RoundRectangle, Square, Circle, Oval, Polygon -> {
                     undoManager.LogU(this);
+                    genericLog();
                 }
             }
             if (controller.getToolType() != BrickTools.Pointer) {
@@ -345,6 +345,15 @@ public class CanvasPanel {
                     drawingPolyLine = false;
                 }
             }
+        }
+    }
+
+    /**
+     * Handles Logging a generic action preformed on the canvas
+     */
+    private void genericLog(){
+        if (insideCanvas){
+            controller.logger.info("[{}] Using {} Tool", this.Name, controller.getToolType().toString());
         }
     }
 
@@ -401,7 +410,7 @@ public class CanvasPanel {
                         select2 = initialTouch.getY();
                         select3 = event.getX();
                         select4 = event.getY();
-                        System.out.println("s3 = " + event.getX() + " s4 = " + event.getY());
+                        //System.out.println("s3 = " + event.getX() + " s4 = " + event.getY());
                     }
 
                     //if(validDragSelection) validDragSelection = false;
@@ -415,6 +424,11 @@ public class CanvasPanel {
         }
     }
 
+    /**
+     * Converts the colorpicker color to awt color format
+     *
+     * @return java.awt.Color
+     */
     private java.awt.Color getColor() {
         Color c = controller.buttonManager.colorPicker.getValue();
         return new java.awt.Color((int) c.getRed(), (int) c.getGreen(), (int) c.getBlue());
@@ -427,10 +441,15 @@ public class CanvasPanel {
    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 
+    /**
+     * Preforms a flood/bucket fill operation on the canvas at the specified point
+     *
+     * @param x The x position of the point to start the flood fill
+     * @param y The y position of the point to start the flood fill
+     */
     public void FloodFill(double x, double y) {
         gc.setEffect(null);
         undoManager.LogU(this);
-        System.out.println("starting flood fill");
         double sensitivity = controller.buttonManager.fillSensitivity.getValue();
         Color setColor = controller.buttonManager.colorPicker.getValue();
         WritableImage canvasSnapshot = BrickImage.getScaledImage(this.canvas);
@@ -442,11 +461,12 @@ public class CanvasPanel {
         try {
          WritableImage img = result.get(3, TimeUnit.SECONDS);
          if (img != null) {
-             System.out.println("Finished Flood Fill Successfully!");
+             genericLog();
              BrickImage.render(img, this.canvas, 0, 0, (int) img.getWidth(), (int) img.getHeight(), 0, 0);
              System.gc();
          }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            controller.logger.error("[{}] Flood Fill Operation Encountered a Fatal Error!", this.Name);
             throw new RuntimeException(e);
         }
     }
@@ -464,6 +484,7 @@ public class CanvasPanel {
             ClipboardContent content = new ClipboardContent();
             content.putImage(selection);
             clipboard.setContent(content);
+            controller.logger.info("[{}] Copied Selected Image", this.Name);
             Notifications.create()
                     .title("Copy Image")
                     .text("Successfully Copied!")
@@ -501,6 +522,7 @@ public class CanvasPanel {
             ClipboardContent content = new ClipboardContent();
             content.putImage(selection);
             clipboard.setContent(content);
+            controller.logger.info("[{}] Cut Selected Image", this.Name);
             Notifications.create()
                     .title("Cut Image")
                     .text("Successfully Copied!")
@@ -522,6 +544,7 @@ public class CanvasPanel {
                 Point2D point = new Point2D(currTouch.getX() - (selection.getWidth() / 2), currTouch.getY() - (selection.getHeight() / 2));
                 if (insideCanvas) BrickImage.Paste(this, selection, point);
                 else BrickImage.Paste(this, selection);
+                controller.logger.info("[{}] Pasted Selected Image", this.Name);
             }
         }
     }
@@ -537,13 +560,16 @@ public class CanvasPanel {
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 BrickImage.Insert(this, selection);
                 selection = null;
+                controller.logger.info("[{}] Cropped Selected Image", this.Name);
             }
         }
     }
 
 
     /**
-     * Takes the current selection and flips it horizontally or vertically as if it were rotated along the y/x axis in 3D space
+     * Will mirror the selection vertically or horizontally based on the boolean input
+     *
+     * @param horizontal Mirrors horizontally if true else will mirror vertically
      */
     public void selectionMirror(boolean horizontal) {
         if (controller.getToolType() == BrickTools.SelectionTool) {
@@ -555,10 +581,14 @@ public class CanvasPanel {
                     tx = AffineTransform.getScaleInstance(-1, 1);
 
                     tx.translate(-image.getWidth(null), 0);
+
+                    controller.logger.info("[{}] Mirrored Selected Image Horizontally", this.Name);
                 } else {
                     tx = AffineTransform.getScaleInstance(1, -1);
 
                     tx.translate(0, -image.getHeight(null));
+
+                    controller.logger.info("[{}] Mirrored Selected Image Vertically", this.Name);
                 }
 
 
@@ -592,6 +622,11 @@ public class CanvasPanel {
         }
     }
 
+    /**
+     * Will mirror the entire canvas vertically or horizontally based on the boolean input
+     *
+     * @param horizontal Mirrors horizontally if true else will mirror vertically
+     */
     public void mirror(boolean horizontal) {
             if (canvas != null) {
                 undoManager.LogU(this);
@@ -602,10 +637,14 @@ public class CanvasPanel {
                     tx = AffineTransform.getScaleInstance(-1, 1);
 
                     tx.translate(-image.getWidth(null), 0);
+
+                    controller.logger.info("[{}] Mirrored Canvas Horizontally", this.Name);
                 } else {
                     tx = AffineTransform.getScaleInstance(1, -1);
 
                     tx.translate(0, -image.getHeight(null));
+
+                    controller.logger.info("[{}] Mirrored Canvas Vertically", this.Name);
                 }
 
 
@@ -620,7 +659,9 @@ public class CanvasPanel {
     }
 
     /**
-     * Takes the current selection and rotates it 90 degrees to the right
+     * Will rotate the selection right or left 90 degrees based on the boolean input
+     *
+     * @param right Rotates right if true else rotates left
      */
     public void selectionRotate(boolean right) {
         if (controller.getToolType() == BrickTools.SelectionTool) {
@@ -630,8 +671,12 @@ public class CanvasPanel {
                 AffineTransformOp op;
                 if (right) {
                     op = new AffineTransformOp(rotateClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+
+                    controller.logger.info("[{}] Rotated Selection 90 Degrees Clockwise", this.Name);
                 } else {
                     op = new AffineTransformOp(rotateCounterClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+
+                    controller.logger.info("[{}] Rotated Selection 90 Degrees Counter Clockwise", this.Name);
                 }
 
                 image = op.filter(image, null);
@@ -662,6 +707,11 @@ public class CanvasPanel {
         }
     }
 
+    /**
+     * Will rotate the entire canvas right or left 90 degrees based on the boolean input
+     *
+     * @param right Rotates right if true else rotates left
+     */
     public void rotate(boolean right) {
             if (canvas != null) {
                 undoManager.LogU(this);
@@ -670,8 +720,12 @@ public class CanvasPanel {
                 AffineTransformOp op;
                 if (right) {
                     op = new AffineTransformOp(rotateClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+
+                    controller.logger.info("[{}] Rotated Canvas 90 Degrees Clockwise", this.Name);
                 } else {
                     op = new AffineTransformOp(rotateCounterClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+
+                    controller.logger.info("[{}] Rotated Canvas 90 Degrees Counter Clockwise", this.Name);
                 }
 
                 image = op.filter(image, null);
@@ -863,6 +917,7 @@ public class CanvasPanel {
                     try {
                         sides = BrickPaintController.clamp(Integer.parseInt(controller.buttonManager.polySides.getEditor().getText()), 3, 1000);
                     } catch (Exception e) {
+                        controller.logger.error("[{}] PolySides Input was invalid!", this.Name);
                         e.printStackTrace();
                     }
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
@@ -871,12 +926,6 @@ public class CanvasPanel {
                 case SelectionTool -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, false);
-                    //System.out.println("selection");
-                    if (validDragSelection) {
-                        //    Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
-                        //    sc.drawImage(selection, point.getX(), point.getY());
-                        //    System.out.println("dragging selection");
-                    }
                 }
                 default -> {
                 }

@@ -21,6 +21,7 @@ public abstract class ArtMath {
      * @param x2 mouse x cord
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
+     * @param fill boolean to determine if the shape should be filled in
      */
     public static void DrawRect(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double w = abs(x2 - x1);
@@ -37,6 +38,7 @@ public abstract class ArtMath {
      * @param x2 mouse x cord
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
+     * @param fill boolean to determine if the shape should be filled in
      */
     public static void DrawRoundedRect(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double w = abs(x2 - x1);
@@ -55,6 +57,7 @@ public abstract class ArtMath {
      * @param x2 mouse x cord
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
+     * @param fill boolean to determine if the shape should be filled in
      */
     public static void DrawSquare(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double w = abs(x2 - x1);
@@ -86,6 +89,7 @@ public abstract class ArtMath {
      * @param x2 mouse x cord
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
+     * @param fill boolean to determine if the shape should be filled in
      */
     public static void DrawCircle(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double dist = Point2D.distance(x1, y1, x2, y2);
@@ -102,6 +106,7 @@ public abstract class ArtMath {
      * @param x2 mouse x cord
      * @param y2 mouse y cord
      * @param gc the graphics content to draw the shape on
+     * @param fill boolean to determine if the shape should be filled in
      */
     public static void DrawOval(double x1, double y1, double x2, double y2, GraphicsContext gc, boolean fill) {
         double w = abs(x2 - x1);
@@ -132,6 +137,7 @@ public abstract class ArtMath {
      * @param y2 mouse y cord
      * @param sides number of sides polygon should have
      * @param gc the graphics content to draw the shape on
+     * @param fill boolean to determine if the shape should be filled in
      */
     public static void DrawPoly(double x1, double y1, double x2, double y2, int sides, GraphicsContext gc, boolean fill) {
         javafx.geometry.Point2D center = new javafx.geometry.Point2D((x1 + x2) / 2, (y1 + y2) / 2);

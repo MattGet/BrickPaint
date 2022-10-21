@@ -7,7 +7,9 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Objects;
 
 /**
@@ -30,7 +32,7 @@ public class BrickPaintApp extends Application {
      * start of javaFX program
      *
      * @param stage Primary stage of the application
-     * @throws IOException
+     * @throws IOException Application startup exception
      */
     @Override
     public void start(Stage stage) throws IOException {
@@ -47,6 +49,9 @@ public class BrickPaintApp extends Application {
         scene.getStylesheets().add(css);
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, controller::OnClose);
         stage.show();
+        URL mySource = BrickPaintApp.class.getProtectionDomain().getCodeSource().getLocation();
+        File rootFolder = new File(mySource.getPath());
+        System.setProperty("app.root", rootFolder.getAbsolutePath());
         controller.Start();
     }
 }

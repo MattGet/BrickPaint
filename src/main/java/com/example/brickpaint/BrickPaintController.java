@@ -12,13 +12,20 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 
 
 /**
@@ -70,10 +77,17 @@ public class BrickPaintController {
      */
     public ButtonManager buttonManager;
 
+    static{
+        System.setProperty("log4j.configurationFile", "src/main/resources/com/example/brickpaint/log4j2.xml");
+    }
+    //-Dlog4j.configurationFile="src/main/resources/com/example/brickpaint/log4j2.xml"
+    public static final Logger logger = LogManager.getLogger(BrickPaintController.class);
+
     /**
      * Called when the program starts from the application class
      */
     protected void Start() {
+        logger.info("[APP] Started Program Controller!");
         Scene scene = root.getScene();
         buttonManager = new ButtonManager(toolBar, this);
         toolBar.getStyleClass().add("ToolBorder");
@@ -86,8 +100,9 @@ public class BrickPaintController {
             if (!Files.exists(path)){
                 boolean test = new File(BrickSave.savePath).mkdirs();
             }
-        } catch (Exception e){
-            System.err.println(e);
+        } catch (Exception e) {
+            logger.error("[APP] Failed to make application directories!");
+            e.printStackTrace();
         }
     }
 
@@ -103,6 +118,7 @@ public class BrickPaintController {
         if (response.isPresent()) {
             String name = response.get();
             canvasPanels.add(new CanvasPanel(tabs, name, keyBinds, this));
+            logger.info("[APP] Created {} Tab!", getCanvas().Name);
         }
     }
 
@@ -164,6 +180,7 @@ public class BrickPaintController {
                 return;
             if (result.get().equals(ButtonType.YES)) {
                 this.getCanvas().clearAll();
+                logger.info("[{}] Cleared Canvas", this.getCanvas().Name);
             }
         }
     }
@@ -179,6 +196,7 @@ public class BrickPaintController {
         if (imageFile != null) {
             Image tempImage = new Image(imageFile.toURI().toString());
             BrickImage.Insert(this.getCanvas(), tempImage);
+            logger.info("[{}] Inserted Image File: {}", this.getCanvas().Name, imageFile.getName());
         }
     }
 
@@ -189,10 +207,12 @@ public class BrickPaintController {
     protected void handleSaveImage() {
         buttonManager.startAutoSave();
         if (ImageFile.get(tabs.getSelectionModel().getSelectedIndex()) == null) {
-            ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(), BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name));
+            ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(),
+                    BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name, logger));
             return;
         }
-        BrickSave.saveImageFromNode(this.getCanvas().root, ImageFile.get(tabs.getSelectionModel().getSelectedIndex()));
+        BrickSave.saveImageFromNode(this.getCanvas().root, ImageFile.get(tabs.getSelectionModel().getSelectedIndex()),
+                logger, this.getCanvas().Name);
     }
 
     /**
@@ -200,7 +220,8 @@ public class BrickPaintController {
      */
     @FXML
     protected void handleSaveImageAs() {
-        ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(), BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name));
+        ImageFile.putIfAbsent(tabs.getSelectionModel().getSelectedIndex(),
+                BrickSave.saveImageASFromNode(this.getCanvas().root, this.getCanvas().Name, logger));
         buttonManager.startAutoSave();
     }
 
@@ -209,11 +230,11 @@ public class BrickPaintController {
      */
     protected void saveAll(){
         for (int i = 0; i <= tabs.getTabs().size() - 1; i++) {
-            if (ImageFile.containsKey(i)) BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i));
+            if (ImageFile.containsKey(i)) BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i), logger, this.getCanvas().Name);
             else {
                 String fullName = BrickSave.savePath+ "\\" + canvasPanels.get(i).Name + ".png";
                 ImageFile.putIfAbsent(i, new File(fullName));
-                BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i));
+                BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i), logger, this.getCanvas().Name);
             }
         }
     }
@@ -233,7 +254,9 @@ public class BrickPaintController {
             stage.show();
             AboutBrickController cont = loader.getController();
             cont.Setup();
+            logger.info("[APP] Opened BickPaint About Menu");
         } catch (IOException e) {
+            logger.error("[APP] Filed to Open BrickPaint About Menu!");
             throw new RuntimeException(e);
         }
     }

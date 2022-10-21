@@ -8,24 +8,21 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.util.Duration;
-import org.controlsfx.control.Notifications;
 import org.controlsfx.control.ToggleSwitch;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
-
+import java.util.*;
 
 import static com.example.brickpaint.BrickPaintController.clamp;
 
@@ -85,7 +82,7 @@ public class ButtonManager {
      */
     public ComboBox<Integer> polySides = new ComboBox<>();
 
-    public Spinner<Double> fillSensitivity = new Spinner<Double>(0.0d, 0.9d, 0.25d, 0.05d);
+    public Spinner<Double> fillSensitivity = new Spinner<>(0.0d, 0.9d, 0.25d, 0.05d);
 
     public ColorPicker colorPicker = new ColorPicker(Color.BLACK);
     private final ToolBar Parent;
@@ -96,7 +93,7 @@ public class ButtonManager {
 
     private Timer timer;
 
-    private boolean isAutoSaving = false;
+    private final boolean isAutoSaving = false;
 
     /**
      * Default Constructor for the Button Manager, creates all the buttons with parameters and lays them out
@@ -263,7 +260,7 @@ public class ButtonManager {
         Separator s5 = new Separator(Orientation.VERTICAL);
 
         cWidth.getItems().addAll(256, 512, 720, 1024, 1080, 1280, 1440, 1920);
-        cHeight.getItems().addAll(2256, 512, 720, 1024, 1080, 1280, 1440, 1920);
+        cHeight.getItems().addAll(256, 512, 720, 1024, 1080, 1280, 1440, 1920);
         cWidth.setEditable(true);
         cHeight.setEditable(true);
         cWidth.setMaxWidth(100);
@@ -387,12 +384,14 @@ public class ButtonManager {
             if (timer == null) timer = new Timer();
             if (saveManager == null) saveManager = new AutoSaveManager(300, this);
             timer.scheduleAtFixedRate(saveManager, 0, 1000);
+            controller.logger.info("[APP] Started AutoSave Thread");
         } catch (Exception e){
             timer.cancel();
             timer.purge();
             timer = new Timer();
             saveManager = new AutoSaveManager(300, this);
             timer.scheduleAtFixedRate(saveManager, 0, 1000);
+            controller.logger.info("[APP] Restarted AutoSave Thread");
         }
     }
 
@@ -529,6 +528,7 @@ public class ButtonManager {
         Desktop desktop = Desktop.getDesktop();
         try {
             desktop.open(new File(BrickSave.savePath));
+            controller.logger.info("[APP] Opened Images Folder");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -578,6 +578,8 @@ public class ButtonManager {
 
     /**
      * Updates the current canvas's width when the user changes its value
+     *
+     * @param event Button Event
      */
     protected void handleCWidth(ActionEvent event) {
         try {
@@ -587,12 +589,14 @@ public class ButtonManager {
             controller.getCanvas().setSizeX(numb);
             //System.out.println("Set Width");
         } catch (Exception e) {
-            System.out.println("Canvas Width input was Invalid");
+            controller.logger.error("[APP] Canvas Width input was Invalid!");
         }
     }
 
     /**
      * Updates the current canvas's height when the user changes its value
+     *
+     * @param event Button Event
      */
     protected void handleCHeight(ActionEvent event) {
         try {
@@ -602,7 +606,7 @@ public class ButtonManager {
             controller.getCanvas().setSizeY(numb);
             //System.out.println("Set Height");
         } catch (Exception e) {
-            System.out.println("Canvas Height input was Invalid");
+            controller.logger.error("[APP] Canvas Height input was Invalid!");
         }
     }
 
@@ -696,6 +700,7 @@ public class ButtonManager {
                 for (ToggleButton toggle : toggles) {
                     if (toggle != this.toggleButton) toggle.setSelected(false);
                 }
+                controller.logger.info("[APP] Changed Selected Tool To {}", getSelectedToggle());
             }
         }
     }

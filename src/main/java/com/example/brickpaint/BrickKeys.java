@@ -63,10 +63,10 @@ public class BrickKeys {
                 controller.addTab();
             }
             if (key.getCode() == KeyCode.Z && key.isControlDown()) {
-                controller.getCanvas().undoManager.Undo(controller.getCanvas());
+                controller.getCanvas().undoManager.Undo(controller.getCanvas(), controller.logger);
             }
             if (key.getCode() == KeyCode.Y && key.isControlDown()) {
-                controller.getCanvas().undoManager.Redo(controller.getCanvas());
+                controller.getCanvas().undoManager.Redo(controller.getCanvas(),controller.logger);
             }
 
             if (key.getCode() == KeyCode.S && key.isControlDown() && key.isAltDown()) {

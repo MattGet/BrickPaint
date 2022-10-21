@@ -25,7 +25,7 @@ public class AboutBrickController {
      * Sets the text of the about window to the text supplied from the class's designated file
      */
     public void Setup() {
-        String str = "";
+        String str;
         InputStream in = Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("ReleaseNotes.txt"));
         try {
             str = IOUtils.toString(in, StandardCharsets.UTF_8);

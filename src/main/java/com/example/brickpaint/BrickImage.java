@@ -8,9 +8,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.stage.Screen;
-
-import java.awt.*;
 
 /**
  * Handles common image functions for javaFX applications
@@ -73,7 +70,19 @@ public abstract class BrickImage {
                 BrickPaintController.clamp(point.getY() - y/2, 0, panel.canvas.getHeight()));
     }
 
-    public static final void render(WritableImage image, Canvas canvas, int sx, int sy, int sw, int sh, int tx, int ty) {
+    /**
+     * Will render a writable image to the provided canvas
+     *
+     * @param image Image to render
+     * @param canvas Canvas to render the image to
+     * @param sx Top left source image x position
+     * @param sy Top left source image y position
+     * @param sw Source image width
+     * @param sh Source image height
+     * @param tx The x position to draw the image at
+     * @param ty The y position to draw the image at
+     */
+    public static void render(WritableImage image, Canvas canvas, int sx, int sy, int sw, int sh, int tx, int ty) {
         PixelReader reader = getScaledImage(canvas).getPixelReader();
         for (int x = 0; x < sw; x++) {
             for (int y = 0; y < sh; y++) {
@@ -86,6 +95,12 @@ public abstract class BrickImage {
     }
 
 
+    /**
+     * Gets a writable image of the provided canvas's content
+     *
+     * @param canvas The canvas to create an image from
+     * @return WritableImage of the provided canvas
+     */
     public static WritableImage getScaledImage(Canvas canvas){
         Bounds bounds = canvas.getLayoutBounds();
         double scale;

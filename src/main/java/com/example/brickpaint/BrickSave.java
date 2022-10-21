@@ -9,10 +9,10 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.Notifications;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageTypeSpecifier;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -33,12 +33,14 @@ public abstract class BrickSave {
      *
      * @param node The Node from which to take a screenshot of
      * @param file The File to save the image to
+     * @param Name The name of the node/file being saved
+     * @param logger The logger to log the save operation to
      */
-    public static void saveImageFromNode(Node node, File file) {
+    public static void saveImageFromNode(Node node, File file, Logger logger, String Name) {
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
         String type = file.toString().substring(file.toString().lastIndexOf(".") +1);
-        System.out.println("file type = " + type);
+        //System.out.println("file type = " + type);
         try {
             WritableImage imageToSave = node.snapshot(parameters, null);
             BufferedImage bImage = SwingFXUtils.fromFXImage(imageToSave, null);
@@ -51,7 +53,7 @@ public abstract class BrickSave {
 
             if (bImage != null) {
                 ImageIO.write(bImage, type, file);
-
+                logger.info("[APP] Saved {} as file: {}", Name, file.toString());
                 if (node.getScene().getWindow().focusedProperty().get()){
                     Notifications.create()
                             .title("Saved Image")
@@ -70,6 +72,7 @@ public abstract class BrickSave {
 
             }
         } catch (IOException e) {
+            logger.error("[APP] Encountered IOException when trying to save {} as a file", Name);
             e.printStackTrace();
         }
     }
@@ -80,9 +83,10 @@ public abstract class BrickSave {
      *
      * @param node The node from which to take a screenshot of
      * @param Name Optional path string from which to initially name the new file with
+     * @param logger The logger to log the save operation to
      * @return returns file that image was saved to, else returns null
      */
-    public static File saveImageASFromNode(Node node, String Name) {
+    public static File saveImageASFromNode(Node node, String Name, Logger logger) {
         if (Name == null) {
             Name = "";
         }
@@ -99,7 +103,7 @@ public abstract class BrickSave {
         try {
             File file = fileChooser.showSaveDialog(node.getScene().getWindow());
             String type = file.toString().substring(file.toString().lastIndexOf(".") +1);
-            System.out.println("File Type To Save = " + type);
+            //System.out.println("File Type To Save = " + type);
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);
             WritableImage imageToSave = node.snapshot(parameters, null);
@@ -170,6 +174,7 @@ public abstract class BrickSave {
                 if (ImageIO.write(bImage, type, file)){
                     Desktop desktop = Desktop.getDesktop();
                     desktop.open(file);
+                    logger.info("[APP] Saved {} as file: {}", Name, file.toString());
                     Notifications.create()
                             .title("Saved Image")
                             .text(file.getName() + " successfully saved!")
@@ -186,13 +191,15 @@ public abstract class BrickSave {
                     return file;
                 }
                 else {
-                    System.out.println("No File Type Found!!");
+                   logger.error("[APP] No File Type Found!!");
                 }
             }
             return null;
         }
         //else return null as no file was saved
         catch (IOException e) {
+            logger.error("[APP] Encountered IOException when trying to save {} as a file", Name);
+            e.printStackTrace();
             return null;
         }
     }
@@ -233,7 +240,7 @@ public abstract class BrickSave {
                             java.awt.Color.WHITE,
                             null);
 
-            System.out.println("Changed File type to jpeg");
+            //System.out.println("Changed File type to jpeg");
             //System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
             //System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
             return newBufferedImage;
@@ -263,7 +270,7 @@ public abstract class BrickSave {
                             java.awt.Color.WHITE,
                             null);
 
-            System.out.println("Changed File type to bmp");
+            //System.out.println("Changed File type to bmp");
             //System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
             //System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
             return newBufferedImage;

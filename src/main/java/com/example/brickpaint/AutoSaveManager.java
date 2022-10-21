@@ -33,7 +33,7 @@ public class AutoSaveManager extends TimerTask {
     @Override
     public void run() {
         Platform.runLater(() ->{
-            String result = "";
+            String result;
             int S = time % 60;
             int H = time / 60;
             int M = H % 60;

@@ -3,8 +3,8 @@ package com.example.brickpaint;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Stack;
 
@@ -19,12 +19,12 @@ public class UndoManager {
     /**
      * The stack of logged actions available to undo
      */
-    private final Stack<Image> history = new Stack<Image>();
+    private final Stack<Image> history = new Stack<>();
 
     /**
      * The stack of actions that were undone
      */
-    private final Stack<Image> trash = new Stack<Image>();
+    private final Stack<Image> trash = new Stack<>();
 
     /**
      * A position in the history stack to track in order to later go back to
@@ -42,11 +42,12 @@ public class UndoManager {
      * Will reset the provided canvas to the point in history denoted by the mark value
      *
      * @param panel The canvas to preform this action on
+     * @param logger The logger to log the undo op to
      */
-    public void mergeToMark(CanvasPanel panel) {
+    public void mergeToMark(CanvasPanel panel, Logger logger) {
         int curr = history.size() - Mark;
         for (int i = 0; i < curr - 1; i++) {
-            Undo(panel);
+            Undo(panel, logger);
         }
     }
 
@@ -60,9 +61,9 @@ public class UndoManager {
         history.push(image);
         if (history.size() >= 20) {
             history.remove(0);
-            System.out.println("removed item");
+            //System.out.println("removed item");
         }
-        System.out.println("Called LogU");
+        //System.out.println("Called LogU");
         trash.clear();
     }
 
@@ -76,17 +77,18 @@ public class UndoManager {
         trash.push(image);
         if (trash.size() >= 20) {
             trash.remove(0);
-            System.out.println("removed item");
+            //System.out.println("removed item");
         }
-        System.out.println("Called LogR");
+        //System.out.println("Called LogR");
     }
 
     /**
      * Resets the provided canvas to the last logged state
      *
      * @param panel The canvas to write the logged history to
+     * @param logger The logger to log the undo op to
      */
-    public void Undo(CanvasPanel panel) {
+    public void Undo(CanvasPanel panel, Logger logger) {
         if (!this.history.empty()){
             LogR(panel);
             panel.canvas.getGraphicsContext2D().setEffect(null);
@@ -109,7 +111,8 @@ public class UndoManager {
             panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);
-            System.out.println("Called Undo");
+            logger.info("[{}}] Preformed Undo Op", panel.Name);
+            //System.out.println("Called Undo");
         }
         else{
             System.err.println("History stack was empty");
@@ -121,8 +124,9 @@ public class UndoManager {
      * Re-write the last undo action to the provided canvas
      *
      * @param panel The canvas to re-write the logged undo to
+     * @param logger The logger to log the redo op to
      */
-    public void Redo(CanvasPanel panel){
+    public void Redo(CanvasPanel panel, Logger logger){
         if (! trash.empty()){
             panel.canvas.getGraphicsContext2D().setEffect(null);
             panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
@@ -138,7 +142,8 @@ public class UndoManager {
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);
             history.push(content);
-            System.out.println("Called Redo");
+            logger.info("[{}}] Preformed Redo Op", panel.Name);
+            //System.out.println("Called Redo");
         }
         else {
             System.err.println("Trash stack was empty");
