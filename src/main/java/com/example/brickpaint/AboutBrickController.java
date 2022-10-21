@@ -4,7 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 

@@ -40,10 +40,10 @@ public class AnimatedZoomOperator {
     /**
      * handles animating/scaling a node within a 2d axis based on mouse input
      *
-     * @param node   The node to zoom in/out
+     * @param node       The node to zoom in/out
      * @param zoomFactor Scaling value that determines how much the node is scaled with each call
-     * @param x      X cord from which to zoom about (Optional)
-     * @param y      Y cord from which to zoom about (Optional)
+     * @param x          X cord from which to zoom about (Optional)
+     * @param y          Y cord from which to zoom about (Optional)
      */
     public void zoom(Group group, Node node, double zoomFactor, double x, double y, ScrollPane scrollPane) {
         if (!Keys.activeKeys.getActiveKeys().contains(KeyCode.CONTROL)) {

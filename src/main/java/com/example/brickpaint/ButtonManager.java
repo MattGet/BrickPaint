@@ -57,16 +57,16 @@ public class ButtonManager {
     private static final Image rLeft = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/left_rotate_icon.png")));
 
     private static final Image bucket = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/bucket.png")));
-
-
+    public final ToggleSwitch tAutoSave, tFillShapes;
     private final HashMap<ToggleButton, SelectionListener> toggleButtonToSelectionListener = new HashMap<>();
     private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse,
             tPolygon, tCustom, tGrabber, tSelect, tBucket;
-
-    public final ToggleSwitch tAutoSave, tFillShapes;
-
-    public Label aSaveTime = new Label("Auto Save In 1m 25s");
     private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH, tRright, tRleft, tOpenFolder;
+    private final ToolBar Parent;
+    private final BrickPaintController controller;
+    private final List<ToggleButton> toggles;
+    private final boolean isAutoSaving = false;
+    public Label aSaveTime = new Label("Auto Save In 1m 25s");
     public ComboBox<Integer> lineWidth = new ComboBox<>();
     public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
     /**
@@ -81,26 +81,17 @@ public class ButtonManager {
      * allows the user to enter or select a value for the number of sides the polygon tools should have
      */
     public ComboBox<Integer> polySides = new ComboBox<>();
-
     public Spinner<Double> fillSensitivity = new Spinner<>(0.0d, 0.9d, 0.25d, 0.05d);
-
     public ColorPicker colorPicker = new ColorPicker(Color.BLACK);
-    private final ToolBar Parent;
-    private final BrickPaintController controller;
-    private final List<ToggleButton> toggles;
-
     private TimerTask saveManager;
-
     private Timer timer;
-
-    private final boolean isAutoSaving = false;
 
     /**
      * Default Constructor for the Button Manager, creates all the buttons with parameters and lays them out
      * in a predefined manner
      *
      * @param parent The toolbar to create the buttons under
-     * @param cont The controller class in charge of the application
+     * @param cont   The controller class in charge of the application
      */
     public ButtonManager(ToolBar parent, BrickPaintController cont) {
         Parent = parent;
@@ -379,19 +370,19 @@ public class ButtonManager {
      * Will start the auto save thread if not already started, if it exists already it will cancel the thread's
      * scheduled execution and create a new one, essentially resetting the autosave timer.
      */
-    public void startAutoSave(){
+    public void startAutoSave() {
         try {
             if (timer == null) timer = new Timer();
             if (saveManager == null) saveManager = new AutoSaveManager(300, this);
             timer.scheduleAtFixedRate(saveManager, 0, 1000);
-            controller.logger.info("[APP] Started AutoSave Thread");
-        } catch (Exception e){
+            BrickPaintController.logger.info("[APP] Started AutoSave Thread");
+        } catch (Exception e) {
             timer.cancel();
             timer.purge();
             timer = new Timer();
             saveManager = new AutoSaveManager(300, this);
             timer.scheduleAtFixedRate(saveManager, 0, 1000);
-            controller.logger.info("[APP] Restarted AutoSave Thread");
+            BrickPaintController.logger.info("[APP] Restarted AutoSave Thread");
         }
     }
 
@@ -414,7 +405,7 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handlePaste(ActionEvent event){
+    public void handlePaste(ActionEvent event) {
         controller.getCanvas().selectionPaste();
     }
 
@@ -424,11 +415,10 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handleCut(ActionEvent event){
-        if (getSelectedToggle() == BrickTools.SelectionTool){
+    public void handleCut(ActionEvent event) {
+        if (getSelectedToggle() == BrickTools.SelectionTool) {
             controller.getCanvas().selectionCut();
-        }
-        else{
+        } else {
             tSelect.setSelected(true);
         }
     }
@@ -439,11 +429,10 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handleCopy(ActionEvent event){
-        if (getSelectedToggle() == BrickTools.SelectionTool){
+    public void handleCopy(ActionEvent event) {
+        if (getSelectedToggle() == BrickTools.SelectionTool) {
             controller.getCanvas().selectionCopy();
-        }
-        else{
+        } else {
             tSelect.setSelected(true);
         }
     }
@@ -454,11 +443,10 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handleCrop(ActionEvent event){
-        if (getSelectedToggle() == BrickTools.SelectionTool){
+    public void handleCrop(ActionEvent event) {
+        if (getSelectedToggle() == BrickTools.SelectionTool) {
             controller.getCanvas().selectionCrop();
-        }
-        else{
+        } else {
             tSelect.setSelected(true);
         }
     }
@@ -468,11 +456,10 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handleFlipV(ActionEvent event){
-        if (getSelectedToggle() == BrickTools.SelectionTool){
+    public void handleFlipV(ActionEvent event) {
+        if (getSelectedToggle() == BrickTools.SelectionTool) {
             controller.getCanvas().selectionMirror(false);
-        }
-        else{
+        } else {
             controller.getCanvas().mirror(false);
         }
     }
@@ -482,11 +469,10 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handleFlipH(ActionEvent event){
-        if (getSelectedToggle() == BrickTools.SelectionTool){
+    public void handleFlipH(ActionEvent event) {
+        if (getSelectedToggle() == BrickTools.SelectionTool) {
             controller.getCanvas().selectionMirror(true);
-        }
-        else{
+        } else {
             controller.getCanvas().mirror(true);
         }
     }
@@ -496,11 +482,10 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handleRotateR(ActionEvent event){
-        if (getSelectedToggle() == BrickTools.SelectionTool){
+    public void handleRotateR(ActionEvent event) {
+        if (getSelectedToggle() == BrickTools.SelectionTool) {
             controller.getCanvas().selectionRotate(true);
-        }
-        else{
+        } else {
             controller.getCanvas().rotate(true);
         }
     }
@@ -510,11 +495,10 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handleRotateL(ActionEvent event){
-        if (getSelectedToggle() == BrickTools.SelectionTool){
+    public void handleRotateL(ActionEvent event) {
+        if (getSelectedToggle() == BrickTools.SelectionTool) {
             controller.getCanvas().selectionRotate(false);
-        }
-        else{
+        } else {
             controller.getCanvas().rotate(false);
         }
     }
@@ -524,11 +508,11 @@ public class ButtonManager {
      *
      * @param event Button event
      */
-    public void handleOpenFolder(ActionEvent event){
+    public void handleOpenFolder(ActionEvent event) {
         Desktop desktop = Desktop.getDesktop();
         try {
             desktop.open(new File(BrickSave.savePath));
-            controller.logger.info("[APP] Opened Images Folder");
+            BrickPaintController.logger.info("[APP] Opened Images Folder");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -545,28 +529,28 @@ public class ButtonManager {
      * Changes the mouse cursor based on the selected tool
      */
     public void changeCursor() {
-        switch (getSelectedToggle()){
+        switch (getSelectedToggle()) {
             case Pointer -> {
                 Parent.getScene().setCursor(Cursor.DEFAULT);
             }
             case Pencil -> {
-                ImageCursor cursor = new ImageCursor(penc, 0, penc.getHeight());
+                ImageCursor cursor = new ImageCursor(penc, 0, penc.getHeight() / 1.5);
                 Parent.getScene().setCursor(cursor);
             }
             case RainbowPencil -> {
-                ImageCursor cursor = new ImageCursor(rain, 0, rain.getHeight());
+                ImageCursor cursor = new ImageCursor(rain, 0, rain.getHeight() / 1.5);
                 Parent.getScene().setCursor(cursor);
             }
             case Eraser -> {
-                ImageCursor cursor = new ImageCursor(eras, 0, eras.getHeight());
+                ImageCursor cursor = new ImageCursor(eras, 0, eras.getHeight() / 1.5);
                 Parent.getScene().setCursor(cursor);
             }
             case ColorGrabber -> {
-                ImageCursor cursor = new ImageCursor(grab, 0, grab.getHeight());
+                ImageCursor cursor = new ImageCursor(grab, 0, grab.getHeight() / 1.5);
                 Parent.getScene().setCursor(cursor);
             }
             case BucketFill -> {
-                ImageCursor cursor = new ImageCursor(bucket, bucket.getWidth(), bucket.getHeight());
+                ImageCursor cursor = new ImageCursor(bucket, bucket.getWidth() / 1.25, bucket.getHeight() / 1.25);
                 Parent.getScene().setCursor(cursor);
             }
             case SelectionTool, Line, Rectangle, RoundRectangle, Square, Circle, Oval, Polygon, CustomShape -> {
@@ -589,7 +573,7 @@ public class ButtonManager {
             controller.getCanvas().setSizeX(numb);
             //System.out.println("Set Width");
         } catch (Exception e) {
-            controller.logger.error("[APP] Canvas Width input was Invalid!");
+            BrickPaintController.logger.error("[APP] Canvas Width input was Invalid!");
         }
     }
 
@@ -606,7 +590,7 @@ public class ButtonManager {
             controller.getCanvas().setSizeY(numb);
             //System.out.println("Set Height");
         } catch (Exception e) {
-            controller.logger.error("[APP] Canvas Height input was Invalid!");
+            BrickPaintController.logger.error("[APP] Canvas Height input was Invalid!");
         }
     }
 
@@ -660,7 +644,7 @@ public class ButtonManager {
             case 14 -> {
                 return BrickTools.SelectionTool;
             }
-            case 15 ->{
+            case 15 -> {
                 return BrickTools.BucketFill;
             }
             default -> {
@@ -674,7 +658,7 @@ public class ButtonManager {
      *
      * @hidden
      */
-    public void AutoSave(){
+    public void AutoSave() {
         controller.saveAll();
     }
 
@@ -700,7 +684,7 @@ public class ButtonManager {
                 for (ToggleButton toggle : toggles) {
                     if (toggle != this.toggleButton) toggle.setSelected(false);
                 }
-                controller.logger.info("[APP] Changed Selected Tool To {}", getSelectedToggle());
+                BrickPaintController.logger.info("[APP] Changed Selected Tool To {}", getSelectedToggle());
             }
         }
     }

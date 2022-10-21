@@ -9,9 +9,9 @@ import java.util.TimerTask;
  */
 public class AutoSaveManager extends TimerTask {
 
-    public int time;
     final int interval;
     final ButtonManager controller;
+    public int time;
 
     /**
      * Default constructor for the AutoSaveManager class
@@ -19,7 +19,7 @@ public class AutoSaveManager extends TimerTask {
      * @param numb The time interval in seconds between saves
      * @param main The ButtonManager class that owns this thread
      */
-    public AutoSaveManager(int numb, ButtonManager main){
+    public AutoSaveManager(int numb, ButtonManager main) {
         interval = numb;
         controller = main;
         time = interval;
@@ -32,15 +32,14 @@ public class AutoSaveManager extends TimerTask {
      */
     @Override
     public void run() {
-        Platform.runLater(() ->{
+        Platform.runLater(() -> {
             String result;
             int S = time % 60;
             int H = time / 60;
             int M = H % 60;
-            if (M > 0){
+            if (M > 0) {
                 result = "Next AutoSave in " + M + " Min";
-            }
-            else {
+            } else {
                 result = "Next AutoSave in " + S + " Seconds";
             }
             controller.aSaveTime.setText(result);
@@ -48,7 +47,7 @@ public class AutoSaveManager extends TimerTask {
         });
         if (controller.tAutoSave.isSelected()) time--;
 
-        if (time == 0){
+        if (time == 0) {
             Platform.runLater(controller::AutoSave);
             Platform.runLater(() -> time = interval);
         }

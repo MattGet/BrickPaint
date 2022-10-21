@@ -30,16 +30,30 @@ import java.util.Optional;
  */
 public class BrickPaintController {
 
-    /**
-     * The current instance of the canvas where all drawing occurs within the paint app
-     */
-    public List<CanvasPanel> canvasPanels = new ArrayList<>();
+    //-Dlog4j.configurationFile="src/main/resources/com/example/brickpaint/log4j2.xml"
+    public static final Logger logger = LogManager.getLogger(BrickPaintController.class);
 
+    static {
+        System.setProperty("log4j.configurationFile", "src/main/resources/com/example/brickpaint/log4j2.xml");
+    }
 
     /**
      * A dictionary of the files used to save the canvasPanel, created after the first SaveAs is called
      */
     private final HashMap<Integer, File> ImageFile = new HashMap<>();
+    /**
+     * The current instance of the canvas where all drawing occurs within the paint app
+     */
+    public List<CanvasPanel> canvasPanels = new ArrayList<>();
+    /**
+     * The instance of ButtonManager which contains the tool GUI for this controller
+     */
+    public ButtonManager buttonManager;
+    /**
+     * The node that manages all the canvas panel tabs within the application
+     */
+    @FXML
+    protected TabPane tabs;
     /**
      * The uppermost Node within the current scene
      */
@@ -50,17 +64,10 @@ public class BrickPaintController {
      */
     private BrickKeys keyBinds;
     /**
-     * The node that manages all the canvas panel tabs within the application
-     */
-    @FXML
-    protected TabPane tabs;
-
-    /**
      * The toolbar in which all the tools GUI will be constructed under
      */
     @FXML
     private ToolBar toolBar;
-
     /**
      * The MenuBar in which all the menu GUI is constructed under
      */
@@ -68,15 +75,32 @@ public class BrickPaintController {
     private MenuBar menuBar;
 
     /**
-     * The instance of ButtonManager which contains the tool GUI for this controller
+     * Helper function which return a value restricted between min and max
+     *
+     * @param val The double to evaluate
+     * @param min The minimum value which to return
+     * @param max The maximum value which to return
+     * @return Double value between min and max
      */
-    public ButtonManager buttonManager;
-
-    static{
-        System.setProperty("log4j.configurationFile", "src/main/resources/com/example/brickpaint/log4j2.xml");
+    public static double clamp(double val, double min, double max) {
+        if (val > max) val = max;
+        else if (val < min) val = min;
+        return val;
     }
-    //-Dlog4j.configurationFile="src/main/resources/com/example/brickpaint/log4j2.xml"
-    public static final Logger logger = LogManager.getLogger(BrickPaintController.class);
+
+    /**
+     * Helper function which return a value restricted between min and max
+     *
+     * @param val The int to evaluate
+     * @param min The minimum value which to return
+     * @param max The maximum value which to return
+     * @return Integer value between min and max
+     */
+    public static int clamp(int val, int min, int max) {
+        if (val > max) val = max;
+        else if (val < min) val = min;
+        return val;
+    }
 
     /**
      * Called when the program starts from the application class
@@ -90,9 +114,9 @@ public class BrickPaintController {
         keyBinds = new BrickKeys(scene, this);
         keyBinds.SetKeyBinds();
         addTab();
-        try{
+        try {
             Path path = Path.of(BrickSave.savePath);
-            if (!Files.exists(path)){
+            if (!Files.exists(path)) {
                 boolean test = new File(BrickSave.savePath).mkdirs();
             }
         } catch (Exception e) {
@@ -129,7 +153,6 @@ public class BrickPaintController {
         return panel;
     }
 
-
     /**
      * Returns the current tool selection from the button manager as a BrickTools enum value
      *
@@ -138,7 +161,6 @@ public class BrickPaintController {
     public BrickTools getToolType() {
         return buttonManager.getSelectedToggle();
     }
-
 
     /**
      * Handles the action when a close button is pressed
@@ -223,17 +245,17 @@ public class BrickPaintController {
     /**
      * Will iterate through all open tabs and save them as a png using the name of the tab
      */
-    protected void saveAll(){
+    protected void saveAll() {
         for (int i = 0; i <= tabs.getTabs().size() - 1; i++) {
-            if (ImageFile.containsKey(i)) BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i), logger, this.getCanvas().Name);
+            if (ImageFile.containsKey(i))
+                BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i), logger, this.getCanvas().Name);
             else {
-                String fullName = BrickSave.savePath+ "\\" + canvasPanels.get(i).Name + ".png";
+                String fullName = BrickSave.savePath + "\\" + canvasPanels.get(i).Name + ".png";
                 ImageFile.putIfAbsent(i, new File(fullName));
                 BrickSave.saveImageFromNode(canvasPanels.get(i).root, ImageFile.get(i), logger, this.getCanvas().Name);
             }
         }
     }
-
 
     /**
      * Creates a new window based off of the About Brick FXML file and controller
@@ -292,33 +314,5 @@ public class BrickPaintController {
             Platform.exit();
             System.exit(0);
         }
-    }
-
-    /**
-     * Helper function which return a value restricted between min and max
-     *
-     * @param val The double to evaluate
-     * @param min The minimum value which to return
-     * @param max The maximum value which to return
-     * @return Double value between min and max
-     */
-   public static double clamp(double val, double min, double max){
-        if (val > max) val = max;
-        else if (val < min) val = min;
-        return val;
-    }
-
-    /**
-     * Helper function which return a value restricted between min and max
-     *
-     * @param val The int to evaluate
-     * @param min The minimum value which to return
-     * @param max The maximum value which to return
-     * @return Integer value between min and max
-     */
-    public static int clamp(int val, int min, int max){
-        if (val > max) val = max;
-        else if (val < min) val = min;
-        return val;
     }
 }

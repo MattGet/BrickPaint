@@ -32,6 +32,25 @@ public class UndoManager {
     private int Mark;
 
     /**
+     * Helper function to return an image of the unscaled canvas
+     *
+     * @param canvas the parent Node of the canvas
+     * @return Unscaled javaFX image of the canvas
+     */
+    public static Image getUnScaledImage(Canvas canvas) {
+        SnapshotParameters parameters = new SnapshotParameters();
+        parameters.setFill(Color.TRANSPARENT);
+        double y = canvas.getScaleY();
+        double x = canvas.getScaleX();
+        canvas.setScaleY(1);
+        canvas.setScaleX(1);
+        Image image = canvas.snapshot(parameters, null);
+        canvas.setScaleX(x);
+        canvas.setScaleY(y);
+        return image;
+    }
+
+    /**
      * Sets the value of Mark
      */
     public void setMark() {
@@ -41,7 +60,7 @@ public class UndoManager {
     /**
      * Will reset the provided canvas to the point in history denoted by the mark value
      *
-     * @param panel The canvas to preform this action on
+     * @param panel  The canvas to preform this action on
      * @param logger The logger to log the undo op to
      */
     public void mergeToMark(CanvasPanel panel, Logger logger) {
@@ -85,19 +104,18 @@ public class UndoManager {
     /**
      * Resets the provided canvas to the last logged state
      *
-     * @param panel The canvas to write the logged history to
+     * @param panel  The canvas to write the logged history to
      * @param logger The logger to log the undo op to
      */
     public void Undo(CanvasPanel panel, Logger logger) {
-        if (!this.history.empty()){
+        if (!this.history.empty()) {
             LogR(panel);
             panel.canvas.getGraphicsContext2D().setEffect(null);
             panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
             Image content;
-            if (history.size() == 1){
+            if (history.size() == 1) {
                 content = history.peek();
-            }
-            else{
+            } else {
                 content = history.pop();
             }
 
@@ -113,8 +131,7 @@ public class UndoManager {
             panel.root.setScaleY(y);
             logger.info("[{}}] Preformed Undo Op", panel.Name);
             //System.out.println("Called Undo");
-        }
-        else{
+        } else {
             System.err.println("History stack was empty");
         }
 
@@ -123,11 +140,11 @@ public class UndoManager {
     /**
      * Re-write the last undo action to the provided canvas
      *
-     * @param panel The canvas to re-write the logged undo to
+     * @param panel  The canvas to re-write the logged undo to
      * @param logger The logger to log the redo op to
      */
-    public void Redo(CanvasPanel panel, Logger logger){
-        if (! trash.empty()){
+    public void Redo(CanvasPanel panel, Logger logger) {
+        if (!trash.empty()) {
             panel.canvas.getGraphicsContext2D().setEffect(null);
             panel.canvas.getGraphicsContext2D().clearRect(0, 0, panel.canvas.getWidth(), panel.canvas.getHeight());
             Image content = trash.pop();
@@ -144,29 +161,9 @@ public class UndoManager {
             history.push(content);
             logger.info("[{}}] Preformed Redo Op", panel.Name);
             //System.out.println("Called Redo");
-        }
-        else {
+        } else {
             System.err.println("Trash stack was empty");
         }
-    }
-
-    /**
-     * Helper function to return an image of the unscaled canvas
-     *
-     * @param canvas the parent Node of the canvas
-     * @return Unscaled javaFX image of the canvas
-     */
-    public static Image getUnScaledImage(Canvas canvas) {
-        SnapshotParameters parameters = new SnapshotParameters();
-        parameters.setFill(Color.TRANSPARENT);
-        double y = canvas.getScaleY();
-        double x = canvas.getScaleX();
-        canvas.setScaleY(1);
-        canvas.setScaleX(1);
-        Image image = canvas.snapshot(parameters, null);
-        canvas.setScaleX(x);
-        canvas.setScaleY(y);
-        return image;
     }
 
 }

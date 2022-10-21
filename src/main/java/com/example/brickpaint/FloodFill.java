@@ -25,14 +25,14 @@ public class FloodFill implements Callable<WritableImage> {
     /**
      * Defualt constructor
      *
-     * @param imageIn the image to preform the flood fill on
-     * @param x2 start x-cord
-     * @param y2 start y-cord
-     * @param replace color to replace
+     * @param imageIn  the image to preform the flood fill on
+     * @param x2       start x-cord
+     * @param y2       start y-cord
+     * @param replace  color to replace
      * @param newColor color to draw with
-     * @param Sense the sensitivity for determining the border
+     * @param Sense    the sensitivity for determining the border
      */
-    public FloodFill( WritableImage imageIn, int x2, int y2, Color replace, Color newColor, double Sense) {
+    public FloodFill(WritableImage imageIn, int x2, int y2, Color replace, Color newColor, double Sense) {
         colorToReplace = replace;
         NewColor = newColor;
         sensitivity = Sense;
@@ -58,8 +58,8 @@ public class FloodFill implements Callable<WritableImage> {
     /**
      * Helper function that compares two colors within a given tolerance
      *
-     * @param a first color
-     * @param b second color
+     * @param a       first color
+     * @param b       second color
      * @param epsilon tolerance value
      * @return boolean true or false
      */
@@ -109,8 +109,7 @@ public class FloodFill implements Callable<WritableImage> {
                 push(stack, x + 1, y);
                 push(stack, x + 1, y - 1);
                 push(stack, x, y - 1);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 System.out.println("Ran out of memory when running flood fill, stopping execution");
                 return null;
             }
@@ -124,19 +123,17 @@ public class FloodFill implements Callable<WritableImage> {
      * if it is then the point gets recolored as well
      *
      * @param stack The stack which the point should be pushed to
-     * @param x The x position of the point
-     * @param y The y position of the point
+     * @param x     The x position of the point
+     * @param y     The y position of the point
      */
     private void push(ArrayDeque<int[]> stack, int x, int y) {
         if (x <= 0 || x >= image.getWidth() ||
                 y <= 0 || y >= image.getHeight()) {
             return;
-        }
-        else if (!compareColor(x, y)) {
+        } else if (!compareColor(x, y)) {
             writer.setColor(x, y, NewColor);
             return;
-        }
-        else{
+        } else {
             writer.setColor(x, y, NewColor);
         }
         stack.push(new int[]{x, y});

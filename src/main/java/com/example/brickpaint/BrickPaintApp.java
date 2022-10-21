@@ -24,7 +24,7 @@ public class BrickPaintApp extends Application {
      *
      * @param args Command line arguments
      */
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         launch();
     }
 

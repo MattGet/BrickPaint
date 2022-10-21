@@ -26,35 +26,34 @@ import java.util.Optional;
  */
 public abstract class BrickSave {
 
-    public static final String savePath = new String(System.getProperty("user.home") + "\\Documents\\BrickPaint\\Saved Images");
+    public static final String savePath = System.getProperty("user.home") + "\\Documents\\BrickPaint\\Saved Images";
 
     /**
      * Takes a snapshot of a Node and saves it to the specified file
      *
-     * @param node The Node from which to take a screenshot of
-     * @param file The File to save the image to
-     * @param Name The name of the node/file being saved
+     * @param node   The Node from which to take a screenshot of
+     * @param file   The File to save the image to
+     * @param Name   The name of the node/file being saved
      * @param logger The logger to log the save operation to
      */
     public static void saveImageFromNode(Node node, File file, Logger logger, String Name) {
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
-        String type = file.toString().substring(file.toString().lastIndexOf(".") +1);
+        String type = file.toString().substring(file.toString().lastIndexOf(".") + 1);
         //System.out.println("file type = " + type);
         try {
             WritableImage imageToSave = node.snapshot(parameters, null);
             BufferedImage bImage = SwingFXUtils.fromFXImage(imageToSave, null);
-            if (type.equals("jpg")){
+            if (type.equals("jpg")) {
                 bImage = pngTojpg(bImage);
-            }
-            else if (type.equals("bmp")){
+            } else if (type.equals("bmp")) {
                 bImage = pngTobmp(bImage);
             }
 
             if (bImage != null) {
                 ImageIO.write(bImage, type, file);
                 logger.info("[APP] Saved {} as file: {}", Name, file.toString());
-                if (node.getScene().getWindow().focusedProperty().get()){
+                if (node.getScene().getWindow().focusedProperty().get()) {
                     Notifications.create()
                             .title("Saved Image")
                             .text(file.getName() + " successfully saved!")
@@ -81,8 +80,8 @@ public abstract class BrickSave {
      * Takes a snapshot of a Node and saves it to a file created by the user. Will open the file explorer
      * and initially name the file based off the Name
      *
-     * @param node The node from which to take a screenshot of
-     * @param Name Optional path string from which to initially name the new file with
+     * @param node   The node from which to take a screenshot of
+     * @param Name   Optional path string from which to initially name the new file with
      * @param logger The logger to log the save operation to
      * @return returns file that image was saved to, else returns null
      */
@@ -102,7 +101,7 @@ public abstract class BrickSave {
         //try to open file chooser and save the specified image
         try {
             File file = fileChooser.showSaveDialog(node.getScene().getWindow());
-            String type = file.toString().substring(file.toString().lastIndexOf(".") +1);
+            String type = file.toString().substring(file.toString().lastIndexOf(".") + 1);
             //System.out.println("File Type To Save = " + type);
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);
@@ -111,7 +110,7 @@ public abstract class BrickSave {
             //System.out.println("Image type = " + bImage.getType());
             //System.out.println("Data Type = " + bImage.getSampleModel().getDataType());
             //System.out.println("Bands = " + bImage.getSampleModel().getNumBands());
-            if (type.equals("jpg")){
+            if (type.equals("jpg")) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.getButtonTypes().remove(ButtonType.OK);
                 alert.getButtonTypes().remove(ButtonType.CANCEL);
@@ -132,13 +131,12 @@ public abstract class BrickSave {
                     if (result.get().equals(Exit)) {
                         return null;
                     }
-                    if (result.get().equals(Save)){
+                    if (result.get().equals(Save)) {
                         file = changeExtension(file, "png");
                         type = "png";
                     }
                 }
-            }
-            else if (type.equals("bmp")){
+            } else if (type.equals("bmp")) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.getButtonTypes().remove(ButtonType.OK);
                 alert.getButtonTypes().remove(ButtonType.CANCEL);
@@ -159,7 +157,7 @@ public abstract class BrickSave {
                     if (result.get().equals(Exit)) {
                         return null;
                     }
-                    if (result.get().equals(Save)){
+                    if (result.get().equals(Save)) {
                         file = changeExtension(file, "png");
                         type = "png";
                     }
@@ -171,7 +169,7 @@ public abstract class BrickSave {
             //    System.out.println("Format: " + name);
             //}
             if (bImage != null) {
-                if (ImageIO.write(bImage, type, file)){
+                if (ImageIO.write(bImage, type, file)) {
                     Desktop desktop = Desktop.getDesktop();
                     desktop.open(file);
                     logger.info("[APP] Saved {} as file: {}", Name, file.toString());
@@ -189,9 +187,8 @@ public abstract class BrickSave {
                                     .owner(node.getScene().getWindow()))
                             .show();
                     return file;
-                }
-                else {
-                   logger.error("[APP] No File Type Found!!");
+                } else {
+                    logger.error("[APP] No File Type Found!!");
                 }
             }
             return null;
@@ -207,13 +204,13 @@ public abstract class BrickSave {
     /**
      * Helper function that will modify the extension of a file
      *
-     * @param f File to Modify
+     * @param f            File to Modify
      * @param newExtension The extension the file should be changed to
      * @return The renamed file
      */
     public static File changeExtension(File f, String newExtension) {
         int i = f.getName().lastIndexOf('.');
-        String name = f.getName().substring(0,i + 1);
+        String name = f.getName().substring(0, i + 1);
         return new File(f.getParent(), name + newExtension);
     }
 
@@ -223,10 +220,10 @@ public abstract class BrickSave {
      * this will result in a loss of transparency
      *
      * @param image The image to convert
-     * @return A new image with less data that can be saved as a jpg using the ImageIO Image Writer
+     * @return A new image with fewer data that can be saved as a jpg using the ImageIO Image Writer
      */
-    private static BufferedImage pngTojpg(BufferedImage image){
-        if (image.getType() == 3 || image.getType() == 2){
+    private static BufferedImage pngTojpg(BufferedImage image) {
+        if (image.getType() == 3 || image.getType() == 2) {
             BufferedImage newBufferedImage = new BufferedImage(
                     image.getWidth(),
                     image.getHeight(),
@@ -244,8 +241,7 @@ public abstract class BrickSave {
             //System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
             //System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
             return newBufferedImage;
-        }
-        else return null;
+        } else return null;
     }
 
     /**
@@ -253,10 +249,10 @@ public abstract class BrickSave {
      * this will result in a loss of transparency and color accuracy
      *
      * @param image The image to convert
-     * @return A new image with less data that can be saved as a bmp using the ImageIO Image Writer
+     * @return A new image with fewer data that can be saved as a bmp using the ImageIO Image Writer
      */
-    private static BufferedImage pngTobmp(BufferedImage image){
-        if (image.getType() == 3 || image.getType() == 2){
+    private static BufferedImage pngTobmp(BufferedImage image) {
+        if (image.getType() == 3 || image.getType() == 2) {
             BufferedImage newBufferedImage = new BufferedImage(
                     image.getWidth(),
                     image.getHeight(),
@@ -274,8 +270,7 @@ public abstract class BrickSave {
             //System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
             //System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
             return newBufferedImage;
-        }
-        else return null;
+        } else return null;
     }
 
     /*

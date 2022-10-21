@@ -63,10 +63,10 @@ public class BrickKeys {
                 controller.addTab();
             }
             if (key.getCode() == KeyCode.Z && key.isControlDown()) {
-                controller.getCanvas().undoManager.Undo(controller.getCanvas(), controller.logger);
+                controller.getCanvas().undoManager.Undo(controller.getCanvas(), BrickPaintController.logger);
             }
             if (key.getCode() == KeyCode.Y && key.isControlDown()) {
-                controller.getCanvas().undoManager.Redo(controller.getCanvas(),controller.logger);
+                controller.getCanvas().undoManager.Redo(controller.getCanvas(), BrickPaintController.logger);
             }
 
             if (key.getCode() == KeyCode.S && key.isControlDown() && key.isAltDown()) {
@@ -81,10 +81,10 @@ public class BrickKeys {
                 controller.getCanvas().selectionCopy();
             }
 
-            if(key.getCode() == KeyCode.V && key.isControlDown()){
+            if (key.getCode() == KeyCode.V && key.isControlDown()) {
                 controller.getCanvas().selectionPaste();
             }
-            if(key.getCode() == KeyCode.X && key.isControlDown()){
+            if (key.getCode() == KeyCode.X && key.isControlDown()) {
                 controller.getCanvas().selectionCut();
             }
 

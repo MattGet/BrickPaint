@@ -45,6 +45,7 @@ public class CanvasPanel {
      * The Name of the Panel
      */
     public final String Name;
+    public final SnapshotParameters parameters = new SnapshotParameters();
     /**
      * Instance of the controller class for this canvas
      */
@@ -53,12 +54,11 @@ public class CanvasPanel {
      * The parent Pane of this Canvas
      */
     private final TabPane parent;
-
-    public final SnapshotParameters parameters = new SnapshotParameters();
     private final Double cWidth = 1024d;
     private final Double cHeight = 1024d;
     private final List<Point2D> polyLine = new ArrayList<>();
     //private final boolean validDragSelection = false;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     /**
      * The root Node that all the canvas components are created under
      */
@@ -71,9 +71,6 @@ public class CanvasPanel {
      * The viewport (ScrollPane) that the entire canvas panel will reside within
      */
     public ScrollPane scrollPane;
-
-    private Group ScrollContent;
-
     /**
      * A dummy canvas used to draw objects with a live preview before they are drawn on the real canvas
      */
@@ -87,6 +84,7 @@ public class CanvasPanel {
      * Manages Undo and Redo operations on this canvas
      */
     public UndoManager undoManager;
+    private Group ScrollContent;
     /**
      * Coordinates of the most recent mouse press
      */
@@ -104,9 +102,7 @@ public class CanvasPanel {
     private boolean drawingPolyLine = false;
     private boolean insideCanvas = false;
     private double select1, select2, select3, select4;
-
     private boolean useFill = false;
-
     private Image selection;
 
     /**
@@ -351,8 +347,8 @@ public class CanvasPanel {
     /**
      * Handles Logging a generic action preformed on the canvas
      */
-    private void genericLog(){
-        if (insideCanvas){
+    private void genericLog() {
+        if (insideCanvas) {
             BrickPaintController.logger.info("[{}] Using {} Tool", this.Name, controller.getToolType().toString());
         }
     }
@@ -434,13 +430,6 @@ public class CanvasPanel {
         return new java.awt.Color((int) c.getRed(), (int) c.getGreen(), (int) c.getBlue());
     }
 
-
-
-
-
-   private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-
     /**
      * Preforms a flood/bucket fill operation on the canvas at the specified point
      *
@@ -457,21 +446,19 @@ public class CanvasPanel {
         FloodFill fill = new FloodFill(canvasSnapshot, (int) Math.floor(x),
                 (int) Math.floor(y), startingColor, setColor, sensitivity);
 
-        Future<WritableImage> result =  executor.submit(fill);
+        Future<WritableImage> result = executor.submit(fill);
         try {
-         WritableImage img = result.get(3, TimeUnit.SECONDS);
-         if (img != null) {
-             genericLog();
-             BrickImage.render(img, this.canvas, 0, 0, (int) img.getWidth(), (int) img.getHeight(), 0, 0);
-             System.gc();
-         }
+            WritableImage img = result.get(3, TimeUnit.SECONDS);
+            if (img != null) {
+                genericLog();
+                BrickImage.render(img, this.canvas, 0, 0, (int) img.getWidth(), (int) img.getHeight(), 0, 0);
+                System.gc();
+            }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             BrickPaintController.logger.error("[{}] Flood Fill Operation Encountered a Fatal Error!", this.Name);
             throw new RuntimeException(e);
         }
     }
-
-
 
 
     /**
@@ -617,8 +604,7 @@ public class CanvasPanel {
                 Point2D point = ArtMath.getTopLeft(select1, select2, select3, select4);
                 BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null), point);
                 selection = null;
-            }
-            else mirror(horizontal);
+            } else mirror(horizontal);
         }
     }
 
@@ -628,34 +614,34 @@ public class CanvasPanel {
      * @param horizontal Mirrors horizontally if true else will mirror vertically
      */
     public void mirror(boolean horizontal) {
-            if (canvas != null) {
-                undoManager.LogU(this);
-                Image screenshot = canvas.snapshot(parameters, null);
-                BufferedImage image = SwingFXUtils.fromFXImage(screenshot, null);
-                AffineTransform tx = new AffineTransform();
-                if (horizontal) {
-                    tx = AffineTransform.getScaleInstance(-1, 1);
+        if (canvas != null) {
+            undoManager.LogU(this);
+            Image screenshot = canvas.snapshot(parameters, null);
+            BufferedImage image = SwingFXUtils.fromFXImage(screenshot, null);
+            AffineTransform tx = new AffineTransform();
+            if (horizontal) {
+                tx = AffineTransform.getScaleInstance(-1, 1);
 
-                    tx.translate(-image.getWidth(null), 0);
+                tx.translate(-image.getWidth(null), 0);
 
-                    BrickPaintController.logger.info("[{}] Mirrored Canvas Horizontally", this.Name);
-                } else {
-                    tx = AffineTransform.getScaleInstance(1, -1);
+                BrickPaintController.logger.info("[{}] Mirrored Canvas Horizontally", this.Name);
+            } else {
+                tx = AffineTransform.getScaleInstance(1, -1);
 
-                    tx.translate(0, -image.getHeight(null));
+                tx.translate(0, -image.getHeight(null));
 
-                    BrickPaintController.logger.info("[{}] Mirrored Canvas Vertically", this.Name);
-                }
-
-
-                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-
-                image = op.filter(image, null);
-
-                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null));
+                BrickPaintController.logger.info("[{}] Mirrored Canvas Vertically", this.Name);
             }
+
+
+            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+
+            image = op.filter(image, null);
+
+            sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            BrickImage.Paste(this, SwingFXUtils.toFXImage(image, null));
+        }
     }
 
     /**
@@ -702,8 +688,7 @@ public class CanvasPanel {
                 Point2D point = ArtMath.getTopLeft(select1, select2, select3, select4);
                 BrickImage.PasteRotate(this, SwingFXUtils.toFXImage(image, null), new Point2D(point.getX() + w / 2, point.getY() + h / 2));
                 selection = null;
-            }
-            else rotate(right);
+            } else rotate(right);
         }
     }
 
@@ -713,27 +698,27 @@ public class CanvasPanel {
      * @param right Rotates right if true else rotates left
      */
     public void rotate(boolean right) {
-            if (canvas != null) {
-                undoManager.LogU(this);
-                Image screenshot = canvas.snapshot(parameters, null);
-                BufferedImage image = SwingFXUtils.fromFXImage(screenshot, null);
-                AffineTransformOp op;
-                if (right) {
-                    op = new AffineTransformOp(rotateClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+        if (canvas != null) {
+            undoManager.LogU(this);
+            Image screenshot = canvas.snapshot(parameters, null);
+            BufferedImage image = SwingFXUtils.fromFXImage(screenshot, null);
+            AffineTransformOp op;
+            if (right) {
+                op = new AffineTransformOp(rotateClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
 
-                    BrickPaintController.logger.info("[{}] Rotated Canvas 90 Degrees Clockwise", this.Name);
-                } else {
-                    op = new AffineTransformOp(rotateCounterClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
+                BrickPaintController.logger.info("[{}] Rotated Canvas 90 Degrees Clockwise", this.Name);
+            } else {
+                op = new AffineTransformOp(rotateCounterClockwise90(image), AffineTransformOp.TYPE_BILINEAR);
 
-                    BrickPaintController.logger.info("[{}] Rotated Canvas 90 Degrees Counter Clockwise", this.Name);
-                }
-
-                image = op.filter(image, null);
-
-                sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                BrickImage.PasteRotate(this, SwingFXUtils.toFXImage(image, null), new Point2D(canvas.getWidth() / 2, canvas.getHeight() / 2));
+                BrickPaintController.logger.info("[{}] Rotated Canvas 90 Degrees Counter Clockwise", this.Name);
             }
+
+            image = op.filter(image, null);
+
+            sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            gc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            BrickImage.PasteRotate(this, SwingFXUtils.toFXImage(image, null), new Point2D(canvas.getWidth() / 2, canvas.getHeight() / 2));
+        }
     }
 
     /**
