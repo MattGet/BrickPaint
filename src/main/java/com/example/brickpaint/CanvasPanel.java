@@ -236,6 +236,15 @@ public class CanvasPanel {
     }
 
     /**
+     * Helper method which returns the canvas as an image
+     *
+     * @return Image of canvas
+     */
+    public Image fetchImage(){
+        return canvas.snapshot(parameters, null);
+    }
+
+    /**
      * Sets the width of all necessary nodes in the canvas panel
      *
      * @param x new width
@@ -416,6 +425,9 @@ public class CanvasPanel {
                 }
                 default -> {
                 }
+            }
+            if (insideCanvas){
+                controller.buttonManager.updateServer();
             }
         }
     }

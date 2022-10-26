@@ -31,11 +31,12 @@ import java.util.Optional;
 public class BrickPaintController {
 
     //-Dlog4j.configurationFile="src/main/resources/com/example/brickpaint/log4j2.xml"
-    public static final Logger logger = LogManager.getLogger(BrickPaintController.class);
-
     static {
         System.setProperty("log4j.configurationFile", "src/main/resources/com/example/brickpaint/log4j2.xml");
     }
+
+    public static final Logger logger = LogManager.getLogger(BrickPaintController.class);
+
 
     /**
      * A dictionary of the files used to save the canvasPanel, created after the first SaveAs is called
