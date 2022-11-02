@@ -1,6 +1,5 @@
 package com.example.brickpaint;
 
-import javafx.animation.Timeline;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -18,11 +17,6 @@ import javafx.scene.input.KeyCode;
 public class AnimatedZoomOperator {
 
     /**
-     * timeline variable for animating nodes within this class's methods
-     */
-    private final Timeline timeline;
-
-    /**
      * Input Manager class instance, helps with managing keybinds ect
      */
     private final BrickKeys Keys;
@@ -34,7 +28,6 @@ public class AnimatedZoomOperator {
      */
     public AnimatedZoomOperator(BrickKeys keys) {
         Keys = keys;
-        this.timeline = new Timeline(60);
     }
 
     /**

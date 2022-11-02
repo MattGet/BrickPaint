@@ -54,8 +54,8 @@ public class CanvasPanel {
      * The parent Pane of this Canvas
      */
     private final TabPane parent;
-    private final Double cWidth = 1024d;
-    private final Double cHeight = 1024d;
+    private final Double CWIDTH = 1024d;
+    private final Double CHEIGHT = 1024d;
     private final List<Point2D> polyLine = new ArrayList<>();
     //private final boolean validDragSelection = false;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -128,10 +128,10 @@ public class CanvasPanel {
      */
     public void Setup(BrickKeys keys, String name) {
 
-        sketchCanvas.setHeight(cHeight);
-        sketchCanvas.setWidth(cWidth);
-        canvas.setHeight(cHeight);
-        canvas.setWidth(cWidth);
+        sketchCanvas.setHeight(CHEIGHT);
+        sketchCanvas.setWidth(CWIDTH);
+        canvas.setHeight(CHEIGHT);
+        canvas.setWidth(CWIDTH);
 
         AnchorPane canvasPane = new AnchorPane(canvas);
         AnchorPane sCPane = new AnchorPane(sketchCanvas);
@@ -146,8 +146,8 @@ public class CanvasPanel {
         AnchorPane.setTopAnchor(sketchCanvas, 0.0);
         AnchorPane.setBottomAnchor(sketchCanvas, 0.0);
 
-        root.setPrefWidth(cWidth);
-        root.setPrefHeight(cHeight);
+        root.setPrefWidth(CWIDTH);
+        root.setPrefHeight(CHEIGHT);
         root.getChildren().add(canvasPane);
         root.getChildren().add(sCPane);
         AnchorPane.setLeftAnchor(root, 0.0);
@@ -156,15 +156,15 @@ public class CanvasPanel {
         AnchorPane.setBottomAnchor(root, 0.0);
 
         pane.getChildren().add(root);
-        pane.setPrefHeight(cHeight);
-        pane.setPrefWidth(cWidth);
+        pane.setPrefHeight(CHEIGHT);
+        pane.setPrefWidth(CWIDTH);
         pane.getStyleClass().add("border");
 
 
         ScrollContent = new Group(pane);
         scrollPane = new ScrollPane(ScrollContent);
-        scrollPane.setPrefViewportWidth(cWidth);
-        scrollPane.setPrefViewportHeight(cHeight);
+        scrollPane.setPrefViewportWidth(CWIDTH);
+        scrollPane.setPrefViewportHeight(CHEIGHT);
         Tab tab = new Tab(name, scrollPane);
         parent.getTabs().add(tab);
         AnchorPane.setBottomAnchor(scrollPane, (double) 0);
@@ -267,7 +267,7 @@ public class CanvasPanel {
         sketchCanvas.setHeight(y);
         root.setPrefHeight(y);
         pane.setPrefHeight(y);
-        BrickPaintController.logger.info("[{}] Changed Canvas Hieght To {}", this.Name, y);
+        BrickPaintController.logger.info("[{}] Changed Canvas Height To {}", this.Name, y);
     }
 
     /**
@@ -302,8 +302,6 @@ public class CanvasPanel {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     if (polyLine.size() > 0) {
                         for (Point2D point : polyLine) {
-                            //System.out.println("XComp = " + ArtMath.compare(point.getX(), event.getX(), 10d));
-                            //System.out.println("YComp = " + ArtMath.compare(point.getY(), event.getY(), 10d));
                             if (ArtMath.compare(point.getX(), event.getX(), 10d) && ArtMath.compare(point.getY(), event.getY(), 10d)) {
                                 gc.strokeLine(polyLine.get(polyLine.size() - 1).getX(), polyLine.get(polyLine.size() - 1).getY(), point.getX(), point.getY());
                                 drawingPolyLine = false;
@@ -408,8 +406,6 @@ public class CanvasPanel {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                     ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, false);
                     selection = getSubImage(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), this.canvas);
-                    //Point2D point = ArtMath.getTopLeft(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY());
-                    //sc.drawImage(selection, point.getX(), point.getY());
                     if (insideCanvas) {
                         select1 = initialTouch.getX();
                         select2 = initialTouch.getY();
@@ -433,7 +429,7 @@ public class CanvasPanel {
     }
 
     /**
-     * Converts the colorpicker color to awt color format
+     * Converts the color-picker color to awt color format
      *
      * @return java.awt.Color
      */

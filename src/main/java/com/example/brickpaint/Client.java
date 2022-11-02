@@ -14,7 +14,7 @@ import java.net.Socket;
 
 public class Client implements Runnable{
 
-    private final Socket s;
+    private final Socket client;
 
     private ClientHandler handler;
 
@@ -24,7 +24,8 @@ public class Client implements Runnable{
     public Client(int port, InetAddress address, ButtonManager manager1){
         this.manager = manager1;
         try {
-            s = new Socket(address, port);
+            client = new Socket(address, port);
+            BrickPaintController.logger.info("[CLIENT] A new client is connected : " + client);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -34,7 +35,7 @@ public class Client implements Runnable{
         // closing resources
         try {
             handler.stop();
-            s.close();
+            client.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -42,8 +43,8 @@ public class Client implements Runnable{
 
     public void sendImageToServer(BufferedImage image){
         try{
-            ImageIO.write(image, "png", s.getOutputStream()); // Send image to client
-            s.getOutputStream().flush();
+            ImageIO.write(image, "png", client.getOutputStream()); // Send image to client
+            client.getOutputStream().flush();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -54,14 +55,14 @@ public class Client implements Runnable{
         try
         {
             // obtaining input and out streams
-            InputStream dis = s.getInputStream();
-            OutputStream dos = s.getOutputStream();
+            InputStream dis = client.getInputStream();
+            OutputStream dos = client.getOutputStream();
 
-            handler = new ClientHandler(s, dis, dos, manager, false);
+            handler = new ClientHandler(client, dis, dos, manager, false);
+            BrickPaintController.logger.info("[CLIENT] Assigning new thread to handle incoming data");
             // create a new thread object
             Thread t = new Thread(handler);
 
-            // Invoking the start() method
             t.start();
         }catch(Exception e){
             e.printStackTrace();

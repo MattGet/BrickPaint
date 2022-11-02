@@ -37,6 +37,7 @@ public class Server implements Runnable  {
         }
     }
 
+
     @Override
     public void run() {
         // running infinite loop for getting
@@ -64,9 +65,7 @@ public class Server implements Runnable  {
                 // create a new thread object
                 Thread t = new Thread(cH);
 
-                // Invoking the start() method
                 t.start();
-
             }
             catch (Exception e){
                 try {

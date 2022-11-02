@@ -2,6 +2,8 @@ package com.example.brickpaint;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -68,9 +70,12 @@ public class ButtonManager {
     private final ToolBar Parent;
     private final BrickPaintController controller;
     private final List<ToggleButton> toggles;
+
     private final boolean isAutoSaving = false;
     public Label aSaveTime = new Label("Auto Save In 1m 25s");
-    public ComboBox<Integer> lineWidth = new ComboBox<>();
+    public ComboBox<Integer> lineWidth =
+            new ComboBox<>(FXCollections.observableList(Arrays.asList(1, 2, 4, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72)));
+
     public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
     /**
      * allows the user to enter or select a value for the current canvas's width
@@ -83,7 +88,11 @@ public class ButtonManager {
     /**
      * allows the user to enter or select a value for the number of sides the polygon tools should have
      */
-    public ComboBox<Integer> polySides = new ComboBox<>();
+    public ComboBox<Integer> polySides =
+            new ComboBox<>(FXCollections.observableList(Arrays.asList(3, 4, 5, 6, 7, 8, 10, 12, 16, 20, 24, 36)));
+
+    private final ObservableList<Integer> DEFUALTRESOLUTIONS =
+            FXCollections.observableList(Arrays.asList(256, 512, 720, 1024, 1080, 1280, 1440, 1920));
     public Spinner<Double> fillSensitivity = new Spinner<>(0.0d, 0.9d, 0.25d, 0.05d);
     public ColorPicker colorPicker = new ColorPicker(Color.BLACK);
     private TimerTask saveManager;
@@ -229,7 +238,6 @@ public class ButtonManager {
 
         Separator s4 = new Separator(Orientation.VERTICAL);
 
-        lineWidth.getItems().addAll(1, 2, 4, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72);
         lineWidth.setValue(10);
         lineWidth.setEditable(true);
         lineWidth.setMaxWidth(100);
@@ -237,7 +245,6 @@ public class ButtonManager {
         lineStyle.setValue(BrickTools.SolidLine);
         lineStyle.setMaxWidth(100);
         lineStyle.setPrefWidth(100);
-        polySides.getItems().addAll(3, 4, 5, 6, 7, 8, 10, 12, 16, 20, 24, 36);
         polySides.setValue(6);
         polySides.setEditable(true);
         polySides.setMaxWidth(100);
@@ -255,8 +262,8 @@ public class ButtonManager {
 
         Separator s5 = new Separator(Orientation.VERTICAL);
 
-        cWidth.getItems().addAll(256, 512, 720, 1024, 1080, 1280, 1440, 1920);
-        cHeight.getItems().addAll(256, 512, 720, 1024, 1080, 1280, 1440, 1920);
+        cWidth.getItems().addAll(DEFUALTRESOLUTIONS);
+        cHeight.getItems().addAll(DEFUALTRESOLUTIONS);
         cWidth.setEditable(true);
         cHeight.setEditable(true);
         cWidth.setMaxWidth(100);
@@ -717,13 +724,25 @@ public class ButtonManager {
     }
 
     private void handleClientToggle(ActionEvent event){
-        if (updatingServer) return;
+        if (updatingServer || bobby.isServer()) return;
         if (tConnectToServer.isSelected()){
             bobby.startClient();
         }
         else {
             bobby.stopClient();
         }
+    }
+
+    public void toggleClientUiSilent(boolean on){
+        updatingServer = true;
+        tConnectToServer.setSelected(on);
+        updatingServer = false;
+    }
+
+    public void toggleServerUiSilent(boolean on){
+        updatingServer = true;
+        tMakeServer.setSelected(on);
+        updatingServer = false;
     }
 
     /**
