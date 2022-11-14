@@ -7,7 +7,6 @@ import org.controlsfx.control.Notifications;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 
 public class BobRoss {
@@ -91,19 +90,13 @@ public class BobRoss {
             BrickPaintController.logger.info("[CLIENT] Starting Server Discovery");
             address = Client.discoverServer(56789);
             BrickPaintController.logger.info("[CLIENT] Found Server Address: " + address);
-
         } catch (IOException ex) {
             BrickPaintController.logger.error("[CLIENT] >>> " + ex);
             try {
-                address = InetAddress.getByName("waddlesalot.duckdns.org");
-                BrickPaintController.logger.info("[CLIENT] Using DDNS Doamian, address: " + address);
-            } catch (Exception e) {
-                try {
-                    address = InetAddress.getLocalHost();
-                    BrickPaintController.logger.info("[CLIENT] Using LocalHost, address: " + address);
-                } catch (Exception exc) {
-                    throw new RuntimeException("Failed To Find Server Address!");
-                }
+                address = InetAddress.getLocalHost();
+                BrickPaintController.logger.info("[CLIENT] Using LocalHost, address: " + address);
+            } catch (Exception exc) {
+                throw new RuntimeException("Failed To Find Server Address!");
             }
         }
 
