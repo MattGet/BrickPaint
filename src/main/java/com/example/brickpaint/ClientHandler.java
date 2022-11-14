@@ -44,6 +44,7 @@ public class ClientHandler implements  Runnable{
                         ImageIO.write(image, "png", s.getOutputStream()); // Send image to client
                         s.getOutputStream().flush();
                         BrickPaintController.logger.info("[SERVER] pushed image to clients");
+                        manager.updateCanvas(image);
                         //System.out.println("[SERVER] pushed image to clients");
                 } else {
                     manager.updateCanvas(image);

@@ -2,6 +2,7 @@ package com.example.brickpaint;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,7 +41,9 @@ public class Client implements Runnable{
 
     public void sendImageToServer(BufferedImage image){
         try{
-            ImageIO.write(image, "png", client.getOutputStream()); // Send image to client
+            BufferedOutputStream outputStream = new BufferedOutputStream(client.getOutputStream());
+            ImageIO.write(image, "png", outputStream); // Send image to client
+            outputStream.flush();
             client.getOutputStream().flush();
         }catch (Exception e){
             e.printStackTrace();
