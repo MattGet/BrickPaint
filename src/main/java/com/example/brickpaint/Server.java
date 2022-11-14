@@ -19,6 +19,8 @@ public class Server implements Runnable  {
 
     private final ButtonManager manager;
 
+    private ServerDiscovery discovery;
+
     public Server(int port, int backlog, InetAddress address, ButtonManager manager1){
         this.manager = manager1;
         try {
@@ -30,6 +32,7 @@ public class Server implements Runnable  {
 
     public void stop(){
         running = false;
+        if (discovery != null) discovery.Stop();
         try {
             server.close();
         } catch (IOException e) {
@@ -40,6 +43,10 @@ public class Server implements Runnable  {
 
     @Override
     public void run() {
+        discovery = new ServerDiscovery();
+        Thread relayTask = new Thread(discovery);
+        relayTask.start();
+
         // running infinite loop for getting
         // client request
         while (running)

@@ -5,7 +5,9 @@ import javafx.scene.image.Image;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 
 public class BobRoss {
@@ -15,19 +17,17 @@ public class BobRoss {
     private Server server;
 
     private Client client;
+    private boolean isServer = false;
+    private boolean isClient = false;
+    //private final Server server = new Server();
 
-    public BobRoss(ButtonManager manager1){
+    public BobRoss(ButtonManager manager1) {
         manager = manager1;
     }
-
-    private boolean isServer = false;
-    //private final Server server = new Server();
 
     public boolean isServer() {
         return isServer;
     }
-
-    private boolean isClient = false;
 
     public boolean isClient() {
         return isClient;
@@ -36,7 +36,7 @@ public class BobRoss {
     //private final Client client = new Client();
 
 
-    public void startServer(){
+    public void startServer() {
         if (isServer) return;
         try {
             server = new Server(56789, 1, InetAddress.getLocalHost(), manager);
@@ -63,14 +63,15 @@ public class BobRoss {
             manager.toggleServerUiSilent(false);
         }
 
-        if (isServer && !isClient){
+        if (isServer && !isClient) {
             startClient();
         }
     }
 
-    public void stopServer(){
-        if (isServer){
+    public void stopServer() {
+        if (isServer) {
             server.stop();
+            server = null;
             this.isServer = false;
             BrickPaintController.logger.info("[APP] Stopped Server");
             Notifications.create()
@@ -84,9 +85,31 @@ public class BobRoss {
         if (isClient) stopClient();
     }
 
-    public void startClient(){
+    public void startClient() {
+        InetAddress address;
         try {
-            client = new Client(56789, InetAddress.getLocalHost(), manager);
+            BrickPaintController.logger.info("[CLIENT] Starting Server Discovery");
+            address = Client.discoverServer(56789);
+            BrickPaintController.logger.info("[CLIENT] Found Server Address: " + address);
+
+        } catch (IOException ex) {
+            BrickPaintController.logger.error("[CLIENT] >>> " + ex);
+            try {
+                address = InetAddress.getByName("waddlesalot.duckdns.org");
+                BrickPaintController.logger.info("[CLIENT] Using DDNS Doamian, address: " + address);
+            } catch (Exception e) {
+                try {
+                    address = InetAddress.getLocalHost();
+                    BrickPaintController.logger.info("[CLIENT] Using LocalHost, address: " + address);
+                } catch (Exception exc) {
+                    throw new RuntimeException("Failed To Find Server Address!");
+                }
+            }
+        }
+
+
+        try {
+            client = new Client(56789, address, manager);
             Thread t = new Thread(client);
             t.start();
             this.isClient = true;
@@ -99,6 +122,7 @@ public class BobRoss {
                     .owner(manager.colorPicker.getScene().getWindow())
                     .show();
         } catch (Exception e) {
+            e.printStackTrace();
             Notifications.create()
                     .title("Client Error")
                     .text("failed to create client connection!")
@@ -111,9 +135,10 @@ public class BobRoss {
         }
     }
 
-    public void stopClient(){
-        if (isClient){
+    public void stopClient() {
+        if (isClient) {
             client.stop();
+            client = null;
             isClient = false;
             BrickPaintController.logger.info("[APP] Stopped Client");
             Notifications.create()
@@ -126,8 +151,8 @@ public class BobRoss {
         }
     }
 
-    public void sendClientImage(Image image){
-        if (this.isClient){
+    public void sendClientImage(Image image) {
+        if (this.isClient) {
             client.sendImageToServer(SwingFXUtils.fromFXImage(image, null));
         }
     }
