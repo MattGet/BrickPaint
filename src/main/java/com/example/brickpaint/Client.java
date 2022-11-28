@@ -10,6 +10,12 @@ import java.net.*;
 import java.util.Enumeration;
 import java.util.concurrent.*;
 
+/**
+ * [WORK IN PROGRESS]
+ * Handles creation of a client connection to a corresponding server
+ *
+ * @author matde
+ */
 public class Client implements Runnable{
 
     private final Socket client;
@@ -19,6 +25,13 @@ public class Client implements Runnable{
     private final ButtonManager manager;
 
 
+    /**
+     * Client constructor that initializes a socket with the specified params
+     *
+     * @param port The port the client should run on
+     * @param address The Inetaddress the client should use
+     * @param manager1 The UI Controller for the application
+     */
     public Client(int port, InetAddress address, ButtonManager manager1){
         this.manager = manager1;
         try {
@@ -29,6 +42,9 @@ public class Client implements Runnable{
         }
     }
 
+    /**
+     * Helper function that closes the client socket and handler thread
+     */
     public void stop(){
         // closing resources
         try {
@@ -39,6 +55,11 @@ public class Client implements Runnable{
         }
     }
 
+    /**
+     * Sends an image to the connected server
+     *
+     * @param image The image that gets sent to the server
+     */
     public void sendImageToServer(BufferedImage image){
         try{
             BufferedOutputStream outputStream = new BufferedOutputStream(client.getOutputStream());
@@ -50,6 +71,14 @@ public class Client implements Runnable{
         }
     }
 
+    /**
+     * Helper function that begins the discovery process and returns the designated Inetaddress
+     * of an application server if one is found, else it will throw an appropriate error
+     *
+     * @param port The port to look for a server on
+     * @return The Inetaddress of the first server found
+     * @throws IOException Error changes based on why the task failed
+     */
     public static InetAddress discoverServer(int port) throws IOException {
         ExecutorService executor = Executors.newCachedThreadPool();
         Callable<Object> task = new Callable<Object>() {
@@ -71,6 +100,15 @@ public class Client implements Runnable{
         }
     }
 
+    /**
+     * Main discovery thread that sends a UDP packet containing a keyword
+     * to all designated ports on the local network, if it receives a proper response
+     * then it will return the Inetaddress of that server
+     *
+     * @param port The port to look for the server on
+     * @return Inetaddress of the server
+     * @throws IOException Fails to find server
+     */
     private static java.net.InetAddress discovery(int port) throws IOException {
 
         // Find the server using UDP broadcast
@@ -142,6 +180,9 @@ public class Client implements Runnable{
         throw new IOException("Failed to Find Server Address!");
     }
 
+    /**
+     * Thread method that initializes the client handler for this client
+     */
     @Override
     public void run() {
         try

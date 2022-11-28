@@ -295,7 +295,7 @@ public class ButtonManager {
         tFillShapes.setTooltip(new Tooltip("Will fill any drawn shapes with the selected color"));
 
         Label bColor = new Label("Color");
-        bColor.paddingProperty().setValue(new Insets(3, 0, 0, 0));
+        bColor.paddingProperty().setValue(new Insets(5, 0, 0, 0));
         colorPicker.setMinHeight(25);
         colorPicker.translateYProperty().setValue(-10);
         VBox color = new VBox(colorPicker, v11, tFillShapes, bColor);
@@ -310,24 +310,24 @@ public class ButtonManager {
         tOpenFolder.setTooltip(new Tooltip("Opens the folder where saved images are stored by default"));
 
         Label bSave = new Label("Save");
-        bSave.paddingProperty().setValue(new Insets(0, 0, 0, 0));
+        bSave.paddingProperty().setValue(new Insets(-2, 0, 0, 0));
         VBox save = new VBox(tAutoSave, aSaveTime, tOpenFolder, bSave);
         save.setSpacing(10);
         save.setAlignment(Pos.BASELINE_CENTER);
 
         Separator s8 = new Separator(Orientation.VERTICAL);
 
-        tMakeServer = new ToggleButton("Server");
+        tMakeServer = new ToggleButton("Host Server");
         tMakeServer.setSelected(false);
-        tMakeServer.setTooltip(new Tooltip("Host a Server that other BrickPaint users can connect to over your LAN"));
+        tMakeServer.setTooltip(new Tooltip("Host a Server that connects other BrickPaint users over your LAN"));
 
-        tConnectToServer = new ToggleButton("Client");
+        tConnectToServer = new ToggleButton("Connect to Server");
         tConnectToServer.setSelected(false);
         tConnectToServer.setTooltip(new Tooltip("Connect to a BrickPaint Server on your LAN and Collaborate with others!"));
 
 
-        Label bServer = new Label("Network");
-        bSave.paddingProperty().setValue(new Insets(0, 0, 0, 0));
+        Label bServer = new Label("[ALPHA] BrickServer");
+        bServer.paddingProperty().setValue(new Insets(17, 0, 0, 0));
         VBox server = new VBox(tMakeServer, tConnectToServer, bServer);
         server.setSpacing(10);
         server.setAlignment(Pos.BASELINE_CENTER);

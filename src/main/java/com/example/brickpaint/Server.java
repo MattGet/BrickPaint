@@ -10,6 +10,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * [WORK IN PROGRESS]
+ * Handles the creation and processes of a server thread
+ *
+ * @author matde
+ */
 public class Server implements Runnable  {
     private final ServerSocket server;
 
@@ -21,6 +27,14 @@ public class Server implements Runnable  {
 
     private ServerDiscovery discovery;
 
+    /**
+     * Base constructor for the server thread that initializes the server socket
+     *
+     * @param port The port to start the server on
+     * @param backlog The maximum number of connections that can be queued
+     * @param address The InetAddress that the server should use
+     * @param manager1 The UI Controller for the application
+     */
     public Server(int port, int backlog, InetAddress address, ButtonManager manager1){
         this.manager = manager1;
         try {
@@ -30,6 +44,9 @@ public class Server implements Runnable  {
         }
     }
 
+    /**
+     * Helper function that will stop the server thread loop when called
+     */
     public void stop(){
         running = false;
         if (discovery != null) discovery.Stop();
@@ -41,6 +58,11 @@ public class Server implements Runnable  {
     }
 
 
+    /**
+     * Main thread the runs the server, it will look for incoming
+     * connections and assign a client handler to each one until
+     * the stop function is called
+     */
     @Override
     public void run() {
         discovery = new ServerDiscovery();
@@ -48,14 +70,14 @@ public class Server implements Runnable  {
         relayTask.start();
 
         // running infinite loop for getting
-        // client request
+        // client requests
         while (running)
         {
             Socket s = null;
 
             try
             {
-                // socket object to receive incoming client requests
+                // socket that receives incoming client requests
                 s = server.accept();
 
                 BrickPaintController.logger.info("[SERVER] A new client is connected : " + s);
@@ -83,6 +105,7 @@ public class Server implements Runnable  {
             }
         }
         try {
+            // attempt to stop all active client threads on the server, then close the server
             for (ClientHandler client: handlers) {
                 client.stop();
             }

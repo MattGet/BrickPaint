@@ -12,6 +12,8 @@ target/
 *.iml
 *.ipr
 ###*.jar
+*.pdf
+*.docx
 *.log
 
 ### Eclipse ###

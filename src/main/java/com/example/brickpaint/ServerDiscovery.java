@@ -8,6 +8,10 @@ import java.net.SocketException;
 
 
 /**
+ * [WORK IN PROGRESS]
+ * Discovery thread that runs on the server and accepts
+ * UDP broadcasts from clients looking for a corresponding Server
+ *
  * @author matde, Michiel De Mey
  * @see <a href="https://michieldemey.be/blog/network-discovery-using-udp-broadcast/">Source Code</a>
  */
@@ -16,15 +20,21 @@ public class ServerDiscovery implements Runnable{
     private DatagramSocket socket;
     private boolean Running = true;
 
+    /**
+     * Helper function that stops the discovery thread loop
+     */
     public void Stop(){
         Running = false;
         socket.close();
     }
 
 
+    /**
+     * Main thread that loops continuously looking for incoming data packets containing the keyword,
+     * when found it will send a return packet that it used to determine the server InetAddress
+     */
     @Override
     public void run() {
-
         try {
             //Keep a socket open to listen to all the UDP trafic that is destined for this port
             socket = new DatagramSocket(56789, InetAddress.getByName("0.0.0.0"));

@@ -8,7 +8,12 @@ import org.controlsfx.control.Notifications;
 import java.io.IOException;
 import java.net.InetAddress;
 
-
+/**
+ * Handles the creation and management of all server/client related
+ * activities within the application
+ *
+ * @author matde
+ */
 public class BobRoss {
 
     private final ButtonManager manager;
@@ -18,16 +23,30 @@ public class BobRoss {
     private Client client;
     private boolean isServer = false;
     private boolean isClient = false;
-    //private final Server server = new Server();
 
+    /**
+     * Constructor that passes the applications UI controller to this class
+     *
+     * @param manager1 UI Controller for the application
+     */
     public BobRoss(ButtonManager manager1) {
         manager = manager1;
     }
 
+    /**
+     * Getter for isServer boolean, determines if this application is acting as a server
+     *
+     * @return true if application is a server
+     */
     public boolean isServer() {
         return isServer;
     }
 
+    /**
+     * Getter for isClient boolean, determines if this application is acting as a client
+     *
+     * @return true if application is a client
+     */
     public boolean isClient() {
         return isClient;
     }
@@ -35,6 +54,9 @@ public class BobRoss {
     //private final Client client = new Client();
 
 
+    /**
+     * Starts a server for the application and creates a notification
+     */
     public void startServer() {
         if (isServer) return;
         try {
@@ -61,12 +83,15 @@ public class BobRoss {
             BrickPaintController.logger.error("[SERVER] failed to initialize server!");
             manager.toggleServerUiSilent(false);
         }
-
+        //creates a client for the server in order to run the server as a client p2p connection
         if (isServer && !isClient) {
             startClient();
         }
     }
 
+    /**
+     * Stops the server and creates a notification
+     */
     public void stopServer() {
         if (isServer) {
             server.stop();
@@ -84,7 +109,11 @@ public class BobRoss {
         if (isClient) stopClient();
     }
 
+    /**
+     * Starts a client for the application and creates a notification
+     */
     public void startClient() {
+        //attempts to find the coorect address to start the client connection with
         InetAddress address;
         try {
             BrickPaintController.logger.info("[CLIENT] Starting Server Discovery");
@@ -100,7 +129,7 @@ public class BobRoss {
             }
         }
 
-
+        //attempts to create the client
         try {
             client = new Client(56789, address, manager);
             Thread t = new Thread(client);
@@ -128,6 +157,9 @@ public class BobRoss {
         }
     }
 
+    /**
+     * Stops the client and creates a notification
+     */
     public void stopClient() {
         if (isClient) {
             client.stop();
@@ -144,6 +176,11 @@ public class BobRoss {
         }
     }
 
+    /**
+     * Helper function that has the client send an image if this application is a client
+     *
+     * @param image The image to send
+     */
     public void sendClientImage(Image image) {
         if (this.isClient) {
             client.sendImageToServer(SwingFXUtils.fromFXImage(image, null));

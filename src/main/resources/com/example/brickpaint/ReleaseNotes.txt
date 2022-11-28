@@ -1,5 +1,22 @@
 BrickPaint, A JavaFX Drawing App Created By Matthew Dembny
 
+BrickPaint Initial Release V 1.0.0 -  11/28/2022
+
+New features:
+  * Improved Codebase
+  * [Alpha] Collaborate with other users
+  * More Actions are Logged
+Known issues:
+  * Adding large images to the canvas may crash the JVM as it runs out of memory (VRam)
+  * Drawing Writable or Buffered Images to the canvas will cause the image to be blurry due to a bug involving HighDPI
+  * Collaborate mode has issues sending image data and making connections on an enterprise network
+Expected features:
+  * Possibly Dark Mode
+Links:
+  * Java Doc Website: https://mattget.github.io/PaintJavaDocs/com.example.brickpaint/module-summary.html
+  * Github Repo: https://github.com/MattGet/BrickPaint
+
+
 BrickPaint Version 2022.10.2 -  10/21/2022
 
 New features:
