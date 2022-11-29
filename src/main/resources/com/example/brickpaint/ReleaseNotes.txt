@@ -17,7 +17,7 @@ Possible features in the future:
   * Dark Mode
   * Improved Eraser that supports Transparency
   * Improved live drawing of shapes
-  
+
 Links:
   * Java Doc Website: https://mattget.github.io/PaintJavaDocs/com.example.brickpaint/module-summary.html
   * GitHub Repo: https://github.com/MattGet/BrickPaint

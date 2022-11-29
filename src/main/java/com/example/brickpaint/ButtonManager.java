@@ -268,8 +268,8 @@ public class ButtonManager {
         cHeight.setEditable(true);
         cWidth.setMaxWidth(100);
         cHeight.setMaxWidth(100);
-        Label lCH = new Label("Canvas Height   ");
-        Label lCW = new Label("Canvas Width    ");
+        Label lCH = new Label("Height   ");
+        Label lCW = new Label("Width    ");
         HBox v8 = new HBox(lCW, cWidth);
         v8.setAlignment(Pos.CENTER);
         v8.paddingProperty().setValue(new Insets(15, 0, 0, 0));
