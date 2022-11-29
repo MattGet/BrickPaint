@@ -240,7 +240,7 @@ public class CanvasPanel {
      *
      * @return Image of canvas
      */
-    public Image fetchImage(){
+    public Image fetchImage() {
         return canvas.snapshot(parameters, null);
     }
 
@@ -422,7 +422,7 @@ public class CanvasPanel {
                 default -> {
                 }
             }
-            if (insideCanvas){
+            if (insideCanvas) {
                 controller.buttonManager.updateServer();
             }
         }

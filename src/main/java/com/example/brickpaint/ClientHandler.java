@@ -14,29 +14,25 @@ import java.net.Socket;
  *
  * @author matde
  */
-public class ClientHandler implements  Runnable{
+public class ClientHandler implements Runnable {
     final InputStream dis;
     final OutputStream dos;
     final Socket s;
-
-    private boolean running = true;
-
     private final boolean ManageServer;
-
     private final ButtonManager manager;
+    private boolean running = true;
 
 
     /**
      * Constructor for the client handler that initializes the necesssary variables
      *
-     * @param s The socket assigned to this handler
-     * @param dis The Input Stream assigned to the handler
-     * @param dos The Output Stream assigned to the handler
+     * @param s        The socket assigned to this handler
+     * @param dis      The Input Stream assigned to the handler
+     * @param dos      The Output Stream assigned to the handler
      * @param manager1 The UI Controller for the application
      * @param isServer Boolean that determines if the handler should also handle server data
      */
-    public ClientHandler(Socket s, InputStream dis, OutputStream dos, ButtonManager manager1, boolean isServer)
-    {
+    public ClientHandler(Socket s, InputStream dis, OutputStream dos, ButtonManager manager1, boolean isServer) {
         this.ManageServer = isServer;
         this.manager = manager1;
         this.s = s;
@@ -47,7 +43,7 @@ public class ClientHandler implements  Runnable{
     /**
      * Helper function that stops the loop in the thread, thus stopping the thread
      */
-    public void stop(){
+    public void stop() {
         running = false;
     }
 
@@ -56,22 +52,18 @@ public class ClientHandler implements  Runnable{
      * update the application canvas and send to other clients if designated as a server
      */
     @Override
-    public void run()
-    {
-        while (running)
-        {
+    public void run() {
+        while (running) {
             try {
                 BufferedImage image = ImageIO.read(ImageIO.createImageInputStream(s.getInputStream()));
-                if (ManageServer){
-                        ImageIO.write(image, "png", s.getOutputStream()); // Send image to client
-                        s.getOutputStream().flush();
-                        BrickPaintController.logger.info("[SERVER] pushed image to clients");
-                        manager.updateCanvas(image);
-                        //System.out.println("[SERVER] pushed image to clients");
+                if (ManageServer) {
+                    ImageIO.write(image, "png", s.getOutputStream()); // Send image to client
+                    s.getOutputStream().flush();
+                    BrickPaintController.logger.info("[SERVER] pushed image to clients");
+                    manager.updateCanvas(image);
                 } else {
                     manager.updateCanvas(image);
                     BrickPaintController.logger.info("[CLIENT] received image and updated canvas");
-                    //System.out.println("[CLIENT] received image and updated canvas");
                 }
             } catch (Exception e) {
                 try {
@@ -82,13 +74,12 @@ public class ClientHandler implements  Runnable{
             }
         }
 
-        try
-        {
+        try {
             // closing resources
             this.dis.close();
             this.dos.close();
 
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

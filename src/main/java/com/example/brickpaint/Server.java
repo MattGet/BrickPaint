@@ -16,26 +16,23 @@ import java.util.List;
  *
  * @author matde
  */
-public class Server implements Runnable  {
+public class Server implements Runnable {
     private final ServerSocket server;
 
     private final List<ClientHandler> handlers = new ArrayList<>();
-
-    private boolean running = true;
-
     private final ButtonManager manager;
-
+    private boolean running = true;
     private ServerDiscovery discovery;
 
     /**
      * Base constructor for the server thread that initializes the server socket
      *
-     * @param port The port to start the server on
-     * @param backlog The maximum number of connections that can be queued
-     * @param address The InetAddress that the server should use
+     * @param port     The port to start the server on
+     * @param backlog  The maximum number of connections that can be queued
+     * @param address  The InetAddress that the server should use
      * @param manager1 The UI Controller for the application
      */
-    public Server(int port, int backlog, InetAddress address, ButtonManager manager1){
+    public Server(int port, int backlog, InetAddress address, ButtonManager manager1) {
         this.manager = manager1;
         try {
             this.server = new ServerSocket(port, backlog, address);
@@ -47,7 +44,7 @@ public class Server implements Runnable  {
     /**
      * Helper function that will stop the server thread loop when called
      */
-    public void stop(){
+    public void stop() {
         running = false;
         if (discovery != null) discovery.Stop();
         try {
@@ -71,12 +68,10 @@ public class Server implements Runnable  {
 
         // running infinite loop for getting
         // client requests
-        while (running)
-        {
+        while (running) {
             Socket s = null;
 
-            try
-            {
+            try {
                 // socket that receives incoming client requests
                 s = server.accept();
 
@@ -95,8 +90,7 @@ public class Server implements Runnable  {
                 Thread t = new Thread(cH);
 
                 t.start();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 try {
                     if (s != null) s.close();
                 } catch (Exception ex) {
@@ -106,11 +100,11 @@ public class Server implements Runnable  {
         }
         try {
             // attempt to stop all active client threads on the server, then close the server
-            for (ClientHandler client: handlers) {
+            for (ClientHandler client : handlers) {
                 client.stop();
             }
             server.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

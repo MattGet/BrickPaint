@@ -80,9 +80,7 @@ public class UndoManager {
         history.push(image);
         if (history.size() >= 20) {
             history.remove(0);
-            //System.out.println("removed item");
         }
-        //System.out.println("Called LogU");
         trash.clear();
     }
 
@@ -96,9 +94,7 @@ public class UndoManager {
         trash.push(image);
         if (trash.size() >= 20) {
             trash.remove(0);
-            //System.out.println("removed item");
         }
-        //System.out.println("Called LogR");
     }
 
     /**
@@ -130,7 +126,6 @@ public class UndoManager {
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);
             logger.info("[{}}] Preformed Undo Op", panel.Name);
-            //System.out.println("Called Undo");
         } else {
             System.err.println("History stack was empty");
         }

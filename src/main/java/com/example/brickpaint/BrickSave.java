@@ -102,14 +102,10 @@ public abstract class BrickSave {
         try {
             File file = fileChooser.showSaveDialog(node.getScene().getWindow());
             String type = file.toString().substring(file.toString().lastIndexOf(".") + 1);
-            //System.out.println("File Type To Save = " + type);
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);
             WritableImage imageToSave = node.snapshot(parameters, null);
             BufferedImage bImage = SwingFXUtils.fromFXImage(imageToSave, null);
-            //System.out.println("Image type = " + bImage.getType());
-            //System.out.println("Data Type = " + bImage.getSampleModel().getDataType());
-            //System.out.println("Bands = " + bImage.getSampleModel().getNumBands());
             if (type.equals("jpg")) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.getButtonTypes().remove(ButtonType.OK);
@@ -162,12 +158,7 @@ public abstract class BrickSave {
                         type = "png";
                     }
                 }
-
             }
-
-            //for (String name: ImageIO.getReaderFormatNames()){
-            //    System.out.println("Format: " + name);
-            //}
             if (bImage != null) {
                 if (ImageIO.write(bImage, type, file)) {
                     Desktop desktop = Desktop.getDesktop();
@@ -236,10 +227,6 @@ public abstract class BrickSave {
                             0,
                             java.awt.Color.WHITE,
                             null);
-
-            //System.out.println("Changed File type to jpeg");
-            //System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
-            //System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
             return newBufferedImage;
         } else return null;
     }
@@ -265,10 +252,6 @@ public abstract class BrickSave {
                             0,
                             java.awt.Color.WHITE,
                             null);
-
-            //System.out.println("Changed File type to bmp");
-            //System.out.println("Data Type = " + newBufferedImage.getSampleModel().getDataType());
-            //System.out.println("Bands = " + newBufferedImage.getSampleModel().getNumBands());
             return newBufferedImage;
         } else return null;
     }

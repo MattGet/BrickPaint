@@ -16,58 +16,27 @@ import java.util.concurrent.*;
  *
  * @author matde
  */
-public class Client implements Runnable{
+public class Client implements Runnable {
 
     private final Socket client;
-
-    private ClientHandler handler;
-
     private final ButtonManager manager;
+    private ClientHandler handler;
 
 
     /**
      * Client constructor that initializes a socket with the specified params
      *
-     * @param port The port the client should run on
-     * @param address The Inetaddress the client should use
+     * @param port     The port the client should run on
+     * @param address  The Inetaddress the client should use
      * @param manager1 The UI Controller for the application
      */
-    public Client(int port, InetAddress address, ButtonManager manager1){
+    public Client(int port, InetAddress address, ButtonManager manager1) {
         this.manager = manager1;
         try {
             client = new Socket(address, port);
             BrickPaintController.logger.info("[CLIENT] A new client is connected : " + client);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Helper function that closes the client socket and handler thread
-     */
-    public void stop(){
-        // closing resources
-        try {
-            handler.stop();
-            client.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Sends an image to the connected server
-     *
-     * @param image The image that gets sent to the server
-     */
-    public void sendImageToServer(BufferedImage image){
-        try{
-            BufferedOutputStream outputStream = new BufferedOutputStream(client.getOutputStream());
-            ImageIO.write(image, "png", outputStream); // Send image to client
-            outputStream.flush();
-            client.getOutputStream().flush();
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 
@@ -105,6 +74,10 @@ public class Client implements Runnable{
      * to all designated ports on the local network, if it receives a proper response
      * then it will return the Inetaddress of that server
      *
+     * Modified from Web blog of Michiel De Mey
+     * @author matde, Michiel De Mey
+     * @see <a href="https://michieldemey.be/blog/network-discovery-using-udp-broadcast/">Source Code</a>
+     *
      * @param port The port to look for the server on
      * @return Inetaddress of the server
      * @throws IOException Fails to find server
@@ -119,7 +92,7 @@ public class Client implements Runnable{
 
             byte[] sendData = "DISCOVER_BRICKSERVER_REQUEST".getBytes();
 
-            //Try the 255.255.255.255 first
+            //Try 255.255.255.255 first
             try {
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), port);
                 c.send(sendPacket);
@@ -131,7 +104,7 @@ public class Client implements Runnable{
             // Broadcast the message over all the network interfaces
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = (NetworkInterface) interfaces.nextElement();
+                NetworkInterface networkInterface = interfaces.nextElement();
 
                 if (networkInterface.isLoopback() || !networkInterface.isUp()) {
                     continue; // Don't want to broadcast to the loopback interface
@@ -168,10 +141,9 @@ public class Client implements Runnable{
             //Check if the message is correct
             String message = new String(receivePacket.getData()).trim();
             if (message.equals("DISCOVER_BRICKSERVER_RESPONSE")) {
-                //DO SOMETHING WITH THE SERVER'S IP (for example, store it in your controller)
                 return (receivePacket.getAddress());
             }
-            //Close the port!
+            //Close the port
             c.close();
         } catch (IOException ex) {
             BrickPaintController.logger.error("[CLIENT] Error When Finding UDP Server!");
@@ -181,12 +153,40 @@ public class Client implements Runnable{
     }
 
     /**
+     * Helper function that closes the client socket and handler thread
+     */
+    public void stop() {
+        // closing resources
+        try {
+            handler.stop();
+            client.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Sends an image to the connected server
+     *
+     * @param image The image that gets sent to the server
+     */
+    public void sendImageToServer(BufferedImage image) {
+        try {
+            BufferedOutputStream outputStream = new BufferedOutputStream(client.getOutputStream());
+            ImageIO.write(image, "png", outputStream); // Send image to client
+            outputStream.flush();
+            client.getOutputStream().flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Thread method that initializes the client handler for this client
      */
     @Override
     public void run() {
-        try
-        {
+        try {
             // obtaining input and out streams
             InputStream dis = client.getInputStream();
             OutputStream dos = client.getOutputStream();
@@ -197,7 +197,7 @@ public class Client implements Runnable{
             Thread t = new Thread(handler);
 
             t.start();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -19,7 +19,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
 
 import java.awt.*;
@@ -70,12 +69,12 @@ public class ButtonManager {
     private final ToolBar Parent;
     private final BrickPaintController controller;
     private final List<ToggleButton> toggles;
-
-    private final boolean isAutoSaving = false;
+    private final ObservableList<Integer> DEFUALTRESOLUTIONS =
+            FXCollections.observableList(Arrays.asList(256, 512, 720, 1024, 1080, 1280, 1440, 1920));
+    private final BobRoss bobby;
     public Label aSaveTime = new Label("Auto Save In 1m 25s");
     public ComboBox<Integer> lineWidth =
             new ComboBox<>(FXCollections.observableList(Arrays.asList(1, 2, 4, 8, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72)));
-
     public ChoiceBox<BrickTools> lineStyle = new ChoiceBox<>();
     /**
      * allows the user to enter or select a value for the current canvas's width
@@ -90,15 +89,11 @@ public class ButtonManager {
      */
     public ComboBox<Integer> polySides =
             new ComboBox<>(FXCollections.observableList(Arrays.asList(3, 4, 5, 6, 7, 8, 10, 12, 16, 20, 24, 36)));
-
-    private final ObservableList<Integer> DEFUALTRESOLUTIONS =
-            FXCollections.observableList(Arrays.asList(256, 512, 720, 1024, 1080, 1280, 1440, 1920));
     public Spinner<Double> fillSensitivity = new Spinner<>(0.0d, 0.9d, 0.25d, 0.05d);
     public ColorPicker colorPicker = new ColorPicker(Color.BLACK);
     private TimerTask saveManager;
     private Timer timer;
-
-    private final BobRoss bobby;
+    private boolean updatingServer = false;
 
     /**
      * Default Constructor for the Button Manager, creates all the buttons with parameters and lays them out
@@ -332,9 +327,8 @@ public class ButtonManager {
         server.setSpacing(10);
         server.setAlignment(Pos.BASELINE_CENTER);
 
-        HBox everything = new HBox(clipBoard, s1, image, s2, tools, s3, shapes, s4, style, s5, color, s6, canvas, s7, save, s8, server);
-        everything.setSpacing(10);
-        parent.getItems().addAll(everything);
+        parent.setStyle("-fx-spacing: 10px;");
+        parent.getItems().addAll(clipBoard, s1, image, s2, tools, s3, shapes, s4, style, s5, color, s6, canvas, s7, save, s8, server);
         toggles = new ArrayList<>() {{
             add(tPointer);
             add(tPencil);
@@ -369,7 +363,6 @@ public class ButtonManager {
         curr.setFitWidth(20);
         return curr;
     }
-
 
     /**
      * sets up all the event listeners for the buttons and toggle buttons
@@ -700,46 +693,43 @@ public class ButtonManager {
      *
      * @param image The image to replace the canvas with
      */
-    public void updateCanvas(BufferedImage image){
+    public void updateCanvas(BufferedImage image) {
         BrickImage.Paste(controller.getCanvas(), SwingFXUtils.toFXImage(image, null));
     }
 
-    public void updateServer(){
+    public void updateServer() {
         Image image = getCanvasImage();
         bobby.sendClientImage(image);
     }
 
-    private boolean updatingServer = false;
-    private void handleServerToggle(ActionEvent event){
+    private void handleServerToggle(ActionEvent event) {
         updatingServer = true;
-        if (tMakeServer.isSelected()){
+        if (tMakeServer.isSelected()) {
             bobby.startServer();
             tConnectToServer.setSelected(true);
-        }
-        else{
+        } else {
             bobby.stopServer();
             tConnectToServer.setSelected(false);
         }
         updatingServer = false;
     }
 
-    private void handleClientToggle(ActionEvent event){
+    private void handleClientToggle(ActionEvent event) {
         if (updatingServer || bobby.isServer()) return;
-        if (tConnectToServer.isSelected()){
+        if (tConnectToServer.isSelected()) {
             bobby.startClient();
-        }
-        else {
+        } else {
             bobby.stopClient();
         }
     }
 
-    public void toggleClientUiSilent(boolean on){
+    public void toggleClientUiSilent(boolean on) {
         updatingServer = true;
         tConnectToServer.setSelected(on);
         updatingServer = false;
     }
 
-    public void toggleServerUiSilent(boolean on){
+    public void toggleServerUiSilent(boolean on) {
         updatingServer = true;
         tMakeServer.setSelected(on);
         updatingServer = false;
@@ -750,7 +740,9 @@ public class ButtonManager {
      *
      * @return Image of current canvas
      */
-    public Image getCanvasImage(){return controller.getCanvas().fetchImage();}
+    public Image getCanvasImage() {
+        return controller.getCanvas().fetchImage();
+    }
 
     /**
      * Tracks when a toggle button is selected and will deselect all other toggle buttons

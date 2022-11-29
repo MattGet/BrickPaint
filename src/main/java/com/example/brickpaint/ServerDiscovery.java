@@ -1,6 +1,5 @@
 package com.example.brickpaint;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -15,7 +14,7 @@ import java.net.SocketException;
  * @author matde, Michiel De Mey
  * @see <a href="https://michieldemey.be/blog/network-discovery-using-udp-broadcast/">Source Code</a>
  */
-public class ServerDiscovery implements Runnable{
+public class ServerDiscovery implements Runnable {
 
     private DatagramSocket socket;
     private boolean Running = true;
@@ -23,7 +22,7 @@ public class ServerDiscovery implements Runnable{
     /**
      * Helper function that stops the discovery thread loop
      */
-    public void Stop(){
+    public void Stop() {
         Running = false;
         socket.close();
     }
@@ -50,7 +49,6 @@ public class ServerDiscovery implements Runnable{
 
                 //Packet received
                 BrickPaintController.logger.info("[SERVER] Discovery packet received from: " + packet.getAddress().getHostAddress());
-                //BrickPaintController.logger.info("[SERVER] Packet received; data: " + new String(packet.getData()).trim());
 
                 //See if the packet holds the right command (message)
                 String message = new String(packet.getData()).trim();
@@ -65,7 +63,7 @@ public class ServerDiscovery implements Runnable{
                 }
             }
         } catch (Exception ex) {
-            if (ex.getClass() == SocketException.class){
+            if (ex.getClass() == SocketException.class) {
                 BrickPaintController.logger.error("[SERVER] Closed Discovery Thread");
                 return;
             }
