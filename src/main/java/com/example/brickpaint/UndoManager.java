@@ -125,7 +125,7 @@ public class UndoManager {
             panel.canvas.getGraphicsContext2D().drawImage(content, 0, 0);
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);
-            logger.info("[{}}] Preformed Undo Op", panel.Name);
+            logger.info("[{}] Preformed Undo Op", panel.Name);
         } else {
             System.err.println("History stack was empty");
         }
@@ -154,7 +154,7 @@ public class UndoManager {
             panel.root.setScaleX(x);
             panel.root.setScaleY(y);
             history.push(content);
-            logger.info("[{}}] Preformed Redo Op", panel.Name);
+            logger.info("[{}] Preformed Redo Op", panel.Name);
             //System.out.println("Called Redo");
         } else {
             System.err.println("Trash stack was empty");
