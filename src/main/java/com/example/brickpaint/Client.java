@@ -180,6 +180,7 @@ public class Client implements Runnable {
             ImageIO.write(image, "png", outputStream); // Send image to client
             outputStream.flush();
             client.getOutputStream().flush();
+            BrickPaintController.logger.info("[CLIENT] pushed image to server");
         } catch (Exception e) {
             e.printStackTrace();
         }

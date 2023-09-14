@@ -696,14 +696,13 @@ public class ButtonManager {
         BrickImage.Paste(controller.getCanvas(), SwingFXUtils.toFXImage(image, null));
     }
 
-    public void refreshServerPicture(){
-        controller.getCanvas().clearAll();
-        this.updateServer();
-    }
-
     public void updateServer() {
         Image image = getCanvasImage();
         bobby.sendClientImage(image);
+    }
+
+    public void ClearAll(){
+        controller.getCanvas().clearAll();
     }
 
     private void handleServerToggle(ActionEvent event) {

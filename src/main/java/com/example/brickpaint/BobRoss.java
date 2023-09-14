@@ -134,8 +134,10 @@ public class BobRoss {
             Thread t = new Thread(client);
             t.start();
             this.isClient = true;
-            if (!isServer) BrickPaintController.logger.info("[APP] Starting Client");
-            Platform.runLater(this.manager::refreshServerPicture);
+            if (!isServer) {
+                BrickPaintController.logger.info("[APP] Starting Client");
+                manager.ClearAll();
+            }
             Notifications.create()
                     .title("Started Client")
                     .text("successfully started client connection!")

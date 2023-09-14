@@ -1,9 +1,12 @@
 package com.example.brickpaint;
 
 
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -76,6 +79,22 @@ public class Server implements Runnable {
         }
     }
 
+    public void refreshClients(){
+        for (Socket socket: clients) {
+            try{
+                BufferedImage image = SwingFXUtils.fromFXImage(manager.getCanvasImage(), null);
+                BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
+                ImageIO.write(image, "png", outputStream); // Send image to clients
+                outputStream.flush();
+                socket.getOutputStream().flush();
+                BrickPaintController.logger.info("[SERVER] pushed image to clients");
+            }
+            catch (Exception ex){
+                //BrickPaintController.logger.error("[SERVER] Failed to push image to clients");
+            }
+        }
+    }
+
 
     /**
      * Main thread the runs the server, it will look for incoming
@@ -109,6 +128,7 @@ public class Server implements Runnable {
                 Thread t = new Thread(cH);
 
                 t.start();
+                Platform.runLater(this::refreshClients);
             } catch (Exception e) {
                 try {
                     if (s != null) s.close();
