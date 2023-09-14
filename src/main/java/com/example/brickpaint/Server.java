@@ -1,6 +1,11 @@
 package com.example.brickpaint;
 
 
+import javafx.embed.swing.SwingFXUtils;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,6 +25,8 @@ public class Server implements Runnable {
     private final ServerSocket server;
 
     private final List<ClientHandler> handlers = new ArrayList<>();
+    
+    private final List<Socket> clients = new ArrayList<>();
     private final ButtonManager manager;
     private boolean running = true;
     private ServerDiscovery discovery;
@@ -53,6 +60,21 @@ public class Server implements Runnable {
             throw new RuntimeException(e);
         }
     }
+    
+    public void updateClients(BufferedImage image){
+        for (Socket socket: clients) {
+            try{
+                BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
+                ImageIO.write(image, "png", outputStream); // Send image to clients
+                outputStream.flush();
+                socket.getOutputStream().flush();
+                BrickPaintController.logger.info("[SERVER] pushed image to clients");
+            }
+           catch (Exception ex){
+               //BrickPaintController.logger.error("[SERVER] Failed to push image to clients");
+           }
+        }
+    }
 
 
     /**
@@ -77,14 +99,11 @@ public class Server implements Runnable {
 
                 BrickPaintController.logger.info("[SERVER] A new client is connected : " + s);
 
-                // obtaining input and out streams
-                InputStream dis = s.getInputStream();
-                OutputStream dos = s.getOutputStream();
-
                 BrickPaintController.logger.info("[SERVER] Assigning new thread for this client");
 
-                ClientHandler cH = new ClientHandler(s, dis, dos, manager, true);
+                ClientHandler cH = new ClientHandler(s, manager, this);
                 handlers.add(cH);
+                clients.add(s);
 
                 // create a new thread object
                 Thread t = new Thread(cH);

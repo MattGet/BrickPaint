@@ -1,7 +1,11 @@
 package com.example.brickpaint;
 
+import javafx.embed.swing.SwingFXUtils;
+
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,10 +19,8 @@ import java.net.Socket;
  * @author matde
  */
 public class ClientHandler implements Runnable {
-    final InputStream dis;
-    final OutputStream dos;
-    final Socket s;
-    private final boolean ManageServer;
+    final Socket socket;
+    private final Server ManageServer;
     private final ButtonManager manager;
     private boolean running = true;
 
@@ -27,17 +29,13 @@ public class ClientHandler implements Runnable {
      * Constructor for the client handler that initializes the necesssary variables
      *
      * @param s        The socket assigned to this handler
-     * @param dis      The Input Stream assigned to the handler
-     * @param dos      The Output Stream assigned to the handler
      * @param manager1 The UI Controller for the application
-     * @param isServer Boolean that determines if the handler should also handle server data
+     * @param server Boolean that determines if the handler should also handle server data
      */
-    public ClientHandler(Socket s, InputStream dis, OutputStream dos, ButtonManager manager1, boolean isServer) {
-        this.ManageServer = isServer;
+    public ClientHandler(Socket s, ButtonManager manager1, Server server) {
+        this.ManageServer = server;
         this.manager = manager1;
-        this.s = s;
-        this.dis = dis;
-        this.dos = dos;
+        this.socket = s;
     }
 
     /**
@@ -55,12 +53,11 @@ public class ClientHandler implements Runnable {
     public void run() {
         while (running) {
             try {
-                BufferedImage image = ImageIO.read(ImageIO.createImageInputStream(s.getInputStream()));
-                if (ManageServer) {
-                    ImageIO.write(image, "png", s.getOutputStream()); // Send image to client
-                    s.getOutputStream().flush();
-                    BrickPaintController.logger.info("[SERVER] pushed image to clients");
-                    manager.updateCanvas(image);
+                ImageInputStream input = ImageIO.createImageInputStream(socket.getInputStream());
+                if (input == null) throw new Exception("Image Input Stream Was Null");
+                BufferedImage image = ImageIO.read(input);
+                if (ManageServer != null) {
+                    ManageServer.updateClients(image);
                 } else {
                     manager.updateCanvas(image);
                     BrickPaintController.logger.info("[CLIENT] received image and updated canvas");
@@ -75,9 +72,7 @@ public class ClientHandler implements Runnable {
         }
 
         try {
-            // closing resources
-            this.dis.close();
-            this.dos.close();
+            this.socket.close();
 
         } catch (IOException e) {
             e.printStackTrace();

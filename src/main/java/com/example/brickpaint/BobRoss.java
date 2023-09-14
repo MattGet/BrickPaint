@@ -1,5 +1,6 @@
 package com.example.brickpaint;
 
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
@@ -17,9 +18,7 @@ import java.net.InetAddress;
 public class BobRoss {
 
     private final ButtonManager manager;
-
     private Server server;
-
     private Client client;
     private boolean isServer = false;
     private boolean isClient = false;
@@ -136,6 +135,7 @@ public class BobRoss {
             t.start();
             this.isClient = true;
             if (!isServer) BrickPaintController.logger.info("[APP] Starting Client");
+            Platform.runLater(this.manager::refreshServerPicture);
             Notifications.create()
                     .title("Started Client")
                     .text("successfully started client connection!")

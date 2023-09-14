@@ -181,8 +181,6 @@ public abstract class ArtMath {
      * @return Point2D corresponding to the top left of the rectangle
      */
     public static javafx.geometry.Point2D getTopLeft(double x1, double y1, double x2, double y2) {
-        double w = abs(x2 - x1);
-        double h = abs(y2 - y1);
         if (x2 >= x1 && y2 >= y1) {                     //draw down & right
             return new javafx.geometry.Point2D(x1, y1);
         } else if (x2 >= x1) {                          //drawing up & right

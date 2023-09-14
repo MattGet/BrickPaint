@@ -132,6 +132,7 @@ public class CanvasPanel {
         sketchCanvas.setWidth(CWIDTH);
         canvas.setHeight(CHEIGHT);
         canvas.setWidth(CWIDTH);
+        canvas.getGraphicsContext2D().setImageSmoothing(true);
 
         AnchorPane canvasPane = new AnchorPane(canvas);
         AnchorPane sCPane = new AnchorPane(sketchCanvas);

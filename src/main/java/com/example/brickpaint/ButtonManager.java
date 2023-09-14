@@ -21,11 +21,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.controlsfx.control.ToggleSwitch;
 
-import java.awt.*;
+import java.awt.Desktop;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.*;
 
 import static com.example.brickpaint.BrickPaintController.clamp;
@@ -695,6 +694,11 @@ public class ButtonManager {
      */
     public void updateCanvas(BufferedImage image) {
         BrickImage.Paste(controller.getCanvas(), SwingFXUtils.toFXImage(image, null));
+    }
+
+    public void refreshServerPicture(){
+        controller.getCanvas().clearAll();
+        this.updateServer();
     }
 
     public void updateServer() {

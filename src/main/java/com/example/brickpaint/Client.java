@@ -1,5 +1,9 @@
 package com.example.brickpaint;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
@@ -187,11 +191,7 @@ public class Client implements Runnable {
     @Override
     public void run() {
         try {
-            // obtaining input and out streams
-            InputStream dis = client.getInputStream();
-            OutputStream dos = client.getOutputStream();
-
-            handler = new ClientHandler(client, dis, dos, manager, false);
+            handler = new ClientHandler(client, manager, null);
             BrickPaintController.logger.info("[CLIENT] Assigning new thread to handle incoming data");
             // create a new thread object
             Thread t = new Thread(handler);
