@@ -105,6 +105,8 @@ public class CanvasPanel {
     private boolean useFill = false;
     private Image selection;
 
+    private boolean movingSelection = false;
+
     /**
      * Default Constructor
      *
@@ -404,14 +406,21 @@ public class CanvasPanel {
                 }
                 case SelectionTool -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, false);
-                    selection = getSubImage(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), this.canvas);
-                    if (insideCanvas) {
-                        select1 = initialTouch.getX();
-                        select2 = initialTouch.getY();
-                        select3 = event.getX();
-                        select4 = event.getY();
-                        //System.out.println("s3 = " + event.getX() + " s4 = " + event.getY());
+                    if (movingSelection){
+                        movingSelection = false;
+                        Point2D point = new Point2D(event.getX() - (selection.getWidth() / 2), event.getY() - (selection.getHeight() / 2));
+                        if (insideCanvas) BrickImage.Paste(this, selection, point);
+                    }
+                    else {
+                        ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, false);
+                        selection = getSubImage(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), this.canvas);
+                        if (insideCanvas) {
+                            select1 = initialTouch.getX();
+                            select2 = initialTouch.getY();
+                            select3 = event.getX();
+                            select4 = event.getY();
+                            //System.out.println("s3 = " + event.getX() + " s4 = " + event.getY());
+                        }
                     }
 
                     //if(validDragSelection) validDragSelection = false;
@@ -557,6 +566,29 @@ public class CanvasPanel {
                 selection = null;
                 BrickPaintController.logger.info("[{}] Cropped Selected Image", this.Name);
             }
+        }
+    }
+
+    public void selectionMove(){
+        if (selection != null){
+            sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            undoManager.LogU(this);
+            double x1 = select1;
+            double y1 = select2;
+            double x2 = select3;
+            double y2 = select4;
+            double w = Math.abs(x2 - x1);
+            double h = Math.abs(y2 - y1);
+            {
+                if (x2 >= x1 && y2 >= y1) {         //draw down & right
+                    gc.clearRect(x1, y1, w, h);
+                } else //draw down & left
+                    //draw up & left
+                    if (x2 >= x1) {  //drawing up & right
+                        gc.clearRect(x1, y2, w, h);
+                    } else gc.clearRect(x2, Math.min(y2, y1), w, h);
+            }
+            movingSelection = true;
         }
     }
 
@@ -846,6 +878,15 @@ public class CanvasPanel {
                 } else {
                     sc.strokeLine(polyLine.get(0).getX(), polyLine.get(0).getY(), event.getX(), event.getY());
                 }
+            }
+        }
+        if (controller.getToolType() == BrickTools.SelectionTool){
+            if (movingSelection && selection != null){
+                sc.clearRect(0,0,sketchCanvas.getWidth(), sketchCanvas.getHeight());
+                Point2D point = new Point2D(event.getX() - (selection.getWidth() / 2), event.getY() - (selection.getHeight() / 2));
+                if (insideCanvas) BrickImage.Paste(sc, selection, point);
+                ArtMath.DrawRect(event.getX() - (selection.getWidth() / 2), event.getY() - (selection.getHeight() / 2),
+                        event.getX() + (selection.getWidth() / 2), event.getY() + (selection.getHeight() / 2), sc, false);
             }
         }
     }

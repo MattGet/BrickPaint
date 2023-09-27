@@ -97,6 +97,9 @@ public class BrickKeys {
             if (key.getCode() == KeyCode.A && key.isControlDown() && key.isAltDown()) {
                 controller.handleOpenAboutMenu();
             }
+            if (key.getCode() == KeyCode.M && key.isControlDown()){
+                controller.getCanvas().selectionMove();
+            }
         });
     }
 

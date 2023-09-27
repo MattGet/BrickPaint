@@ -4,6 +4,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
@@ -40,6 +41,17 @@ public abstract class BrickImage {
      */
     public static void Paste(CanvasPanel panel, Image image, Point2D point) {
         panel.canvas.getGraphicsContext2D().drawImage(image, point.getX(), point.getY());
+    }
+
+    /**
+     * Adds an image to a Canvas component in javaFX at a specified position
+     *
+     * @param image The image to insert into the canvas
+     * @param gc The Graphics Context Class to add the image to
+     * @param point the location of the top left of the image
+     */
+    public static void Paste(GraphicsContext gc, Image image, Point2D point) {
+        gc.drawImage(image, point.getX(), point.getY());
     }
 
     /**
