@@ -1,5 +1,28 @@
 BrickPaint, A JavaFX Drawing App Created By Matthew Dembny
 
+BrickPaint Release V 1.1.0 -  9/15/2023
+
+New features:
+  * Improved Codebase
+  * Fixed server connection only working from client to server
+  * Added capability for the server to handle multiple clients
+  * Made clients canvas automatically sync to the server on join
+
+Known issues:
+  * Adding large images to the canvas may crash the JVM as it runs out of memory (VRam)
+  * Drawing Writable or Buffered Images to the canvas will cause the image to be blurry due to a bug involving HighDPI in Windows
+  * Collaborate mode can have issues sending image data
+  * Auto Server Connection doesn't work well on enterprise networks
+
+Possible features in the future:
+  * Dark Mode
+  * Improved Eraser that supports Transparency
+  * Improved live drawing of shapes
+
+Links:
+  * Java Doc Website: https://mattget.github.io/PaintJavaDocs/com.example.brickpaint/module-summary.html
+  * GitHub Repo: https://github.com/MattGet/BrickPaint
+
 BrickPaint Initial Release V 1.0.0 -  11/28/2022
 
 New features:

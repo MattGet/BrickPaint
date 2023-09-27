@@ -176,7 +176,6 @@ public class CanvasPanel {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-
         UpdateSize();
         pane.setOnScroll(this::onScroll);
         pane.setOnMouseDragged(this::onDrag);

@@ -23,6 +23,8 @@ public class BobRoss {
     private boolean isServer = false;
     private boolean isClient = false;
 
+    private static final int port = 56789;
+
     /**
      * Constructor that passes the applications UI controller to this class
      *
@@ -59,7 +61,7 @@ public class BobRoss {
     public void startServer() {
         if (isServer) return;
         try {
-            server = new Server(56789, 1, InetAddress.getLocalHost(), manager);
+            server = new Server(port, 2, InetAddress.getLocalHost(), manager);
             Thread t = new Thread(server);
             t.start();
             isServer = true;
@@ -112,11 +114,11 @@ public class BobRoss {
      * Starts a client for the application and creates a notification
      */
     public void startClient() {
-        //attempts to find the coorect address to start the client connection with
+        //attempts to find the correct address to start the client connection with
         InetAddress address;
         try {
             BrickPaintController.logger.info("[CLIENT] Starting Server Discovery");
-            address = Client.discoverServer(56789);
+            address = Client.discoverServer(port);
             BrickPaintController.logger.info("[CLIENT] Found Server Address: " + address);
         } catch (IOException ex) {
             BrickPaintController.logger.error("[CLIENT] >>> " + ex);
@@ -130,7 +132,7 @@ public class BobRoss {
 
         //attempts to create the client
         try {
-            client = new Client(56789, address, manager);
+            client = new Client(port, address, manager);
             Thread t = new Thread(client);
             t.start();
             this.isClient = true;
