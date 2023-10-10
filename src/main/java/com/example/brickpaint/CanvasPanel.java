@@ -13,6 +13,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -23,6 +24,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontSmoothingType;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 
@@ -31,6 +34,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.*;
 
 
@@ -93,6 +97,7 @@ public class CanvasPanel {
      * Coordinates of the mouse
      */
     private Point2D currTouch;
+
     /**
      * The instance of the zoom operator class that controls the movement and scale of this canvas panel
      */
@@ -104,6 +109,8 @@ public class CanvasPanel {
     private double select1, select2, select3, select4;
     private boolean useFill = false;
     private Image selection;
+
+    private String userText = "Default Text";
 
     private boolean movingSelection = false;
 
@@ -406,12 +413,12 @@ public class CanvasPanel {
                 }
                 case SelectionTool -> {
                     sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                    if (movingSelection){
+                    if (movingSelection) {
                         movingSelection = false;
+                        controller.buttonManager.resetToggles();
                         Point2D point = new Point2D(event.getX() - (selection.getWidth() / 2), event.getY() - (selection.getHeight() / 2));
                         if (insideCanvas) BrickImage.Paste(this, selection, point);
-                    }
-                    else {
+                    } else {
                         ArtMath.DrawRect(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), sc, false);
                         selection = getSubImage(initialTouch.getX(), initialTouch.getY(), event.getX(), event.getY(), this.canvas);
                         if (insideCanvas) {
@@ -426,7 +433,21 @@ public class CanvasPanel {
                     //if(validDragSelection) validDragSelection = false;
                 }
                 case BucketFill -> {
-                    FloodFill(event.getX(), event.getY());
+                    FloodFill(event.getX(), event.getY(), false);
+                }
+                case SmartEraser -> {
+                    FloodFill(event.getX(), event.getY(), true);
+                }
+                case Text -> {
+                    initDraw(gc);
+                    TextInputDialog dialog = new TextInputDialog(userText);
+                    dialog.setHeaderText("Input Text");
+                    Optional<String> response = dialog.showAndWait();
+                    if (response.isPresent()) {
+                        String name = response.get();
+                        userText = name;
+                        gc.strokeText(name, event.getX(), event.getY());
+                    }
                 }
                 default -> {
                 }
@@ -453,11 +474,12 @@ public class CanvasPanel {
      * @param x The x position of the point to start the flood fill
      * @param y The y position of the point to start the flood fill
      */
-    public void FloodFill(double x, double y) {
+    public void FloodFill(double x, double y, boolean erase) {
         gc.setEffect(null);
         undoManager.LogU(this);
         double sensitivity = controller.buttonManager.fillSensitivity.getValue();
         Color setColor = controller.buttonManager.colorPicker.getValue();
+        if (erase) setColor = Color.TRANSPARENT;
         WritableImage canvasSnapshot = BrickImage.getScaledImage(this.canvas);
         Color startingColor = canvasSnapshot.getPixelReader().getColor((int) Math.floor(x), (int) Math.floor(y));
         FloodFill fill = new FloodFill(canvasSnapshot, (int) Math.floor(x),
@@ -473,6 +495,7 @@ public class CanvasPanel {
             }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             BrickPaintController.logger.error("[{}] Flood Fill Operation Encountered a Fatal Error!", this.Name);
+            executor.shutdownNow();
             throw new RuntimeException(e);
         }
     }
@@ -488,6 +511,7 @@ public class CanvasPanel {
             ClipboardContent content = new ClipboardContent();
             content.putImage(selection);
             clipboard.setContent(content);
+            controller.buttonManager.resetToggles();
             BrickPaintController.logger.info("[{}] Copied Selected Image", this.Name);
             Notifications.create()
                     .title("Copy Image")
@@ -526,6 +550,7 @@ public class CanvasPanel {
             ClipboardContent content = new ClipboardContent();
             content.putImage(selection);
             clipboard.setContent(content);
+            controller.buttonManager.resetToggles();
             BrickPaintController.logger.info("[{}] Cut Selected Image", this.Name);
             Notifications.create()
                     .title("Cut Image")
@@ -541,14 +566,24 @@ public class CanvasPanel {
      * Draws the currently selected image to the canvas at the mouse position or top left of the canvas
      */
     public void selectionPaste() {
-        if (controller.getToolType() == BrickTools.SelectionTool) {
-            if (selection != null) {
+        if (selection != null) {
+            sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            undoManager.LogU(this);
+            Point2D point = new Point2D(currTouch.getX() - (selection.getWidth() / 2), currTouch.getY() - (selection.getHeight() / 2));
+            if (insideCanvas) BrickImage.Paste(this, selection, point);
+            else BrickImage.Paste(this, selection);
+            BrickPaintController.logger.info("[{}] Pasted Selected Image", this.Name);
+        } else {
+            try {
                 sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
                 undoManager.LogU(this);
-                Point2D point = new Point2D(currTouch.getX() - (selection.getWidth() / 2), currTouch.getY() - (selection.getHeight() / 2));
-                if (insideCanvas) BrickImage.Paste(this, selection, point);
-                else BrickImage.Paste(this, selection);
+                Image clipContent = Clipboard.getSystemClipboard().getImage();
+                Point2D point = new Point2D(currTouch.getX() - (clipContent.getWidth() / 2), currTouch.getY() - (clipContent.getHeight() / 2));
+                if (insideCanvas) BrickImage.Paste(this, clipContent, point);
+                else BrickImage.Paste(this, clipContent);
                 BrickPaintController.logger.info("[{}] Pasted Selected Image", this.Name);
+            } catch (Exception ex) {
+                BrickPaintController.logger.error("[{}] Clipboard Content was Empty", this.Name);
             }
         }
     }
@@ -565,12 +600,13 @@ public class CanvasPanel {
                 BrickImage.Insert(this, selection);
                 selection = null;
                 BrickPaintController.logger.info("[{}] Cropped Selected Image", this.Name);
+                controller.buttonManager.resetToggles();
             }
         }
     }
 
-    public void selectionMove(){
-        if (selection != null){
+    public void selectionMove() {
+        if (selection != null) {
             sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
             undoManager.LogU(this);
             double x1 = select1;
@@ -588,6 +624,11 @@ public class CanvasPanel {
                         gc.clearRect(x1, y2, w, h);
                     } else gc.clearRect(x2, Math.min(y2, y1), w, h);
             }
+            sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            Point2D point = new Point2D(currTouch.getX() - (selection.getWidth() / 2), currTouch.getY() - (selection.getHeight() / 2));
+            if (insideCanvas) BrickImage.Paste(sc, selection, point);
+            ArtMath.DrawRect(currTouch.getX() - (selection.getWidth() / 2), currTouch.getY() - (selection.getHeight() / 2),
+                    currTouch.getX() + (selection.getWidth() / 2), currTouch.getY() + (selection.getHeight() / 2), sc, false);
             movingSelection = true;
         }
     }
@@ -827,6 +868,13 @@ public class CanvasPanel {
             gc.setLineDashOffset(10);
             gc.setEffect(null);
             gc.setStroke(Color.LIGHTBLUE);
+        } else if (controller.getToolType() == BrickTools.Text){
+            gc.setLineDashes(0d);
+            gc.setLineWidth(1);
+            gc.setEffect(null);
+            Font font = new Font("moe", width);
+            gc.setFont(font);
+            gc.setFontSmoothingType(FontSmoothingType.LCD);
         } else {
             gc.setLineCap(StrokeLineCap.SQUARE);
             gc.setEffect(null);
@@ -880,14 +928,12 @@ public class CanvasPanel {
                 }
             }
         }
-        if (controller.getToolType() == BrickTools.SelectionTool){
-            if (movingSelection && selection != null){
-                sc.clearRect(0,0,sketchCanvas.getWidth(), sketchCanvas.getHeight());
-                Point2D point = new Point2D(event.getX() - (selection.getWidth() / 2), event.getY() - (selection.getHeight() / 2));
-                if (insideCanvas) BrickImage.Paste(sc, selection, point);
-                ArtMath.DrawRect(event.getX() - (selection.getWidth() / 2), event.getY() - (selection.getHeight() / 2),
-                        event.getX() + (selection.getWidth() / 2), event.getY() + (selection.getHeight() / 2), sc, false);
-            }
+        if (movingSelection && selection != null) {
+            sc.clearRect(0, 0, sketchCanvas.getWidth(), sketchCanvas.getHeight());
+            Point2D point = new Point2D(event.getX() - (selection.getWidth() / 2), event.getY() - (selection.getHeight() / 2));
+            if (insideCanvas) BrickImage.Paste(sc, selection, point);
+            ArtMath.DrawRect(event.getX() - (selection.getWidth() / 2), event.getY() - (selection.getHeight() / 2),
+                    event.getX() + (selection.getWidth() / 2), event.getY() + (selection.getHeight() / 2), sc, false);
         }
     }
 

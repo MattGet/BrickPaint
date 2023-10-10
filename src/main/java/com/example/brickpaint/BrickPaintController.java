@@ -63,7 +63,7 @@ public class BrickPaintController {
     /**
      * The instance of the BrickKeys class that manages KeyBinds for this controller
      */
-    private BrickKeys keyBinds;
+    public BrickKeys keyBinds;
     /**
      * The toolbar in which all the tools GUI will be constructed under
      */

@@ -21,5 +21,7 @@ public enum BrickTools {
     ColorGrabber,
     SelectionTool,
     BucketFill,
+    SmartEraser,
+    Text,
     Nothing,
 }

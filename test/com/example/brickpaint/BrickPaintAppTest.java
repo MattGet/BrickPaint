@@ -3,6 +3,7 @@ package com.example.brickpaint;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -26,12 +27,12 @@ public class BrickPaintAppTest {
     BrickPaintController controller;
 
     /**
-     * Will be called with {@code @Before} semantics, i. e. before each test method.
+     * Will be called with {@code @Before} semantics, i.e. before each test method.
      */
     @Start
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(BrickPaintApp.class.getResource("BrickPaint.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
+        Scene scene = new Scene(fxmlLoader.load(), 1920, 1080);
         stage.setTitle("Brick Paint");
         stage2 = stage;
         stage.setScene(scene);
@@ -44,7 +45,6 @@ public class BrickPaintAppTest {
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, controller::OnClose);
         stage.show();
         controller.Start();
-
     }
 
     @Test
@@ -69,7 +69,7 @@ public class BrickPaintAppTest {
 
     @Test
     public void testAutoSaveButton(FxRobot robot){
-        robot.clickOn(1230, 50, MouseButton.PRIMARY);
+        robot.clickOn(1300, 50, MouseButton.PRIMARY);
 
         assertFalse(controller.buttonManager.tAutoSave.isSelected());
     }

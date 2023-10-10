@@ -6,8 +6,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.WindowEvent;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -99,6 +102,13 @@ public class BrickKeys {
             }
             if (key.getCode() == KeyCode.M && key.isControlDown()){
                 controller.getCanvas().selectionMove();
+            }
+            if (key.getCode() == KeyCode.Z){
+                String musicFile = "C:/Users/matde/Music/Video Projects/Rick Astley - Never Gonna Give You Up.mp3";     // For example
+                String musicFile2 = "C:/Users/matde/Music/Video Projects/Bright-Future-Corporate-music - Copy (2).mp3";
+                Media sound = new Media(new File(musicFile).toURI().toString());
+                MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                mediaPlayer.play();
             }
         });
     }

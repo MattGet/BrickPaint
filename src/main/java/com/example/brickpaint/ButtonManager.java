@@ -58,12 +58,12 @@ public class ButtonManager {
 
     private static final Image rRight = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/right_rotate_icon.png")));
     private static final Image rLeft = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/left_rotate_icon.png")));
-
     private static final Image bucket = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/bucket.png")));
+    private static final Image text = new Image(Objects.requireNonNull(BrickPaintApp.class.getResourceAsStream("Icons/text_icon.png")));
     public final ToggleSwitch tAutoSave, tFillShapes;
     private final HashMap<ToggleButton, SelectionListener> toggleButtonToSelectionListener = new HashMap<>();
     private final ToggleButton tPointer, tPencil, tRainbow, tEraser, tLine, tRect, tRRect, tSquare, tCircle, tEllipse,
-            tPolygon, tCustom, tGrabber, tSelect, tBucket, tMakeServer, tConnectToServer;
+            tPolygon, tCustom, tGrabber, tSelect, tBucket, tMakeServer, tConnectToServer, tSmartErase, tText;
     private final Button tClipboard, tCut, tCopy, tCrop, tFlipV, tFlipH, tRright, tRleft, tOpenFolder;
     private final ToolBar Parent;
     private final BrickPaintController controller;
@@ -167,7 +167,10 @@ public class ButtonManager {
         tEraser = new ToggleButton();
         tEraser.setGraphic(getImage(eras));
         tEraser.setTooltip(new Tooltip("Eraser"));
-        HBox v1 = new HBox(tPointer, tEraser, fillSensitivity);
+        tSmartErase = new ToggleButton();
+        tSmartErase.setGraphic(getImage(eras));
+        tSmartErase.setTooltip(new Tooltip("Smart Eraser"));
+        HBox v1 = new HBox(tPointer, tEraser, tSmartErase, fillSensitivity);
         v1.paddingProperty().setValue(new Insets(10, 0, 0, 0));
         v1.setSpacing(10);
 
@@ -177,12 +180,15 @@ public class ButtonManager {
         tRainbow = new ToggleButton();
         tRainbow.setGraphic(getImage(rain));
         tRainbow.setTooltip(new Tooltip("Rainbow Pencil"));
+        tText = new ToggleButton();
+        tText.setGraphic(getImage(text));
+        tText.setTooltip(new Tooltip("Text Tool"));
         tBucket = new ToggleButton();
         tBucket.setGraphic(getImage(bucket));
         tBucket.setTooltip(new Tooltip("Bucket Fill"));
         tBucket.setMaxWidth(65);
         tBucket.setPrefWidth(65);
-        HBox v2 = new HBox(tPencil, tRainbow, tBucket);
+        HBox v2 = new HBox(tPencil, tRainbow, tText, tBucket);
         v2.setSpacing(10);
 
         Label bTools = new Label("Tools");
@@ -332,6 +338,8 @@ public class ButtonManager {
             add(tPointer);
             add(tPencil);
             add(tRainbow);
+            add(tText);
+            add(tSmartErase);
             add(tEraser);
             add(tLine);
             add(tRect);
@@ -548,6 +556,7 @@ public class ButtonManager {
      */
     public void resetToggles() {
         tPointer.setSelected(true);
+        this.changeCursor();
     }
 
     /**
@@ -578,7 +587,7 @@ public class ButtonManager {
                 ImageCursor cursor = new ImageCursor(bucket, bucket.getWidth() / 1.25, bucket.getHeight() / 1.25);
                 Parent.getScene().setCursor(cursor);
             }
-            case SelectionTool, Line, Rectangle, RoundRectangle, Square, Circle, Oval, Polygon, CustomShape -> {
+            case Text, SmartEraser, SelectionTool, Line, Rectangle, RoundRectangle, Square, Circle, Oval, Polygon, CustomShape -> {
                 Parent.getScene().setCursor(Cursor.CROSSHAIR);
             }
         }
@@ -636,40 +645,46 @@ public class ButtonManager {
             case 3 -> {
                 return BrickTools.RainbowPencil;
             }
-            case 4 -> {
-                return BrickTools.Eraser;
+            case 4 ->{
+                return BrickTools.Text;
             }
-            case 5 -> {
-                return BrickTools.Line;
+            case 5 ->{
+                return BrickTools.SmartEraser;
             }
             case 6 -> {
-                return BrickTools.Rectangle;
+                return BrickTools.Eraser;
             }
             case 7 -> {
-                return BrickTools.RoundRectangle;
+                return BrickTools.Line;
             }
             case 8 -> {
-                return BrickTools.Square;
+                return BrickTools.Rectangle;
             }
             case 9 -> {
-                return BrickTools.Circle;
+                return BrickTools.RoundRectangle;
             }
             case 10 -> {
-                return BrickTools.Oval;
+                return BrickTools.Square;
             }
             case 11 -> {
-                return BrickTools.Polygon;
+                return BrickTools.Circle;
             }
             case 12 -> {
-                return BrickTools.CustomShape;
+                return BrickTools.Oval;
             }
             case 13 -> {
-                return BrickTools.ColorGrabber;
+                return BrickTools.Polygon;
             }
             case 14 -> {
-                return BrickTools.SelectionTool;
+                return BrickTools.CustomShape;
             }
             case 15 -> {
+                return BrickTools.ColorGrabber;
+            }
+            case 16 -> {
+                return BrickTools.SelectionTool;
+            }
+            case 17 -> {
                 return BrickTools.BucketFill;
             }
             default -> {
